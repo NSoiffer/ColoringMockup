@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Coloring mockup</title>
+    <meta charset="utf-8"/>
+    <script type="module" src="coloring.js"> </script>
+    <style>
+        .palettes {
+            background-color: lightgoldenrodyellow;
+        }
+        .grid {
+            display: inline-grid;
+            margin-left: .5em;
+            margin-right: .5em;
+        }
+
+        #lc-letters, #uc-letters, #digits {
+            grid-template-columns: repeat(5, auto);
+        }
+
+        #symbols {
+            grid-template-columns: repeat(4, auto);
+        }
+
+
+        .button {
+            width: 2em;
+            text-align: center;
+            border-radius: 4px;
+            transition-duration: 500ms;
+            transition-property: border;
+        }
+        .button:hover {
+            box-shadow: 3px 3px #888888;
+        }
+
+
+      #color-input {
+        font-size: 150%;
+        border-style: solid;
+        border-width: 1px;
+        padding: .3em;
+        width: 20em;
+      }
+
+      #char-table {
+        margin-top: 4ex;
+        margin-bottom: 2ex;
+      }
+      #char-table td{
+        text-align: center;
+      }
+
+      #buttons {
+        text-align: center;
+      }
+
+      #buttons input {
+          margin: 10px;
+      }
+
+      #edit-input {
+          display: inline-block;
+          width: 3em;
+          padding: .2ex;
+          background-color: white;
+          border: 2px solid black;
+      }
+
+      .action-area {
+          background-color: lightblue;
+      }
+    </style>
+
+    </head>
+    <body>
+        <h1>Coloring mockup</h1>
+        <p>In the area below, enter a character along with:
+            <ul>
+                <li> its foreground color using the color picker (default is black)</li>
+                <li> its foreground color using the color picker (default is transparent, which is white right now)</li>
+                <li> its style -- one of italic, bold, or normal (default is italic for letters, normal otherwise</li>
+                <li> the characters that should use contrasting colors</li>
+            </ul>
+            Click the "add" button to add another character
+        </p>
+        <div class="palettes">
+            <span id='lc-letters' class='grid'>abcdefghijklmnopqrstuvwxyz</span> <!-- filled in by script -->
+            <span id='uc-letters' class='grid'>ABCDEFGHIJKLMNOPQRSTUVWXYZ</span> <!-- filled in by script -->
+            <span id='digits' class='grid'>0123456789</span>    <!-- filled in by script -->
+            <span id='symbols' class='grid'>+-·×÷=&lt;&gt;±≠≤≥()[]⌊⌋⌈⌉|</span>    <!-- filled in by script -->
+        </div>
+        <div class='action-area'>
+        <table id='char-table'>
+            <tr>
+                <th><label for="edit-input">Character to Color:</label></th>
+                <th><label for="text-color">Text color:</label></th>
+                <th><label for="bg-color">Background color:</label></th>
+                <th><label for="font-style">Choose Font Style:</label></th>
+                <th><label for="spacing">Extra Space:</label></th>
+                <th><label for="opposite-input">Opposite Color Character:</label></th>
+            </tr>
+            <tr>
+                <td><span contenteditable="true" id='edit-input' spellcheck="false"> </span></td>
+                <td><input type="color" value="#000000" id="text-color"></td>
+                <td><input type="color" value="#ffffff" id="bg-color"></td>
+                <td>
+                    <select id='font-style' name="Font Style">
+                        <option value="normal">Normal</option>
+                        <option value="bold">Bold</option>
+                        <option value="italic">Italic</option>
+                    </select>
+                </td>
+                <td>
+                    <select id='spacing' name="Extra Space">
+                        <option value="0em">None</option>
+                        <option value="0.111em">Very Small</option>  <!-- 2/18 em -->
+                        <option value="0.167em">Small</option>       <!-- 3/18 em -->
+                        <option value="0.222em">Medium</option>
+                        <option value="0.278em">Large</option>
+                        <option value="0.389em">Very Large</option>
+                    </select>
+                </td>
+                <td><input id='opposite-input' type="text" name="Character" value="" size="2"></td>
+            </tr>
+        </table>              
+        <div id='buttons'>
+           <input type="button" value="Change">    
+           <input type="button" value="Cancel">    
+           <input type="button" value="Default">  
+        </div>
+        </div> 
+        <p>In the box below, try typing some text (only linear math is allowed):
+        </p>
+        <p>
+            Try it!
+            <span id='color-input' contenteditable="true" spellcheck="false">
+           3+8=11
+        </span>
+        </p>
+</body>
+  </html>
