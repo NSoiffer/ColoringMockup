@@ -12,13 +12,14 @@
             display: inline-grid;
             margin-left: .5em;
             margin-right: .5em;
+            grid-gap: 1px;
         }
 
         #lc-letters, #uc-letters, #digits {
             grid-template-columns: repeat(5, auto);
         }
 
-        #symbols {
+        #symbols, #symbols-test {
             grid-template-columns: repeat(4, auto);
         }
 
@@ -35,14 +36,15 @@
         }
 
 
-      #color-input {
+      #test-input {
         font-size: 150%;
         border-style: solid;
         border-width: 1px;
         padding: .3em;
-        width: 20em;
+        width: 50em;
+        white-space: nowrap;
       }
-
+      
       #char-table {
         margin-top: 4ex;
         margin-bottom: 2ex;
@@ -75,14 +77,29 @@
     </head>
     <body>
         <h1>Coloring mockup</h1>
-        <p>In the area below, enter a character along with:
-            <ul>
-                <li> its foreground color using the color picker (default is black)</li>
-                <li> its foreground color using the color picker (default is transparent, which is white right now)</li>
-                <li> its style -- one of italic, bold, or normal (default is italic for letters, normal otherwise</li>
-                <li> the characters that should use contrasting colors</li>
-            </ul>
-            Click the "add" button to add another character
+        <p>
+            This is a mockup to experiment with some ideas of coloring math for severely dyslexic students.
+            This is <em>not</em> not meant to be used by the student to actually do math.
+        </p>
+        <p>
+            The page is divided into two area: the work area where you define the colors and other font aspects
+            for each character, and the test area where you can type some linear math to see what your settings look like.
+        </p>
+        <h2>Example of Use</h2>
+        <p>
+            The palettes have been preloaded with some settings to show some examples. To modify a character:
+            <ol>
+                <li>Click on a palette character or directly type the character into the 'Character to Color' area.</li>
+                <li>Select one or more properties to change. You will see the change reflected in the character and in
+                    palette and test area (but new chararacters typed their won't have the change until you click "Change").</li>
+                <li>Once you are satisfied with your changes, click the 'Change' button to make those changes permanent.
+                    You can click 'Cancel' to revert back to the previous coloring for that character.
+                </li>
+                <li>In the box in the test area, you can type a linear expression to see how the coloring looks in a larger context.</li>
+            </ol>
+        </p>
+        <h2>Work Area</h2>
+        Click the "Change" button to permantently change the coloring or "Cancel" button to revert the changes.
         </p>
         <div class="palettes">
             <span id='lc-letters' class='grid'>abcdefghijklmnopqrstuvwxyz</span> <!-- filled in by script -->
@@ -125,18 +142,21 @@
             </tr>
         </table>              
         <div id='buttons'>
-           <input type="button" value="Change">    
-           <input type="button" value="Cancel">    
-           <input type="button" value="Default">  
+           <input id='change' type="button" value="Change">    
+           <input id='cancel' type="button" value="Cancel">    
         </div>
         </div> 
+        <h2>Test Area</h2>
+
         <p>In the box below, try typing some text (only linear math is allowed):
         </p>
         <p>
             Try it!
-            <span id='color-input' contenteditable="true" spellcheck="false">
-           3+8=11
-        </span>
+            <span id='test-input' contenteditable="true" spellcheck="false"> 3+8=11 </span>
         </p>
+        <div class="palettes">
+            <span>Symbols for the test area:</span>
+            <span id='symbols-test' class='grid'>+-·×÷=&lt;&gt;±≠≤≥()[]⌊⌋⌈⌉|</span>    <!-- filled in by script -->
+        </div>
 </body>
   </html>
