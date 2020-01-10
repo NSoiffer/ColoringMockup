@@ -477,7 +477,15 @@ class ColoringRules {
 // The global (permantent) instance of coloring rules
 ColoringRules.Rules = new ColoringRules().initialize();
 
-
+/**
+ * This is added to avoid having lots of "type" errors when accessing the input fields
+ * @param {string} id 
+ * @returns {HTMLInputElement}
+ */
+function getInputElement(id) {
+    // @ts-ignore
+    return document.getElementById(id);
+}
 
 const EditAreaIds = ['edit-input', 'text-color', 'bg-color', 'font-style', 'spacing'];
 const PaletteIds = ['lc-letters', 'uc-letters', 'digits', 'symbols', 'symbols-test']
@@ -492,9 +500,12 @@ window.onload =
         let editInputArea = document.getElementById('edit-input');
         editInputArea.addEventListener('keydown', updateTestArea);
         let oppositeEditArea = document.getElementById('opposite-input');
+        /** @type{HTMLInputElement} */
+        // @ts-ignore
+        let oppositeInputEditArea = oppositeEditArea.firstElementChild;
         oppositeEditArea.addEventListener('input', function() {
             const editAreaRules = gatherCharStyle(editInputArea);
-            const complementaryRules = getComplimentaryRules(oppositeEditArea.firstElementChild.value, editAreaRules.patterns[0]);   
+            const complementaryRules = getComplimentaryRules(oppositeInputEditArea.value, editAreaRules.patterns[0]);   
             ColoringRules.Rules.merge( complementaryRules.merge(editAreaRules) ).updateAll();
         });
 
@@ -503,16 +514,16 @@ window.onload =
             
             document.getElementById('change').addEventListener('mousedown', function() {
                 const editAreaRules = gatherCharStyle(editInputArea);
-                const complementaryRules = getComplimentaryRules(oppositeEditArea.firstElementChild.value, editAreaRules.patterns[0]);   
+                const complementaryRules = getComplimentaryRules(oppositeInputEditArea.value, editAreaRules.patterns[0]);   
                 ColoringRules.Rules = ColoringRules.Rules.merge( complementaryRules.merge(editAreaRules) );
                 ColoringRules.Rules.updateAll();
                 editInputArea.innerText = '';   // clear the work area input
-                oppositeEditArea.firstElementChild.value = '';
+                oppositeInputEditArea.value = '';
             });
             document.getElementById('cancel').addEventListener('mousedown', function() {
                 ColoringRules.Rules.updateAll();
                 editInputArea.innerText = '';   // clear the work area input
-                oppositeEditArea.firstElementChild.value = '';
+                oppositeInputEditArea.value = '';
             });
 
         // useful for demo at the moment to have some initial contents
@@ -542,6 +553,7 @@ function addCharacterPalette(grid) {
  */
 function copyCharToTestArea(ev) {
     ev.preventDefault();
+    // @ts-ignore
     document.execCommand('insertHTML', false, ColoringRules.Rules.convertToSpan(ev.target.innerText));
 }
 
@@ -549,6 +561,7 @@ function copyCharToTestArea(ev) {
  * 
  * @param {MouseEvent} ev 
  */
+// @ts-ignore
 function copyCharToEditArea(ev) {
     let editInputArea = document.getElementById('edit-input');
     if (editInputArea.innerText) {
@@ -560,11 +573,16 @@ function copyCharToEditArea(ev) {
     editInputArea.innerHTML = ColoringRules.Rules.convertToSpan(this.innerText);
 
     // update the edit area fields
-    let targetStyle = editInputArea.children[0].style;
+    // @ts-ignore
+    let targetStyle = editInputArea.children[0]. style;
+    // @ts-ignore
     document.getElementById('text-color').value = targetStyle.color ? new Color(targetStyle.color).toCSSColor('hex') : '#000000';
+    // @ts-ignore
     document.getElementById('bg-color').value = targetStyle.backgroundColor ? new Color(targetStyle.backgroundColor).toCSSColor('hex') : '#ffffff';
+    // @ts-ignore
     document.getElementById('font-style').value = targetStyle.fontStyle ? targetStyle.fontStyle : 
                                                   targetStyle.fontWeight ? targetStyle.fontWeight : 'normal';
+    // @ts-ignore
     document.getElementById('spacing').value = targetStyle.marginLeft ? targetStyle.marginLeft : '0em';
 }
 
@@ -637,6 +655,7 @@ function updateCharStyle(e) {
     const editAreaRules = gatherCharStyle(elementForChar);
 
     const oppositeEditArea = document.getElementById('opposite-input');
+    // @ts-ignore
     let complementaryRules = getComplimentaryRules(oppositeEditArea.firstElementChild.value, editAreaRules.patterns[0]);
 
     const tempColoringRules = ColoringRules.Rules.merge( complementaryRules.merge(editAreaRules) );
