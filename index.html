@@ -44,7 +44,7 @@
         width: 50em;
         white-space: nowrap;
       }
-      
+
       #char-table {
         margin-top: 4ex;
         margin-bottom: 2ex;
@@ -69,10 +69,68 @@
           border: 2px solid black;
       }
 
+      #opposite-input {
+          background-color: white;
+      }
+      #opposite-input input {
+          color: inherit;
+          background-color: inherit;
+      }
+
       .action-area {
           background-color: lightblue;
       }
-    </style>
+
+/* some styles for hiding/revealing content */
+.accordion {
+  background-color: rgb(225, 233, 250);
+  cursor: pointer;
+  padding: 2px;
+  border: none;
+  border-radius: 8px;
+  text-align: left;
+  outline: none;
+  transition: 0.4s;
+}
+
+.accordion:hover {
+  background-color: rgb(185, 144, 252);
+}
+
+.accordion:before {
+  content: '\25B6';
+  color: #777;
+  font-weight: bold;
+  float: left;
+  margin-right: 5px;
+}
+
+.active:before {
+  content: "\25BC";
+}
+
+.accordion h2 {
+    display:inline;
+}
+.panel {
+  display: none;
+  padding: 0 18px;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+}
+
+  </style>
+  <script>
+  function ToggleCollapse(el) {
+    el.classList.toggle("active");
+    let content = el.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
+  };
+</script>
 
     </head>
     <body>
@@ -85,9 +143,12 @@
             The page is divided into two area: the work area where you define the colors and other font aspects
             for each character, and the test area where you can type some linear math to see what your settings look like.
         </p>
+        <button type="button" class="accordion" onclick="ToggleCollapse(this)">
         <h2>Example of Use</h2>
+        </button>
+        <div class="panel">
         <p>
-            The palettes have been preloaded with some settings to show some examples. To modify a character:
+                The palettes have been preloaded with some settings to show some examples. To modify a character:
             <ol>
                 <li>Click on a palette character or directly type the character into the 'Character to Color' area.</li>
                 <li>Select one or more properties to change. You will see the change reflected in the character and in
@@ -98,6 +159,7 @@
                 <li>In the box in the test area, you can type a linear expression to see how the coloring looks in a larger context.</li>
             </ol>
         </p>
+        </div>
         <h2>Work Area</h2>
         Click the "Change" button to permantently change the coloring or "Cancel" button to revert the changes.
         </p>
@@ -138,7 +200,7 @@
                         <option value="0.389em">Very Large</option>
                     </select>
                 </td>
-                <td><input id='opposite-input' type="text" name="Character" value="" size="2"></td>
+                <td><span id='opposite-input'> <input type="text" name="Character" value="" size="2"> </span></td>
             </tr>
         </table>              
         <div id='buttons'>
