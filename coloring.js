@@ -487,19 +487,19 @@ class ColoringRules {
             new MatchColor('', 'all','1px','hsl(0,0%, 50%)'),
             new MatchColor('hsl(240, 100%, 95%)', 'none','1px','hsl(0,0%, 30%)')
          ));
-         this.replaceMatch('⌊', new MatchingColorRule('⌊', '⌋',
-            new ColorRule('⌊', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
-            new ColorRule('⌋', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
+         this.replaceMatch('\\[', new MatchingColorRule('\\[', '\\]',
+            new ColorRule('\\[', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
+            new ColorRule('\\]', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
             new MatchColor('', 'bottom','1px','hsl(0,0%, 50%)'),
             new MatchColor('hsl(270, 100%, 95%)', 'none','1px','hsl(0,0%, 30%)')
         ));
-        this.replaceMatch('⌈', new MatchingColorRule('⌈', '⌉',
-        new ColorRule('⌈', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
-        new ColorRule('⌉', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
-        new MatchColor('', 'all','2px','hsl(0,0%, 50%)'),
-        new MatchColor('', 'none','1px','hsl(0,0%, 30%)')
-    ));
- return this;
+        this.replaceMatch('\\{', new MatchingColorRule('\\{', '\\}',
+            new ColorRule('\\{', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
+            new ColorRule('\\node_modules/}', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
+            new MatchColor('', 'all','2px','hsl(0,0%, 50%)'),
+            new MatchColor('', 'none','1px','hsl(0,0%, 30%)')
+        ));
+    return this;
     }
 
     /**
