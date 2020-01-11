@@ -364,14 +364,96 @@ class ColorRule {
         }
         return style;
     }
-
 }
 
+class MatchColor {
+    /**
+     * 
+     * @param {string|Color} bgColor 
+     * @param {string} borderPosition               // none, top, bottom, all
+     * @param {string} borderThickness 
+     * @param {string|Color} borderColor 
+     */
+    constructor(bgColor, borderPosition, borderThickness, borderColor) {
+        this.bgColor = bgColor ? (typeof bgColor === 'string' ? new Color(bgColor) : bgColor) : null;
+        this.borderPosition = borderPosition;
+        this.borderThickness = borderThickness;
+        this.borderColor = borderColor ? (typeof borderColor === 'string' ? new Color(borderColor) : borderColor) : null;
+    }
+
+    /**
+     * @param{string} [nested]   // if present, this is a nested span
+     * @returns {string}
+     */
+    buildSpanStyle(nested) {
+        let style = '';
+        if (nested) {
+            style += ` margin: 1px;`
+        }
+        if (this.bgColor) {
+            style += ` background-color: ${this.bgColor.toCSSColor('hex')};`;
+        }
+        switch(this.borderPosition) {
+            case 'top':
+            case 'bottom':
+                style += ` border-${this.borderPosition}-style: solid;`;
+                break;
+            case 'all':
+                style += ' border-style: solid;';
+                break;
+            default:
+                style += 'border-style: none;';
+                break;
+        }
+
+        style += ` border-width: ${this.borderThickness};`;
+        style += ` border-color: ${this.borderColor.toCSSColor('hex')};`;
+        return style;
+    }
+}
+
+/**
+ * This class is used when a start/end pair wants to be colored.
+ * The open/close chars at the top level are colored in the standard manner.
+ * This supports a different coloring when nested [FIX: extend this to multiple levels???]
+ * In addition to different colorings for the open/close, *both* the toplevel and nested matching area supports:
+ * 1. a background color
+ * 2. a border (could just be a top line) with the styling for linethickness and color
+ */
+class MatchingColorRule {
+    /**
+     * 
+     * @param {string} openCh
+     * @param {string} closeCh
+     * @param {ColorRule} nestedOpenColorRule 
+     * @param {ColorRule} nestedCloseColorRule 
+     * @param {MatchColor} topMatchColor 
+     * @param {MatchColor} nestedMatchColor 
+     */
+    constructor(openCh, closeCh, nestedOpenColorRule, nestedCloseColorRule, topMatchColor, nestedMatchColor) {
+        this.openCh = new RegExp(openCh);
+        this.closeCh = new RegExp(closeCh);
+        this.nestedOpenColorRule = nestedOpenColorRule;
+        if (this.openCh.source !== nestedOpenColorRule.pattern.source) {
+            console.log(`openCh '${openCh}' does not match char in nestedOpenColorRule '${nestedOpenColorRule.pattern.source}`)
+        }
+        this.nestedCloseColorRule = nestedCloseColorRule;
+        if (this.closeCh.source !== nestedCloseColorRule.pattern.source) {
+            console.log(`openCh '${closeCh}' does not match char in nestedOpenColorRule '${nestedCloseColorRule.pattern.source}`)
+        }
+        this.topMatchColor = topMatchColor;
+        this.nestedMatchColor = nestedMatchColor;
+    }
+}
 
 class ColoringRules {
     constructor() {
         /** @type {ColorRule[]} */
         this.patterns = [];
+         /** @type {MatchingColorRule[]} */
+        this.matches  = [];
+        this.startMatch = new RegExp('');       //    reg exp for *all* the starting chars in 'matching'  
+        this.endMatch = new RegExp('');
     }
 
     /**
@@ -389,13 +471,35 @@ class ColoringRules {
     initialize() {
         this.patterns.push( new ColorRule('3', 'hsl(130, 70%, 43%)', 'hsl(4, 90%, 50%)', 'normal', '') );
         this.patterns.push( new ColorRule('8', 'hsl(4, 90%, 50%)', 'hsl(130, 70%, 43%)', 'normal', '') );
+        this.patterns.push( new ColorRule('\\(', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'normal', '0.167em') );
+        this.patterns.push( new ColorRule('\\)', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'normal', '0.167em') );
+        this.patterns.push( new ColorRule('8', 'hsl(4, 90%, 50%)', 'hsl(130, 70%, 43%)', 'normal', '') );
         this.patterns.push( new ColorRule('[0-9]', '', '', 'normal', '') );
         this.patterns.push( new ColorRule('[a-zA-Z]', '', '', 'italic', '') );
         this.patterns.push( new ColorRule('\\+|×|÷|±', '', '', 'normal', '.222em') );
         this.patterns.push( new ColorRule('-', '', '', 'bold', '.222em') );
         this.patterns.push( new ColorRule('\\|', '', '', 'bold', '') );
         this.patterns.push( new ColorRule('<|=|>|≠|≤|≥', 'hsl(0,0%,100%)', 'hsl(160, 10%, 10%)', 'normal', '.278em') );
-        return this;
+        
+        this.replaceMatch('(', new MatchingColorRule('\\(', '\\)',
+            new ColorRule('\\(', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
+            new ColorRule('\\)', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
+            new MatchColor('', 'all','1px','hsl(0,0%, 50%)'),
+            new MatchColor('hsl(240, 100%, 95%)', 'none','1px','hsl(0,0%, 30%)')
+         ));
+         this.replaceMatch('⌊', new MatchingColorRule('⌊', '⌋',
+            new ColorRule('⌊', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
+            new ColorRule('⌋', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
+            new MatchColor('', 'bottom','1px','hsl(0,0%, 50%)'),
+            new MatchColor('hsl(270, 100%, 95%)', 'none','1px','hsl(0,0%, 30%)')
+        ));
+        this.replaceMatch('⌈', new MatchingColorRule('⌈', '⌉',
+        new ColorRule('⌈', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
+        new ColorRule('⌉', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
+        new MatchColor('', 'all','2px','hsl(0,0%, 50%)'),
+        new MatchColor('', 'none','1px','hsl(0,0%, 30%)')
+    ));
+ return this;
     }
 
     /**
@@ -414,6 +518,17 @@ class ColoringRules {
         return this.patterns.find( colorRule => colorRule.pattern.test(this.escapeSpecialChars(ch)) );
     }
 
+    /** 
+     * @param {string} ch // should be a single character
+     * @param {boolean} matchOpen // should be a single character
+     * @returns {MatchingColorRule}
+     */
+    matchMatch(ch, matchOpen) {
+        return matchOpen ?
+        this.matches.find( matchRule => matchRule.openCh.test(this.escapeSpecialChars(ch)) ) :
+        this.matches.find( matchRule => matchRule.closeCh.test(this.escapeSpecialChars(ch)) );
+    }
+
     /**
      * Replaces 'ch' in patterns; if not present, adds it
      * @param {string} ch 
@@ -430,6 +545,22 @@ class ColoringRules {
     }
 
     /**
+     * Replaces 'ch' in patterns; if not present, adds it
+     * @param {string} ch 
+     * @param {MatchingColorRule} rule 
+     */
+    replaceMatch(ch, rule) {
+        const regExForCh = new RegExp( this.escapeSpecialChars(ch) );
+        const i = this.matches.findIndex( m => m.openCh == regExForCh );
+        if (i >= 0) {
+            this.matches[i] = rule;
+        } else {
+            this.matches.unshift(rule);        // put at start so it matches before any builtin patterns
+        }
+    }
+
+
+    /**
      * Adds the new rules to the old ones (this) -- new ones first (or replacing old ones)
      * A clone of 'this' is made ('this' is not changed)
      * @param {ColoringRules} newRules  (not changed)
@@ -444,17 +575,65 @@ class ColoringRules {
     }
 
     /** 
-     * @param {string} str // should be a single character
+     * This is a simple recursive parser that looks for open/close to being/end a new span
+     * @param {string} str
      * @returns {string}
      */
     convertToSpan(str) {
-        let result = '';
-        for (const ch of str) {
-            const colorRule = this.match(ch);
-            let spanStyle = colorRule ? colorRule.buildSpanStyle() : '';
-            result += `<span style="${spanStyle}">${ch}</span>`;
+        let i = 0;      // index into string 
+        const that = this;
+
+        /**
+         * 
+         * @param {string} ch // uses the closed over 'i' to index into it
+         * @param {ColorRule} colorRule 
+         */
+        function buildSpan(ch, colorRule) {
+            return colorRule ?
+                `<span style="${colorRule.buildSpanStyle()}">${ch}</span>` :
+                `<span>${ch}</span>`;
         }
-        return result;
+
+        /** 
+         * This is a simple recursive parser that looks for open/close to being/end a new span
+         * The contents of the open/close (not the open/close) are put into a new span
+         * @param {string} str // uses the closed over 'i' to index into it
+         * @param {number} depth // should be a single character
+         * @param {string} closeCh  // char to close the span (initially won't match anything)
+         * @returns {string}
+         */
+        function nestConvertToSpan(str, depth, closeCh) {
+            let result = '';
+            for (; i < str.length; i++) {
+                let ch = str[i];
+                if (ch === closeCh) {
+                    return result;  // closeCh not part of match
+                }
+                const matchRule = that.matchMatch(ch, true);
+                const colorRule = !matchRule || (depth === 0) ? that.match(ch) : matchRule.nestedOpenColorRule;
+                result += buildSpan(ch, colorRule);
+                if (matchRule) {
+                    i += 1;                     // we've handled 'ch' already
+                    const nestedSpan = nestConvertToSpan(str, depth+1, matchRule.closeCh.source.replace("\\", ""));
+                    ch = str[i];
+                    if (nestedSpan) {
+                        const nestSpanStyle = depth === 0 ?
+                                matchRule.topMatchColor.buildSpanStyle() :
+                                matchRule.nestedMatchColor.buildSpanStyle('nested');
+                        result += `<span style="${nestSpanStyle}">${nestedSpan}</span>`;
+                    }
+
+                    // the call to nestConvertToSpan returned either because it found a match or because the string ended
+                    if (i < str.length) {
+                        const colorRule = depth === 0 ? that.match(ch) : matchRule.nestedCloseColorRule;
+                        result += buildSpan(ch, colorRule);
+                    }
+                }
+            }
+            return result;
+        };
+
+        return nestConvertToSpan(str, 0, '');
     }
 
     updatePalettes() {
@@ -524,6 +703,12 @@ window.onload =
                 ColoringRules.Rules.updateAll();
                 editInputArea.innerText = '';   // clear the work area input
                 oppositeInputEditArea.value = '';
+            });
+
+            // hack until I figure out typing update bugs
+            document.getElementById('refresh').addEventListener('mousedown', function() {
+                const testArea = document.getElementById('test-input');
+                testArea.innerHTML = ColoringRules.Rules.convertToSpan(testArea.innerText);
             });
 
         // useful for demo at the moment to have some initial contents
