@@ -490,12 +490,12 @@ class ColoringRules {
          this.replaceMatch('\\[', new MatchingColorRule('\\[', '\\]',
             new ColorRule('\\[', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
             new ColorRule('\\]', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
-            new MatchColor('', 'bottom','1px','hsl(0,0%, 50%)'),
-            new MatchColor('hsl(270, 100%, 95%)', 'none','1px','hsl(0,0%, 30%)')
+            new MatchColor('', 'bottom','2px','hsl(0,0%, 50%)'),
+            new MatchColor('hsl(270, 100%, 95%)', 'top','2px','hsl(0,0%, 30%)')
         ));
-        this.replaceMatch('\\{', new MatchingColorRule('\\{', '\\}',
+        this.replaceMatch('\\{', new MatchingColorRule('\\{', '}',
             new ColorRule('\\{', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
-            new ColorRule('\\node_modules/}', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
+            new ColorRule('}', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
             new MatchColor('', 'all','2px','hsl(0,0%, 50%)'),
             new MatchColor('', 'none','1px','hsl(0,0%, 30%)')
         ));
@@ -580,9 +580,20 @@ class ColoringRules {
      * @returns {string}
      */
     convertToSpan(str) {
-        let i = 0;      // index into string 
-        const that = this;
-
+        /**
+         * 
+         * @param {string} ch
+         * @returns {number}
+         */
+        function stackDepth(ch) {
+            let depth = 0;
+            for (const openClose of matchStack) {
+                if (openClose.open === ch || openClose.close === ch) {
+                    depth += 1;
+                }
+            }
+            return depth;
+        }
         /**
          * 
          * @param {string} ch // uses the closed over 'i' to index into it
@@ -598,11 +609,10 @@ class ColoringRules {
          * This is a simple recursive parser that looks for open/close to being/end a new span
          * The contents of the open/close (not the open/close) are put into a new span
          * @param {string} str // uses the closed over 'i' to index into it
-         * @param {number} depth // should be a single character
          * @param {string} closeCh  // char to close the span (initially won't match anything)
          * @returns {string}
          */
-        function nestConvertToSpan(str, depth, closeCh) {
+        function nestConvertToSpan(str, closeCh) {
             let result = '';
             for (; i < str.length; i++) {
                 let ch = str[i];
@@ -610,14 +620,16 @@ class ColoringRules {
                     return result;  // closeCh not part of match
                 }
                 const matchRule = that.matchMatch(ch, true);
-                const colorRule = !matchRule || (depth === 0) ? that.match(ch) : matchRule.nestedOpenColorRule;
+                const colorRule = !matchRule || (stackDepth(ch) === 0) ? that.match(ch) : matchRule.nestedOpenColorRule;
                 result += buildSpan(ch, colorRule);
                 if (matchRule) {
                     i += 1;                     // we've handled 'ch' already
-                    const nestedSpan = nestConvertToSpan(str, depth+1, matchRule.closeCh.source.replace("\\", ""));
+                    matchStack.push({open: ch, close: matchRule.closeCh.source.replace("\\", "")});
+                    const nestedSpan = nestConvertToSpan(str, matchRule.closeCh.source.replace("\\", ""));
+                    matchStack.pop();
                     ch = str[i];
                     if (nestedSpan) {
-                        const nestSpanStyle = depth === 0 ?
+                        const nestSpanStyle = stackDepth(ch) === 0 ?
                                 matchRule.topMatchColor.buildSpanStyle() :
                                 matchRule.nestedMatchColor.buildSpanStyle('nested');
                         result += `<span style="${nestSpanStyle}">${nestedSpan}</span>`;
@@ -625,7 +637,7 @@ class ColoringRules {
 
                     // the call to nestConvertToSpan returned either because it found a match or because the string ended
                     if (i < str.length) {
-                        const colorRule = depth === 0 ? that.match(ch) : matchRule.nestedCloseColorRule;
+                        const colorRule = stackDepth(ch) === 0 ? that.match(ch) : matchRule.nestedCloseColorRule;
                         result += buildSpan(ch, colorRule);
                     }
                 }
@@ -633,6 +645,10 @@ class ColoringRules {
             return result;
         };
 
+        let i = 0;      // index into string
+        /** @type {[{open:string, close:string}]} */
+        let matchStack = [];
+        const that = this;
         return nestConvertToSpan(str, 0, '');
     }
 
@@ -859,3 +875,4 @@ function updateCharStyle(e) {
     oppositeEditArea.style.color = complementaryRules.patterns[0].fgColor.toCSSColor('hsl');
     oppositeEditArea.style.backgroundColor = complementaryRules.patterns[0].bgColor.toCSSColor('hsl');    
 }
+
