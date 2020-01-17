@@ -1,0 +1,237 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+.palettes {
+    background-color: lightgoldenrodyellow;
+}
+.grid {
+    display: inline-grid;
+    margin-left: .5em;
+    margin-right: .5em;
+    grid-gap: 1px;
+}
+
+#lc-letters, #uc-letters, #digits {
+    grid-template-columns: repeat(5, auto);
+}
+
+#symbols, #symbols-test {
+    grid-template-columns: repeat(4, auto);
+}
+
+.button {
+    width: 2em;
+    text-align: center;
+    border-radius: 4px;
+    transition-duration: 500ms;
+    transition-property: border;
+}
+.button:hover {
+    box-shadow: 3px 3px #888888;
+}
+
+
+#test-input {
+font-size: 150%;
+border-style: solid;
+border-width: 1px;
+padding: .3em;
+width: 50em;
+white-space: nowrap;
+}
+
+#test-input span {
+    display: inline-block;
+}
+
+#refresh {
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:larger;
+    border-radius: 5px;
+    background-color: rgb(250, 230, 230) 5px solid #e7e7e7;
+    margin-left: 1em;
+    width: 300px;
+}
+
+#char-table {
+margin-top: 4ex;
+margin-bottom: 2ex;
+}
+#char-table td{
+text-align: center;
+}
+
+#buttons {
+text-align: center;
+}
+
+#buttons input {
+    margin: 10px;
+}
+
+#edit-input {
+    display: inline-block;
+    width: 3em;
+    padding: .2ex;
+    background-color: white;
+    border: 2px solid black;
+}
+
+#opposite-input {
+    background-color: white;
+}
+#opposite-input input {
+    color: inherit;
+    background-color: inherit;
+}
+
+.action-area {
+    background-color: lightblue;
+}
+
+
+/* styles for the open close match area */
+#open-close-area {
+    display: inline-grid;
+    grid-template-columns: repeat(11, auto); 
+    grid-row-gap:.5em;
+    align-items: center;
+    justify-items: center;
+    margin-left: .5em;
+    margin-right: .5em;
+    grid-gap: .2em;
+    grid-template-areas:
+    ".     .       .      .     bl-t  bl-t  .     .        .       .     ."
+    ".     .       .      .     bsl-t bs-t  .     .        .       .     ."
+    ".     .       .      .     btl-t bt-t  .     .        .       .     ."
+    ".     .       .      .     bcl-t bc-t  .     .        .       .     ."
+    "mal-t mafgl-t mafg-t mao-t ma-t  ma-t  mac-t marfgl-t marfg-t mas-t masl-t"
+    "mal-t mabgl-t mabg-t mao-t ma-t  ma-t  mac-t marbgl-t marbg-t mas-t masl-t";
+}
+
+.border-label-top {
+    justify-self: center;
+    font-weight: bold;
+    grid-area: bl-t;
+}
+
+.border-style-label-top {
+    justify-self: right;
+    grid-area:bsl-t;
+}
+#border-style-top {
+    justify-self: left;
+    grid-area: bs-t;
+}
+
+.border-thickness-label-top {
+    justify-self: right;
+    grid-area: btl-t
+}
+#border-thickness-top {
+    justify-self: left;
+    grid-area: bt-t;
+}
+.border-color-label-top {
+    justify-self: right;
+    grid-area: bcl-t;
+}
+#border-color-top {
+    justify-self: left;
+    grid-area: bc-t;
+}
+
+.match-area-label-top {
+    grid-area: mal-t;
+}
+.match-area-fg-label-top {
+    grid-area: mafgl-t;
+}
+#match-area-fg-top {
+    grid-area: mafg-t;
+}
+.match-area-bg-label-top {
+    grid-area: mabgl-t;
+}
+#match-area-bg-top {
+    grid-area: mabg-t;
+}
+
+.match-area-open-top{
+    grid-area: mao-t;
+}
+.match-area-contents-top {
+    grid-area: ma-t;  
+}
+.match-area-close-top{
+    grid-area: mac-t;
+}
+
+.match-area-label-top {
+    grid-area: mal-t;
+}
+.match-area-r-fg-label-top {
+    grid-area: marfgl-t;
+}
+#match-area-r-fg-top {
+    grid-area: marfg-t;
+}
+.match-area-r-bg-label-top {
+    grid-area: marbgl-t;
+}
+#match-area-r-bg-top {
+    grid-area: marbg-t;
+}
+
+#match-area-same-top:before {
+    content: "}";
+    font-size: 4em;
+    font-family: "times";
+}
+
+#match-area-same-top {
+    grid-area: mas-t;
+}
+.match-area-same-label-top {
+    grid-area: masl-t;
+}
+
+
+
+/* some styles for hiding/revealing content */
+.accordion {
+  background-color: rgb(225, 233, 250);
+  cursor: pointer;
+  padding: 2px;
+  border: none;
+  border-radius: 8px;
+  text-align: left;
+  outline: none;
+  transition: 0.4s;
+}
+
+.accordion:hover {
+  background-color: rgb(185, 144, 252);
+}
+
+.accordion:before {
+  content: '\25B6';
+  color: #777;
+  font-weight: bold;
+  float: left;
+  margin-right: 5px;
+}
+
+.active:before {
+  content: "\25BC";
+}
+
+.accordion h2 {
+    display:inline;
+}
+.panel {
+  display: none;
+  padding: 0 18px;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+}
