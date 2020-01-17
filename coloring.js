@@ -778,12 +778,6 @@ window.onload =
                 oppositeInputEditArea.value = '';
             });
 
-            // hack until I figure out typing update bugs
-            document.getElementById('refresh').addEventListener('mousedown', function() {
-                const testArea = document.getElementById('test-input');
-                testArea.innerHTML = ColoringRules.Rules.convertToSpan(testArea.innerText);
-            });
-
         // useful for demo at the moment to have some initial contents
         //testInput.innerHTML = ColoringRules.Rules.convertToSpan(testInput.textContent);
         ColoringRules.Rules.updateTestInput();
@@ -852,10 +846,6 @@ function copyCharToEditArea(ev) {
 function updateTestArea(e) {
     console.log(e);
     switch (e.inputType) {
-        case 'insertText':
-            e.preventDefault();
-            this.newState(e.currentTarget.textContent);
-            break;
         case 'historyRedo':
             e.preventDefault();
             const redoText = this.redo();
@@ -870,7 +860,11 @@ function updateTestArea(e) {
                 e.currentTarget.innerText = undoText;
             }
             break;
-    }
+        default:
+            e.preventDefault();
+            this.newState(e.currentTarget.textContent);
+            break;
+        }
     ColoringRules.Rules.updateTestInput();
 }
 
