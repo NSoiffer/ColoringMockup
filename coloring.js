@@ -356,7 +356,8 @@ class ColorRule {
             style += ` background-color: ${this.bgColor.toCSSColor('hex')};`;
         }
         if (this.style) {
-            let css = this.style.toLowerCase() === 'bold' ? 'font-weight' : 'font-style';
+            let css = this.style.toLowerCase() === 'bold' || this.style.toLowerCase() === 'bolder' ?
+                    'font-weight' : 'font-style';
             style += ` ${css}: ${this.style};`;
         };
         if (this.spacing) {
@@ -646,10 +647,10 @@ class ColoringRules {
         };
 
         let i = 0;      // index into string
-        /** @type {[{open:string, close:string}]} */
+        /** @type {{open:string, close:string}[]} */
         let matchStack = [];
         const that = this;
-        return nestConvertToSpan(str, 0, '');
+        return nestConvertToSpan(str, '');
     }
 
     updatePalettes() {
@@ -661,16 +662,69 @@ class ColoringRules {
         }
     }
 
+    updateTestInput() {
+        const testArea = document.getElementById('test-input');
+        const caretOffset = getCaretPosition(testArea);
+        testArea.innerHTML = this.convertToSpan(testArea.textContent);
+        setCaretPosition(testArea, caretOffset);
+    }
+    
     updateAll() {
         this.updatePalettes();
-
-        const testArea = document.getElementById('test-input');
-        testArea.innerHTML = this.convertToSpan(testArea.innerText);
+        this.updateTestInput();
     }
 }
 
 // The global (permantent) instance of coloring rules
 ColoringRules.Rules = new ColoringRules().initialize();
+
+
+class EditHistory {
+    // Keep track of typing state for undo/redo.
+    // Because we change the data, the normal undo/redo for contenteditable fail and do nothing
+    /**
+     * 
+     * @param {string} initState 
+     */
+    constructor(initState) {
+        // @type {string[]}
+        this.state = [initState];
+        this.current = 0;       // pointer to the current state (undo doesn't pop stat) -- normally this.state.length()-1
+    }
+
+    /**
+     * 
+     * @param {string} str  // the element this 
+     */
+    newState(str) {
+        if (this.current + 1 < this.state.length) {
+            this.state = this.state.slice(0, this.current + 1);
+        }
+        this.state.push(str);
+        this.current++;
+    }
+
+    /**
+     * @return {string} -- the new state or ''
+     */
+    redo() {
+        if (this.current + 1 > this.state.length) {
+            return '';
+        } else {
+            this.current++;
+            return this.state[this.current];
+        }
+    }
+
+    undo() {
+        if (this.current < 1) {
+            return '';
+        } else {
+            this.current--;
+            return this.state[this.current];
+        }
+    }
+}
 
 /**
  * This is added to avoid having lots of "type" errors when accessing the input fields
@@ -684,16 +738,19 @@ function getInputElement(id) {
 
 const EditAreaIds = ['edit-input', 'text-color', 'bg-color', 'font-style', 'spacing'];
 const PaletteIds = ['lc-letters', 'uc-letters', 'digits', 'symbols', 'symbols-test']
+
+EditHistory.testInput = new EditHistory( document.getElementById('test-input').textContent );
+EditHistory.editInput = new EditHistory( document.getElementById('edit-input').textContent );
 window.onload =
     function() {
         // add the palettes
-        PaletteIds.forEach( palette => addCharacterPalette(document.getElementById(palette)) );
+        PaletteIds.forEach( palette => addCharacterPalette( document.getElementById(palette)) );
 
         let testInput = document.getElementById('test-input');
-        testInput.addEventListener('keydown', updateTestArea);
+        testInput.addEventListener('input', updateTestArea.bind(EditHistory.testInput));
 
         let editInputArea = document.getElementById('edit-input');
-        editInputArea.addEventListener('keydown', updateTestArea);
+        editInputArea.addEventListener('input', updateTestArea.bind(EditHistory.editInput));
         let oppositeEditArea = document.getElementById('opposite-input');
         /** @type{HTMLInputElement} */
         // @ts-ignore
@@ -728,7 +785,8 @@ window.onload =
             });
 
         // useful for demo at the moment to have some initial contents
-        testInput.innerHTML = ColoringRules.Rules.convertToSpan(testInput.textContent);
+        //testInput.innerHTML = ColoringRules.Rules.convertToSpan(testInput.textContent);
+        ColoringRules.Rules.updateTestInput();
     };
 
 /**
@@ -789,22 +847,31 @@ function copyCharToEditArea(ev) {
 
 /**
  * 
- * @param {KeyboardEvent} e 
+ * @param {InputEvent} e 
  */
 function updateTestArea(e) {
-    if (e.ctrlKey || e.metaKey || e.altKey) {
-        return true;
+    console.log(e);
+    switch (e.inputType) {
+        case 'insertText':
+            e.preventDefault();
+            this.newState(e.currentTarget.textContent);
+            break;
+        case 'historyRedo':
+            e.preventDefault();
+            const redoText = this.redo();
+            if (redoText) {
+                e.currentTarget.innerText = redoText;
+            }
+            break;
+        case 'historyUndo':
+            e.preventDefault();
+            const undoText = this.undo();
+            if (undoText) {
+                e.currentTarget.innerText = undoText;
+            }
+            break;
     }
-    if (e.key.length === 1) {
-        e.preventDefault();
-        document.execCommand('insertHTML', false, ColoringRules.Rules.convertToSpan(e.key));
-        if (/<br/.test(document.getElementById('test-input').innerHTML)) {
-            // for reasons I haven't been able to figure out, sometimes <br> gets inserted also (not by this code)
-            // at least it does in Chrome (not in Firefox AFAIK)
-            // this pulls it back out
-            document.execCommand('forwardDelete', false, null);
-        }
-    }
+    ColoringRules.Rules.updateTestInput();
 }
 
 /**
@@ -876,3 +943,97 @@ function updateCharStyle(e) {
     oppositeEditArea.style.backgroundColor = complementaryRules.patterns[0].bgColor.toCSSColor('hsl');    
 }
 
+
+/***********
+ * Code to get and set the caret/cursor position
+ * When the contents get redrawn, the caret position gets losts, so we need to handle it ourself.
+ * getCaretPosition/setCaretPosition taken from stackexchange.com and modified slightly
+ ***********/
+/**
+ * 
+ * @param {HTMLElement} editEl
+ * @returns {number}
+ */
+function getCaretPosition(editEl) {
+    let caretOffset = 0;
+    let doc = editEl.ownerDocument || editEl.document;
+    let win = doc.defaultView || doc.parentWindow;
+    let sel;
+    if (typeof win.getSelection != "undefined") {
+        sel = win.getSelection();
+        if (sel.rangeCount > 0) {
+            let range = win.getSelection().getRangeAt(0);
+            let preCaretRange = range.cloneRange();
+            preCaretRange.selectNodeContents(editEl);
+            preCaretRange.setEnd(range.endContainer, range.endOffset);
+            caretOffset = preCaretRange.toString().length;
+        }
+    } else if ( (sel = doc.selection) && sel.type != "Control") {
+        let textRange = sel.createRange();
+        let preCaretTextRange = doc.body.createTextRange();
+        preCaretTextRange.moveToeditElText(editEl);
+        preCaretTextRange.setEndPoint("EndToEnd", textRange);
+        caretOffset = preCaretTextRange.text.length;
+    }
+    return caretOffset;
+}
+
+
+
+/**
+ * 
+ * @param {HTMLElement} editEl 
+ * @param {number} chars 
+ */
+function setCaretPosition(editEl, chars) {
+/**
+ * 
+ * @param {Node} node 
+ * @param {number} chars 
+ * @param {Range} [range]
+ * @returns {[number, Range]}
+ */
+    function createRange(node, chars, range) {
+        if (!range) {
+            range = document.createRange()
+            range.selectNode(node);
+            range.setStart(node, 0);
+        }
+
+        if (chars === 0) {
+            range.setEnd(node, chars);
+        } else if (node && chars > 0) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                if (node.textContent.length < chars) {
+                    chars -= node.textContent.length;
+                } else {
+                    range.setEnd(node, chars);
+                    chars = 0;
+                }
+            } else {
+            for (let lp = 0; lp < node.childNodes.length; lp++) {
+                    [chars, range] = createRange(node.childNodes[lp], chars, range);
+
+                    if (chars === 0) {
+                        break;
+                    }
+                }
+            }
+        } 
+
+        return [chars, range];
+    };
+
+    if (chars >= 0) {
+        let selection = window.getSelection();
+        let range;
+
+        [chars, range] = createRange(editEl, chars);
+
+        if (range) {
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+    }
+};

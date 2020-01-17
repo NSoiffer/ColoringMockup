@@ -3,150 +3,21 @@
   <head>
     <title>Coloring mockup</title>
     <meta charset="utf-8"/>
+    <link rel="stylesheet" type="text/css" href="coloring.css">
     <script type="module" src="coloring.js"> </script>
-    <style>
-        .palettes {
-            background-color: lightgoldenrodyellow;
-        }
-        .grid {
-            display: inline-grid;
-            margin-left: .5em;
-            margin-right: .5em;
-            grid-gap: 1px;
-        }
-
-        #lc-letters, #uc-letters, #digits {
-            grid-template-columns: repeat(5, auto);
-        }
-
-        #symbols, #symbols-test {
-            grid-template-columns: repeat(4, auto);
-        }
-
-
-        .button {
-            width: 2em;
-            text-align: center;
-            border-radius: 4px;
-            transition-duration: 500ms;
-            transition-property: border;
-        }
-        .button:hover {
-            box-shadow: 3px 3px #888888;
-        }
-
-
-      #test-input {
-        font-size: 150%;
-        border-style: solid;
-        border-width: 1px;
-        padding: .3em;
-        width: 50em;
-        white-space: nowrap;
-      }
-
-      #test-input span {
-          display: inline-block;
-      }
-
-      #refresh {
-          font-family:Arial, Helvetica, sans-serif;
-          font-size:larger;
-          border-radius: 5px;
-          background-color: rgb(250, 230, 230);
-          5px solid #e7e7e7
-          margin-left: 1em;
-          width: 300px;
-      }
-
-      #char-table {
-        margin-top: 4ex;
-        margin-bottom: 2ex;
-      }
-      #char-table td{
-        text-align: center;
-      }
-
-      #buttons {
-        text-align: center;
-      }
-
-      #buttons input {
-          margin: 10px;
-      }
-
-      #edit-input {
-          display: inline-block;
-          width: 3em;
-          padding: .2ex;
-          background-color: white;
-          border: 2px solid black;
-      }
-
-      #opposite-input {
-          background-color: white;
-      }
-      #opposite-input input {
-          color: inherit;
-          background-color: inherit;
-      }
-
-      .action-area {
-          background-color: lightblue;
-      }
-
-/* some styles for hiding/revealing content */
-.accordion {
-  background-color: rgb(225, 233, 250);
-  cursor: pointer;
-  padding: 2px;
-  border: none;
-  border-radius: 8px;
-  text-align: left;
-  outline: none;
-  transition: 0.4s;
-}
-
-.accordion:hover {
-  background-color: rgb(185, 144, 252);
-}
-
-.accordion:before {
-  content: '\25B6';
-  color: #777;
-  font-weight: bold;
-  float: left;
-  margin-right: 5px;
-}
-
-.active:before {
-  content: "\25BC";
-}
-
-.accordion h2 {
-    display:inline;
-}
-.panel {
-  display: none;
-  padding: 0 18px;
-  overflow: hidden;
-  transition: max-height 0.2s ease-out;
-}
-
-  </style>
-  <script>
-  function ToggleCollapse(el) {
-    el.classList.toggle("active");
-    let content = el.nextElementSibling;
-    if (content.style.display === "block") {
-      content.style.display = "none";
-    } else {
-      content.style.display = "block";
-    }
-  };
-</script>
-
+    <script>
+        function ToggleCollapse(el) {
+          el.classList.toggle("active");
+          let content = el.nextElementSibling;
+          if (content.style.display === "block") {
+            content.style.display = "none";
+          } else {
+            content.style.display = "block";
+          }
+        };
+    </script>      
     </head>
+
     <body>
         <h1>Coloring mockup</h1>
         <p>
@@ -201,6 +72,7 @@
                     <select id='font-style' name="Font Style">
                         <option value="normal">Normal</option>
                         <option value="bold">Bold</option>
+                        <option value="bolder">Bolder</option>
                         <option value="italic">Italic</option>
                     </select>
                 </td>
@@ -221,14 +93,64 @@
            <input id='change' type="button" value="Change">    
            <input id='cancel' type="button" value="Cancel">    
         </div>
-        </div> 
+        <hr>
+        <span>Open Char:</span>
+        <span contenteditable="true">(</span>
+        <span>Close Char:</span>
+        <span contenteditable="true">)</span>
+        <br>
+        <br>
+        <br>
+
+        <div id="open-close-area">
+            <span class="border-label-top">Border&nbsp;</span>
+            <label class="border-style-label-top" for="border-style-top">Style:</label>
+            <select id='border-style-top' name="Style">
+                <option value="0em">None</option>
+                <option value="0.111em">Above</option> 
+                <option value="0.222em">Below</option>
+                <option value="0.278em">Box</option>
+            </select>
+            <label class="border-thickness-label-top" for="border-thickness-top">Thickness:</label>
+            <select id='border-thickness-top' name="Thickness">
+                <option value="0em">None</option>
+                <option value="0.111em">Thin</option>  <!-- 2/18 em -->
+                <option value="0.222em">Medium</option>
+                <option value="0.278em">Thick</option>
+                <option value="0.389em">Very Thick</option>
+            </select>
+            <label class="border-color-label-top" for="border-color-top">Color:</label>
+            <input type="color" value="#ffffff" id="border-color-top">
+
+            <div class="match-area-label-top">Top<br>Level&nbsp;</div>
+            <label for="match-area-fg-top" class="match-area-fg-label-top">Text color:</label>
+            <input type="color" value="#ffffff" id="match-area-fg-top">
+            <label for="match-area-bg-top" class='match-area-bg-label-top'>Background<br>color:</label>
+            <input type="color" value="#ffffff" id="match-area-bg-top">
+            <span class='match-area-open-top'>(</span>
+            <span class='match-area-contents-top'>inside of open/close</span>
+            <span class='match-area-close-top'>)</span>
+            <label for="match-area-r-fg-top" class="match-area-r-fg-label-top">Text color:</label>
+            <input type="color" value="#ffffff" id="match-area-r-fg-top">
+            <label for="match-area-r-bg-top" class='match-area-r-bg-label-top'>Background<br>color:</label>
+            <input type="color" value="#ffffff" id="match-area-r-bg-top">
+            <label for="match-area-same-top" class="match-area-same-label-top">Same as<br>open:</label>
+            <input type="checkbox" value="true" id="match-area-same-top">
+            
+
+        </div>
+        <div id='buttons'>
+            <input id='change-match' type="button" value="Change">    
+            <input id='cancel-match' type="button" value="Cancel">    
+         </div>
+         </div> 
         <h2>Test Area</h2>
 
         <p>In the box below, try typing some text (only linear math is allowed):
         </p>
         <p>
             Try it!
-            <colored-edit-area id='test-input' contenteditable="true" spellcheck="false">2([4+3+5]÷(4-1)+9)=17</colored-edit-area>
+            <colored-edit-area id='test-input' contenteditable="true" spellcheck="false"> 2([4+3+5]÷(4-1)+9)=17</colored-edit-area>
         </p>
         <div class="palettes">
             <span>Symbols for the test area:</span>
@@ -237,7 +159,6 @@
                 Redraw Test Input <br>
                 (it doesn't look right)
             </button>
-
         </div>
-</body>
-  </html>
+    </body>
+</html>
