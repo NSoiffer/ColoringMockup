@@ -4,7 +4,7 @@
     <title>Coloring mockup</title>
     <meta charset="utf-8"/>
     <link rel="stylesheet" type="text/css" href="coloring.css">
-    <script type="module" src="coloring.js"> </script>
+    <script type="module" src="coloring.mjs"> </script>
     <script>
         function ToggleCollapse(el) {
           el.classList.toggle("active");
@@ -155,6 +155,25 @@
         <div class="palettes">
             <span>Symbols for the test area:</span>
             <span id='symbols-test' class='grid'>+-·×÷=&lt;&gt;±≠≤≥()[]⌊⌋⌈⌉|</span>    <!-- filled in by script -->
+        </div>
+        <h2>Save and Load Stored (named) Rules</h2>
+        <ul>
+        <li>After you have defined some new rules, choose a name for the rules, and click "Save" to save the rules.</li>
+        <li>You can type or choose that name later from the drop down list and click "Load" reuse the saved rules.</li>
+        <li>To give the rules to someone else, click "Copy to clipboard" and mail them or use some other means to give them to the other person.
+            They can select those rules, copy them, and then use the "Paste from Clipboard" button to make them their current rules.
+        </li>
+    </ul>
+        <div class="rule-area">
+            <label for="saveRules">Rules:</label>
+            <input type="text" id="rule-list-input" list="rulesList" style="grid-column: 2/6;">
+            <datalist id="rulesList"> <option value="foo"></option></datalist>     <!-- populated by code -->
+            <button class='button' id="saveRules" style="grid-column: 2/3;">Save</button>
+            <button class='button' id="loadRules">Load</button>
+            <button class='button' id="copyToClipboard">Copy to<br>Clipboard</button>
+            <button class='button' id="pasteFromClipboard">Paste from<br>Clipboard</button>
+
+            <button class='button' id='removeAllRules'  style="grid-column: 1/7;">Remove all stored rules</button>
         </div>
     </body>
 </html>

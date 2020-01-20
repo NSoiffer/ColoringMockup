@@ -197,6 +197,32 @@ text-align: center;
 }
 
 
+.rule-area {
+    display: inline-grid;
+    grid-template-columns: repeat(5, auto);
+    grid-row-gap:.5em;
+    align-items: center;
+    justify-items: center;
+    margin-left: .5em;
+    margin-right: .5em;
+    grid-gap: .2em;
+}
+
+.rule-area button {
+    width: auto;
+}
+
+#rule-list-input {
+    border: 2px solid orange;
+    border-radius: 8px;
+    padding: 5px;
+    height: 1.2em;
+    width: 15em;
+  }
+
+#remove-all {
+    background-color: salmon;
+}
 
 /* some styles for hiding/revealing content */
 .accordion {
