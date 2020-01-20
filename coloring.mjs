@@ -2,6 +2,9 @@
 /* -*- Mode: Java; tab-width: 4; indent-tabs-mode:nil; c-basic-offset: 4 -*- */
 /* vim: set ts=4 et sw=4 tw=80: */
 
+const DEFAULT_RULE_NAME = 'default coloring rules';
+const STORAGE_NAME__STARTUP_COLORING_RULES = 'ColoringRulesStartupRuleName';
+
 /**************
  * RegExp doesn't stringify by default. We add the method here
  *************************/
@@ -524,9 +527,12 @@ class MatchingColorRule {
 }
 
 class ColoringRules {
-    constructor() {
-        // Fix: should set a flag saying whether the rules are saved or not (change status on save or on changes)
-        this.name = '';
+    /**
+     * 
+     * @param {string} name 
+     */
+    constructor(name) {
+        this.name = name;
         /** @type {ColorRule[]} */
         this.patterns = [];
          /** @type {MatchingColorRule[]} */
@@ -539,7 +545,7 @@ class ColoringRules {
      * @returns {ColoringRules}
      */
     static readJSON(obj) {
-        let rules = new ColoringRules();
+        let rules = new ColoringRules(obj.name);
         Object.assign(rules, obj);
         rules.patterns = obj.patterns.map( rule => ColorRule.readJSON(rule) );
         rules.matches = obj.matches.map( match => MatchingColorRule.readJSON(match) );
@@ -551,7 +557,7 @@ class ColoringRules {
      * @returns {ColoringRules}
      */
     clone() {
-        let newRules = new ColoringRules();
+        let newRules = new ColoringRules(this.name);
         newRules.patterns = Object.assign([], this.patterns);
         newRules.matches = Object.assign([], this.matches);
         return newRules;
@@ -561,12 +567,11 @@ class ColoringRules {
      * @returns {ColoringRules}
      */
     initialize() {
-        this.name = 'default coloring rules';
+        this.name = DEFAULT_RULE_NAME;
         this.patterns.push( new ColorRule('3', 'hsl(130, 70%, 43%)', 'hsl(4, 90%, 50%)', 'normal', '') );
         this.patterns.push( new ColorRule('8', 'hsl(4, 90%, 50%)', 'hsl(130, 70%, 43%)', 'normal', '') );
         this.patterns.push( new ColorRule('\\(', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'normal', '0.167em') );
         this.patterns.push( new ColorRule('\\)', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'normal', '0.167em') );
-        this.patterns.push( new ColorRule('8', 'hsl(4, 90%, 50%)', 'hsl(130, 70%, 43%)', 'normal', '') );
         this.patterns.push( new ColorRule('[0-9]', '', '', 'normal', '') );
         this.patterns.push( new ColorRule('[a-zA-Z]', '', '', 'italic', '') );
         this.patterns.push( new ColorRule('\\+|×|÷|±', '', '', 'normal', '.222em') );
@@ -601,7 +606,7 @@ class ColoringRules {
      * @returns {string}
      */
     escapeSpecialChars(ch) {
-        return ch.replace(/[(\\\^\$\.\|\?\*\+\(\)\[\{)]/g, '\\$&');
+        return ch.length > 1 ? ch : ch.replace(/[(\\\^\$\.\|\?\*\+\(\)\[\{)]/g, '\\$&');
     }
     /** 
      * @param {string} ch // should be a single character
@@ -629,7 +634,7 @@ class ColoringRules {
      */
     replace(ch, rule) {
         const regExForCh = new RegExp( this.escapeSpecialChars(ch) );
-        const i = this.patterns.findIndex( p => p.pattern == regExForCh);
+        const i = this.patterns.findIndex( p => p.pattern.source === regExForCh.source);
         if (i >= 0) {
             this.patterns[i] = rule;
         } else {
@@ -747,7 +752,7 @@ class ColoringRules {
 
     updatePalettes() {
         for (const palette of PaletteIds) {
-            const buttons = document.getElementById(palette).getElementsByTagName('button');
+            const buttons = getInputElement(palette).getElementsByTagName('button');
             for (const button of buttons) {
                 button.innerHTML = this.convertToSpan(button.innerText);
             }
@@ -755,7 +760,7 @@ class ColoringRules {
     }
 
     updateTestInput() {
-        const testArea = document.getElementById('test-input');
+        const testArea = getInputElement('test-input');
         const caretOffset = getCaretPosition(testArea);
         testArea.innerHTML = this.convertToSpan(testArea.textContent);
         setCaretPosition(testArea, caretOffset);
@@ -766,15 +771,33 @@ class ColoringRules {
         this.updateTestInput();
     }
 
+    /**
+     * 
+     * @param {Object} ruleObj 
+     * @returns {boolean}
+     */
+    looksLikeColoringRule(ruleObj) {
+        return ruleObj['name'] && ruleObj['patterns'] && ruleObj['matches'];
+    }
+
     rulesList() {
-        let dataListElement = document.getElementById('rulesList');
+        let dataListElement = getInputElement('rulesList');
         dataListElement.innerHTML = '';
 
         const storage = window.localStorage;
         for (let i = 0; i < storage.length; i++) {
-            const newOptionElement = document.createElement('option');
-            newOptionElement.setAttribute('value', storage.key(i));
-            dataListElement.appendChild(newOptionElement);
+            const key = storage.key(i);
+            let value;
+            try {
+                value = JSON.parse(storage.getItem(key));
+            } catch(e) {
+                value = {};
+            }
+            if (this.looksLikeColoringRule(value)) {
+                const newOptionElement = document.createElement('option');
+                newOptionElement.setAttribute('value', storage.key(i));
+                dataListElement.appendChild(newOptionElement);    
+            }
         }
     }
     /**
@@ -803,6 +826,8 @@ class ColoringRules {
         try {
             const asString = JSON.stringify(this);
             storage.setItem(name, asString);
+            storage.setItem(STORAGE_NAME__STARTUP_COLORING_RULES, name);
+            this.saveStatus(true);
         }
         catch(err) {
             alert("Could not store rule!");
@@ -818,17 +843,22 @@ class ColoringRules {
             alert('You must type a name for the rule');
             return;
         }
+
+        if (!ColoringRules.Saved && confirm(`Current coloring rule ${this.name} is not saved. Do you want to save it?`)) {
+            this.saveRules(this.name);
+        }
        
-        // FIX: put up a warning if about to overwrite unsaved rules
-        // if (!this.saved) ....
         const storage = window.localStorage;
         const ruleString = storage.getItem(name);
-        if (!ruleString) {
+        const ruleObj = !ruleString || JSON.parse(ruleString);
+        if (!ruleString || !this.looksLikeColoringRule(ruleObj)) {
             alert(`No rule found for ${name}`);
             return;
         }
 
-        ColoringRules.Rules = ColoringRules.readJSON(JSON.parse(ruleString));
+        ColoringRules.Rules = ColoringRules.readJSON(ruleObj);
+        storage.setItem(STORAGE_NAME__STARTUP_COLORING_RULES, name);
+        ColoringRules.Rules.saveStatus(true);
         ColoringRules.Rules.updateAll();
     }
 
@@ -843,11 +873,14 @@ class ColoringRules {
     pasteFromClipboard() {
         return navigator.clipboard.readText().then(
             result => {
-                // FIX: put up a warning if about to overwrite unsaved rules
-                // if (!this.saved) ....
+                if (!ColoringRules.Saved && confirm(`Current coloring rule ${this.name} is not saved. Do you want to save it?`)) {
+                    this.saveRules(this.name);
+                }
                 const newRules = ColoringRules.readJSON(JSON.parse(result));
                 if ('name' in newRules && 'patterns' in newRules && 'matches' in newRules) {
                     ColoringRules.Rules = newRules;
+                    window.localStorage.setItem(STORAGE_NAME__STARTUP_COLORING_RULES, newRules.name);
+                    ColoringRules.Rules.saveStatus(true);
                     ColoringRules.Rules.updateAll();    
                 } else {
                     alert("Error: clipboard does not contain rules for coloring math");
@@ -860,15 +893,26 @@ class ColoringRules {
           })
    }
 
-   removeAllRules() {
+    removeAllRules() {
        if (confirm('Are you sure you want to remove all of the stored coloring rules?')) {
             window.localStorage.clear();
        }
-   }
+    }
+
+    /**
+     * 
+     * @param {boolean} saved 
+     */
+    saveStatus(saved) {
+        ColoringRules.Saved = saved;
+        const message = `Current coloring rule: ${this.name}` + (saved ? '' : ' (NOT SAVED)');
+        getInputElement('current-rule').innerText = message;
+    }
 }
 
 // The global (permantent) instance of coloring rules
-ColoringRules.Rules = new ColoringRules().initialize();
+ColoringRules.Rules = null;
+ColoringRules.Saved = true;
 
 
 class EditHistory {
@@ -929,6 +973,23 @@ function getInputElement(id) {
     return document.getElementById(id);
 }
 
+/**
+ * 
+ * @param {boolean} charArea 
+ * @param {boolean} matchArea 
+ * @param {boolean} enabled 
+ */
+function setChangeCancelStatus(charArea, matchArea, enabled) {
+    if (charArea) {
+        document.getElementById('change').disabled = !enabled;
+        document.getElementById('cancel').disabled = !enabled;
+    }
+    if (matchArea) {
+        document.getElementById('change-match').disabled = !enabled;
+        document.getElementById('cancel-match').disabled = !enabled;
+    }
+}
+
 const EditAreaIds = ['edit-input', 'text-color', 'bg-color', 'font-style', 'spacing'];
 const PaletteIds = ['lc-letters', 'uc-letters', 'digits', 'symbols', 'symbols-test'];
 const OnClickIds = ['saveRules', 'loadRules', 'copyToClipboard', 'pasteFromClipboard', 'removeAllRules'];
@@ -938,6 +999,15 @@ EditHistory.editInput = new EditHistory( document.getElementById('edit-input').t
 
 window.onload =
     function() {
+        // get initial coloring rules
+        const initColoringRuleName = window.localStorage.getItem(STORAGE_NAME__STARTUP_COLORING_RULES);
+        if (initColoringRuleName) {
+            new ColoringRules(initColoringRuleName).loadRules(initColoringRuleName);
+            // loadRules sets saveStatus
+        } else {
+            ColoringRules.Rules = new ColoringRules(DEFAULT_RULE_NAME).initialize();
+            ColoringRules.Rules.saveStatus(true); 
+        }
         // add the palettes
         PaletteIds.forEach( palette => addCharacterPalette( document.getElementById(palette)) );
 
@@ -959,30 +1029,32 @@ window.onload =
         EditAreaIds.forEach(
             id => document.getElementById(id).addEventListener('input', updateCharStyle));
             
-            document.getElementById('change').addEventListener('mousedown', function() {
-                const editAreaRules = gatherCharStyle(editInputArea);
-                const complementaryRules = getComplimentaryRules(oppositeInputEditArea.value, editAreaRules.patterns[0]);   
-                ColoringRules.Rules = ColoringRules.Rules.merge( complementaryRules.merge(editAreaRules) );
-                ColoringRules.Rules.updateAll();
-                editInputArea.innerText = '';   // clear the work area input
-                oppositeInputEditArea.value = '';
-            });
-            document.getElementById('cancel').addEventListener('mousedown', function() {
-                ColoringRules.Rules.updateAll();
-                editInputArea.innerText = '';   // clear the work area input
-                oppositeInputEditArea.value = '';
-            });
+        document.getElementById('change').addEventListener('mousedown', function() {
+            const editAreaRules = gatherCharStyle(editInputArea);
+            const complementaryRules = getComplimentaryRules(oppositeInputEditArea.value, editAreaRules.patterns[0]);   
+            ColoringRules.Rules = ColoringRules.Rules.merge( complementaryRules.merge(editAreaRules) );
+            ColoringRules.Rules.updateAll();
+            editInputArea.innerText = '';   // clear the work area input
+            oppositeInputEditArea.value = '';
+            ColoringRules.Rules.saveStatus(false);
+            setChangeCancelStatus(true, false, false);
+        });
+        document.getElementById('cancel').addEventListener('mousedown', function() {
+            ColoringRules.Rules.updateAll();
+            editInputArea.innerText = '';   // clear the work area input
+            oppositeInputEditArea.value = '';
+            setChangeCancelStatus(true, false, false);
+        });
 
-            document.getElementById('rule-list-input').addEventListener('focus', function() {
-                    ColoringRules.Rules.rulesList() });
-            OnClickIds.forEach(
+        document.getElementById('rule-list-input').addEventListener('focus', function() {
+                ColoringRules.Rules.rulesList() });
+        OnClickIds.forEach(
             id => document.getElementById(id).addEventListener('click', function() {
                 ColoringRules.Rules[id]( getInputElement('rule-list-input').value ); })
         );
 
-        // useful for demo at the moment to have some initial contents
-        //testInput.innerHTML = ColoringRules.Rules.convertToSpan(testInput.textContent);
-        ColoringRules.Rules.updateTestInput();
+        setChangeCancelStatus(true, true, false);
+        ColoringRules.Rules.updateAll();
     };
 
 /**
@@ -1016,7 +1088,6 @@ function copyCharToTestArea(ev) {
  * 
  * @param {MouseEvent} ev 
  */
-// @ts-ignore
 function copyCharToEditArea(ev) {
     let editInputArea = document.getElementById('edit-input');
     if (editInputArea.innerText) {
@@ -1030,15 +1101,12 @@ function copyCharToEditArea(ev) {
     // update the edit area fields
     // @ts-ignore
     let targetStyle = editInputArea.children[0]. style;
-    // @ts-ignore
-    document.getElementById('text-color').value = targetStyle.color ? new Color(targetStyle.color).toCSSColor('hex') : '#000000';
-    // @ts-ignore
-    document.getElementById('bg-color').value = targetStyle.backgroundColor ? new Color(targetStyle.backgroundColor).toCSSColor('hex') : '#ffffff';
-    // @ts-ignore
-    document.getElementById('font-style').value = targetStyle.fontStyle ? targetStyle.fontStyle : 
+    getInputElement('text-color').value = targetStyle.color ? new Color(targetStyle.color).toCSSColor('hex') : '#000000';
+    getInputElement('bg-color').value = targetStyle.backgroundColor ? new Color(targetStyle.backgroundColor).toCSSColor('hex') : '#ffffff';
+    getInputElement('font-style').value = targetStyle.fontStyle ? targetStyle.fontStyle : 
                                                   targetStyle.fontWeight ? targetStyle.fontWeight : 'normal';
-    // @ts-ignore
-    document.getElementById('spacing').value = targetStyle.marginLeft ? targetStyle.marginLeft : '0em';
+    getInputElement('spacing').value = targetStyle.marginLeft ? targetStyle.marginLeft : '0em';
+    setChangeCancelStatus(true, false, true);
 }
 
 /**
@@ -1046,7 +1114,6 @@ function copyCharToEditArea(ev) {
  * @param {InputEvent} e 
  */
 function updateTestArea(e) {
-    console.log(e);
     switch (e.inputType) {
         case 'historyRedo':
             e.preventDefault();
@@ -1075,11 +1142,10 @@ function updateTestArea(e) {
  * @returns {ColoringRules} 
  */
 function gatherCharStyle(elementForChar) {
-    // @ts-ignore '.value' is issue
-    const ruleValues = EditAreaIds.slice(1).map(  id => document.getElementById(id).value);
+    const ruleValues = EditAreaIds.slice(1).map(  id => getInputElement(id).value);
 
     // create a rule based on those values and *add* it to a temporary set of rules
-    let newRules = new ColoringRules();
+    let newRules = new ColoringRules('temp');
     let text = elementForChar.innerText ? elementForChar.innerText : '\uffff';  // use char that can't be typed
 
     for (const ch of text.split('')) {      // for loop because there could be more than one char
@@ -1101,7 +1167,7 @@ function getComplimentaryRules(chars, colorRule) {
     let [compForeground, compBackground] = bgColor.toComplementary();
 
     chars = chars || '\uffff';  // safe value to use since it will never match anything
-    let result = new ColoringRules()
+    let result = new ColoringRules('temp');;
     for (const ch of chars) {
         result.replace(ch, new ColorRule(ch, compForeground, compBackground, colorRule.style, colorRule.spacing));
     }
@@ -1115,10 +1181,10 @@ function getComplimentaryRules(chars, colorRule) {
  */
 function updateCharStyle(e) {
     // gather up all the values that were set
-    const elementForChar = document.getElementById('edit-input')
+    const elementForChar = getInputElement('edit-input')
     const editAreaRules = gatherCharStyle(elementForChar);
 
-    const oppositeEditArea = document.getElementById('opposite-input');
+    const oppositeEditArea = getInputElement('opposite-input');
     // @ts-ignore
     let complementaryRules = getComplimentaryRules(oppositeEditArea.firstElementChild.value, editAreaRules.patterns[0]);
 

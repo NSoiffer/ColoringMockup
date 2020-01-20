@@ -27,7 +27,13 @@ body {
     transition-property: border;
 }
 .button:hover {
-    box-shadow: 3px 3px #888888;
+    box-shadow: 3px 3px #85b9f5;
+}
+
+#current-rule {
+    padding-top: 1em;
+    padding-left: 5em;
+    font-weight: bold;
 }
 
 
@@ -55,14 +61,22 @@ white-space: nowrap;
 
 #char-table {
 margin-top: 4ex;
-margin-bottom: 2ex;
 }
 #char-table td{
 text-align: center;
 }
 
-#buttons {
-text-align: center;
+.change-cancel-buttons {
+    text-align: center;
+}
+
+.change-cancel-buttons button {
+    margin-top: 1em;
+    font-size: 12pt;
+    width: initial;
+}
+.change-cancel-buttons button:enabled {
+    background-color: salmon;
 }
 
 #buttons input {
@@ -106,7 +120,13 @@ text-align: center;
     ".     .       .      .     btl-t bt-t  .     .        .       .     ."
     ".     .       .      .     bcl-t bc-t  .     .        .       .     ."
     "mal-t mafgl-t mafg-t mao-t ma-t  ma-t  mac-t marfgl-t marfg-t mas-t masl-t"
-    "mal-t mabgl-t mabg-t mao-t ma-t  ma-t  mac-t marbgl-t marbg-t mas-t masl-t";
+    "mal-t mabgl-t mabg-t mao-t ma-t  ma-t  mac-t marbgl-t marbg-t mas-t masl-t"
+    "mal-b mafgl-b mafg-b mao-b ma-b  ma-b  mac-b marfgl-b marfg-b mas-b masl-b"
+    "mal-b mabgl-b mabg-b mao-b ma-b  ma-b  mac-b marbgl-b marbg-b mas-b masl-b"
+    ".     .       .      .     bcl-b bc-b  .     .        .       .     ."
+    ".     .       .      .     btl-b bt-b  .     .        .       .     ."
+    ".     .       .      .     bsl-b bs-b  .     .        .       .     ."
+    ".     .       .      .     bl-b  bl-b  .     .        .       .     ."
 }
 
 .border-label-top {
@@ -199,7 +219,6 @@ text-align: center;
 
 .rule-area {
     display: inline-grid;
-    grid-template-columns: repeat(5, auto);
     grid-row-gap:.5em;
     align-items: center;
     justify-items: center;
@@ -210,6 +229,7 @@ text-align: center;
 
 .rule-area button {
     width: auto;
+    font-size: 12pt;
 }
 
 #rule-list-input {
@@ -220,7 +240,8 @@ text-align: center;
     width: 15em;
   }
 
-#remove-all {
+#removeAllRules {
+    margin-top: 1em;
     background-color: salmon;
 }
 

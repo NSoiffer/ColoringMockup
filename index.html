@@ -89,9 +89,9 @@
                 <td><span id='opposite-input'> <input type="text" name="Character" value="" size="2"> </span></td>
             </tr>
         </table>              
-        <div id='buttons'>
-           <input id='change' type="button" value="Change">    
-           <input id='cancel' type="button" value="Cancel">    
+        <div class='change-cancel-buttons'>
+            <button id='change' class="button"> Change </button> 
+            <button id='cancel' class="button"> Cancel </button>
         </div>
         <hr>
         <span>Open Char:</span>
@@ -139,10 +139,11 @@
             
 
         </div>
-        <div id='buttons'>
-            <input id='change-match' type="button" value="Change">    
-            <input id='cancel-match' type="button" value="Cancel">    
+        <div class='change-cancel-buttons'>
+            <button id='change-match' class="button"> Change </button> 
+            <button id='cancel-match' class="button"> Cancel </button>
          </div>
+         <div id="current-rule"></div>
          </div> 
         <h2>Test Area</h2>
 
@@ -165,13 +166,14 @@
         </li>
     </ul>
         <div class="rule-area">
-            <label for="saveRules">Rules:</label>
-            <input type="text" id="rule-list-input" list="rulesList" style="grid-column: 2/6;">
+            <label for="saveRules" style="grid-area: 1/1/3/2;">Rules:</label>
+            <input type="text" placeholder="enter coloring rule name" id="rule-list-input" list="rulesList" style="grid-area: 1/2/3/3;">
             <datalist id="rulesList"> <option value="foo"></option></datalist>     <!-- populated by code -->
-            <button class='button' id="saveRules" style="grid-column: 2/3;">Save</button>
-            <button class='button' id="loadRules">Load</button>
-            <button class='button' id="copyToClipboard">Copy to<br>Clipboard</button>
-            <button class='button' id="pasteFromClipboard">Paste from<br>Clipboard</button>
+            <button class='button' id="saveRules" style="grid-area: 1/3/2/4;">Save</button>
+            <button class='button' id="loadRules" style="grid-area: 2/3/3/4;">Load</button>
+            <span style="width: 3em; grid-area: 1/4/2/5;" aria-hidden="true"></span>  <!-- spacing-->
+            <button class='button' id="copyToClipboard" style="grid-area: 1/5/2/6;">Copy to Clipboard</button>
+            <button class='button' id="pasteFromClipboard" style="grid-area: 2/5/3/6;">Paste from Clipboard</button>
 
             <button class='button' id='removeAllRules'  style="grid-column: 1/7;">Remove all stored rules</button>
         </div>
