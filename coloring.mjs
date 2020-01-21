@@ -759,6 +759,34 @@ class ColoringRules {
         }
     }
 
+    updateMatchArea() {
+        /**
+         * 
+         * @param {string} charID 
+         * @param {string} fgID 
+         * @param {string} bgID 
+         * @param {string} demoCharID 
+         */
+        function updateTopLevelCharElements(charID, fgID, bgID, demoCharID) {
+            const el = getInputElement(charID);
+            const ch = el.innerText;
+            const caretOffset = getCaretPosition(el);
+            el.innerHTML = that.convertToSpan(ch);
+            setCaretPosition(el, caretOffset);
+            
+            const colorRule = that.match(ch);
+            if (colorRule) {
+                getInputElement(fgID).value = colorRule.fgColor.toCSSColor('hex');
+                getInputElement(bgID).value = colorRule.bgColor.toCSSColor('hex');
+            }
+            document.getElementsByClassName(demoCharID)[0].innerHTML = that.convertToSpan(ch);
+        }
+
+        const that = this;
+        updateTopLevelCharElements('match-open-char', 'match-area-fg-top', 'match-area-bg-top', 'match-area-open-top');
+        updateTopLevelCharElements('match-close-char', 'match-area-r-fg-top', 'match-area-r-bg-top', 'match-area-close-top');
+    }
+
     updateTestInput() {
         const testArea = getInputElement('test-input');
         const caretOffset = getCaretPosition(testArea);
@@ -768,6 +796,7 @@ class ColoringRules {
     
     updateAll() {
         this.updatePalettes();
+        this.updateMatchArea();
         this.updateTestInput();
     }
 

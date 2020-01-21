@@ -94,15 +94,13 @@
             <button id='cancel' class="button"> Cancel </button>
         </div>
         <hr>
-        <span>Open Char:</span>
-        <span contenteditable="true">(</span>
-        <span>Close Char:</span>
-        <span contenteditable="true">)</span>
-        <br>
-        <br>
-        <br>
 
         <div id="open-close-area">
+            <span class='match-open-char-label'>Open Char:</span>
+            <colored-edit-area id='match-open-char' class="char" contenteditable="true" spellcheck="false">(</colored-edit-area>
+            <span class='match-close-char-label'>Close Char:</span>
+            <colored-edit-area id='match-close-char' class="char" contenteditable="true" spellcheck="false">)</colored-edit-area>
+
             <span class="border-label-top">Border&nbsp;</span>
             <label class="border-style-label-top" for="border-style-top">Style:</label>
             <select id='border-style-top' name="Style">
@@ -134,8 +132,42 @@
             <input type="color" value="#ffffff" id="match-area-r-fg-top">
             <label for="match-area-r-bg-top" class='match-area-r-bg-label-top'>Background<br>color:</label>
             <input type="color" value="#ffffff" id="match-area-r-bg-top">
-            <label for="match-area-same-top" class="match-area-same-label-top">Same as<br>open:</label>
+            <label for="match-area-same-top" class="match-area-same-label-top">Same as<br>open</label>
             <input type="checkbox" value="true" id="match-area-same-top">
+
+            <span class="border-label-bottom">Border&nbsp;</span>
+            <label class="border-style-label-bottom" for="border-style-bottom">Style:</label>
+            <select id='border-style-bottom' name="Style">
+                <option value="0em">None</option>
+                <option value="0.111em">Above</option> 
+                <option value="0.222em">Below</option>
+                <option value="0.278em">Box</option>
+            </select>
+            <label class="border-thickness-label-bottom" for="border-thickness-bottom">Thickness:</label>
+            <select id='border-thickness-bottom' name="Thickness">
+                <option value="0em">None</option>
+                <option value="0.111em">Thin</option>  <!-- 2/18 em -->
+                <option value="0.222em">Medium</option>
+                <option value="0.278em">Thick</option>
+                <option value="0.389em">Very Thick</option>
+            </select>
+            <label class="border-color-label-bottom" for="border-color-bottom">Color:</label>
+            <input type="color" value="#ffffff" id="border-color-bottom">
+
+            <div class="match-area-label-bottom">Nested&nbsp;</div>
+            <label for="match-area-fg-bottom" class="match-area-fg-label-bottom">Text color:</label>
+            <input type="color" value="#ffffff" id="match-area-fg-bottom">
+            <label for="match-area-bg-bottom" class='match-area-bg-label-bottom'>Background<br>color:</label>
+            <input type="color" value="#ffffff" id="match-area-bg-bottom">
+            <span class='match-area-open-bottom'>(</span>
+            <span class='match-area-contents-bottom'>inside of open/close</span>
+            <span class='match-area-close-bottom'>)</span>
+            <label for="match-area-r-fg-bottom" class="match-area-r-fg-label-bottom">Text color:</label>
+            <input type="color" value="#ffffff" id="match-area-r-fg-bottom">
+            <label for="match-area-r-bg-bottom" class='match-area-r-bg-label-bottom'>Background<br>color:</label>
+            <input type="color" value="#ffffff" id="match-area-r-bg-bottom">
+            <label for="match-area-same-bottom" class="match-area-same-label-bottom">Same as<br>open</label>
+            <input type="checkbox" value="true" id="match-area-same-bottom">
             
 
         </div>

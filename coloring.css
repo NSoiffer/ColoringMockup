@@ -37,17 +37,19 @@ body {
 }
 
 
-#test-input {
-font-size: 150%;
-border-style: solid;
-border-width: 1px;
-padding: .3em;
-width: 50em;
-white-space: nowrap;
+colored-edit-area {
+    display: inline-block;
+    font-size: 150%;
+    border-style: solid;
+    border-width: 1px;
+    padding: .3em;
+    width: 20em;
+    white-space: nowrap;
 }
 
-#test-input span {
-    display: inline-block;
+colored-edit-area.char {
+    font-size: 100%;
+    width: 1em;
 }
 
 #refresh {
@@ -115,8 +117,8 @@ text-align: center;
     margin-right: .5em;
     grid-gap: .2em;
     grid-template-areas:
-    ".     .       .      .     bl-t  bl-t  .     .        .       .     ."
-    ".     .       .      .     bsl-t bs-t  .     .        .       .     ."
+    ".     ol       ol     .    bl-t  bl-t   .    cl       cl      .     ."
+    ".     o       o      .     bsl-t bs-t  .     c        c       .     ."
     ".     .       .      .     btl-t bt-t  .     .        .       .     ."
     ".     .       .      .     bcl-t bc-t  .     .        .       .     ."
     "mal-t mafgl-t mafg-t mao-t ma-t  ma-t  mac-t marfgl-t marfg-t mas-t masl-t"
@@ -127,6 +129,24 @@ text-align: center;
     ".     .       .      .     btl-b bt-b  .     .        .       .     ."
     ".     .       .      .     bsl-b bs-b  .     .        .       .     ."
     ".     .       .      .     bl-b  bl-b  .     .        .       .     ."
+}
+
+.match-open-char-label {
+    font-weight: bold;
+    grid-area: ol;
+}
+
+.match-close-char-label {
+    font-weight: bold;
+    grid-area: cl;
+}
+
+#match-open-char {
+    grid-area: o;
+}
+
+#match-close-char {
+    grid-area: c;
 }
 
 .border-label-top {
@@ -163,6 +183,7 @@ text-align: center;
 
 .match-area-label-top {
     grid-area: mal-t;
+    font-weight: bold;
 }
 .match-area-fg-label-top {
     grid-area: mafgl-t;
@@ -203,17 +224,96 @@ text-align: center;
     grid-area: marbg-t;
 }
 
-#match-area-same-top:before {
-    content: "}";
-    font-size: 4em;
-    font-family: "times";
-}
-
 #match-area-same-top {
     grid-area: mas-t;
 }
 .match-area-same-label-top {
     grid-area: masl-t;
+}
+
+
+
+
+.border-label-bottom {
+    justify-self: center;
+    font-weight: bold;
+    grid-area: bl-b;
+}
+
+.border-style-label-bottom {
+    justify-self: right;
+    grid-area:bsl-b;
+}
+#border-style-bottom {
+    justify-self: left;
+    grid-area: bs-b;
+}
+
+.border-thickness-label-bottom {
+    justify-self: right;
+    grid-area: btl-b
+}
+#border-thickness-bottom {
+    justify-self: left;
+    grid-area: bt-b;
+}
+.border-color-label-bottom {
+    justify-self: right;
+    grid-area: bcl-b;
+}
+#border-color-bottom {
+    justify-self: left;
+    grid-area: bc-b;
+}
+
+.match-area-label-bottom {
+    grid-area: mal-b;
+    font-weight: bold;
+}
+.match-area-fg-label-bottom {
+    grid-area: mafgl-b;
+}
+#match-area-fg-bottom {
+    grid-area: mafg-b;
+}
+.match-area-bg-label-bottom {
+    grid-area: mabgl-b;
+}
+#match-area-bg-bottom {
+    grid-area: mabg-b;
+}
+
+.match-area-open-bottom{
+    grid-area: mao-b;
+}
+.match-area-contents-bottom {
+    grid-area: ma-b;  
+}
+.match-area-close-bottom{
+    grid-area: mac-b;
+}
+
+.match-area-label-bottom {
+    grid-area: mal-b;
+}
+.match-area-r-fg-label-bottom {
+    grid-area: marfgl-b;
+}
+#match-area-r-fg-bottom {
+    grid-area: marfg-b;
+}
+.match-area-r-bg-label-bottom {
+    grid-area: marbgl-b;
+}
+#match-area-r-bg-bottom {
+    grid-area: marbg-b;
+}
+
+#match-area-same-bottom {
+    grid-area: mas-b;
+}
+.match-area-same-label-bottom {
+    grid-area: masl-b;
 }
 
 
