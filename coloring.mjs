@@ -599,7 +599,7 @@ class ColoringRules {
             new MatchColor('', 'Box','0.222em','hsl(0,0%, 50%)'),
             new MatchColor('', 'None','0.111em','hsl(0,0%, 30%)')
         ));
-    return this;
+        return this;
     }
 
     /**
@@ -781,7 +781,7 @@ class ColoringRules {
                     getInputElement(obj.bgID).value = colorRule.bgColor.toCSSColor('hex');
                 }
             }
-            document.getElementsByClassName(obj.demoCharID)[0].innerHTML = that.convertToSpan(ch);
+            document.getElementsByClassName(obj.demoCharID)[0].setAttribute('style', colorRule.buildSpanStyle());
             const nestColorRule = that.matchMatch(ch, obj.open);
             const nestRule = open ? 'nestedOpenColorRule' : 'nestedCloseColorRule';
             if (nestColorRule) {
@@ -792,7 +792,7 @@ class ColoringRules {
                     getInputElement(obj.nestbgID).value = nestColorRule[nestRule].bgColor.toCSSColor('hex');
                 }
             }
-            document.getElementsByClassName(obj.demoCharNestID)[0].innerHTML = that.convertToSpan(ch);
+            document.getElementsByClassName(obj.demoCharNestID)[0].setAttribute('style', nestColorRule[nestRule].buildSpanStyle());
         }
 
         /**
@@ -807,14 +807,12 @@ class ColoringRules {
             /** @type{HTMLSelectElement} */
             let el = document.getElementById(obj.styleID);
             for (let i = 0; i < el.options.length; i++) {
-                el.options.item(i).selected = el.options.item(i).text === matchRule.borderPosition;
+                el.options.item(i).selected = (el.options.item(i).text === matchRule.borderPosition);
             }
 
             el = document.getElementById(obj.thicknessID);
             for (let i = 0; i < el.options.length; i++) {
-            getInputElement(obj.thicknessID).value = matchRule.borderThickness;
-            getInputElement(obj.thicknessID).value = matchRule.borderThickness;
-                el.options.item(i).selected = el.options.item(i).text === matchRule.borderThickness;
+                el.options.item(i).selected = (el.options.item(i).text === matchRule.borderThickness);
             }
 
             if (matchRule.borderColor) {
@@ -1277,7 +1275,7 @@ function getComplimentaryRules(chars, colorRule) {
     chars = chars || '\uffff';  // safe value to use since it will never match anything
     let result = new ColoringRules('temp');;
     for (const ch of chars) {
-        result.replace(ch, new ColorRule(ch, compForeground, compBackground, colorRule.style, colorRule.spacing));
+        result.replace(result.escapeSpecialChars(ch), new ColorRule(ch, compForeground, compBackground, colorRule.style, colorRule.spacing));
     }
 
     return result;
