@@ -458,11 +458,13 @@ class MatchColor {
             style += ` background-color: ${this.bgColor.toCSSColor('hex')};`;
         }
         switch(this.borderPosition) {
-            case 'top':
-            case 'bottom':
-                style += ` border-${this.borderPosition}-style: solid;`;
+            case 'Above':
+                style += ' border-top-style: solid;';
                 break;
-            case 'all':
+           case 'Below':
+                style += ' border-bottom-style: solid;';
+                break;
+            case 'Box':
                 style += ' border-style: solid;';
                 break;
             default:
@@ -582,20 +584,20 @@ class ColoringRules {
         this.replaceMatch('(', new MatchingColorRule('\\(', '\\)',
             new ColorRule('\\(', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
             new ColorRule('\\)', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
-            new MatchColor('', 'all','1px','hsl(0,0%, 50%)'),
-            new MatchColor('hsl(240, 100%, 95%)', 'none','1px','hsl(0,0%, 30%)')
+            new MatchColor('', 'Box','0.111em','hsl(0,0%, 50%)'),
+            new MatchColor('hsl(240, 100%, 95%)', 'None','0.111em','hsl(0,0%, 30%)')
          ));
          this.replaceMatch('\\[', new MatchingColorRule('\\[', '\\]',
             new ColorRule('\\[', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
             new ColorRule('\\]', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
-            new MatchColor('', 'bottom','2px','hsl(0,0%, 50%)'),
-            new MatchColor('hsl(270, 100%, 95%)', 'top','2px','hsl(0,0%, 30%)')
+            new MatchColor('', 'Below','2px','hsl(0,0%, 50%)'),
+            new MatchColor('hsl(270, 100%, 95%)', 'Above','2px','hsl(0,0%, 30%)')
         ));
         this.replaceMatch('\\{', new MatchingColorRule('\\{', '}',
             new ColorRule('\\{', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
             new ColorRule('}', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
-            new MatchColor('', 'all','2px','hsl(0,0%, 50%)'),
-            new MatchColor('', 'none','1px','hsl(0,0%, 30%)')
+            new MatchColor('', 'Box','0.222em','hsl(0,0%, 50%)'),
+            new MatchColor('', 'None','0.111em','hsl(0,0%, 30%)')
         ));
     return this;
     }
@@ -761,14 +763,10 @@ class ColoringRules {
 
     updateMatchArea() {
         /**
-         * 
-         * @param {string} charID 
-         * @param {string} fgID 
-         * @param {string} bgID 
-         * @param {string} demoCharID 
+         * @param {Object} obj
          */
-        function updateTopLevelCharElements(charID, fgID, bgID, demoCharID) {
-            const el = getInputElement(charID);
+        function updateLeftOrRightSide(obj) {
+            const el = getInputElement(obj.charID);
             const ch = el.innerText;
             const caretOffset = getCaretPosition(el);
             el.innerHTML = that.convertToSpan(ch);
@@ -776,15 +774,96 @@ class ColoringRules {
             
             const colorRule = that.match(ch);
             if (colorRule) {
-                getInputElement(fgID).value = colorRule.fgColor.toCSSColor('hex');
-                getInputElement(bgID).value = colorRule.bgColor.toCSSColor('hex');
+                if (colorRule.fgColor) {
+                    getInputElement(obj.fgID).value = colorRule.fgColor.toCSSColor('hex');
+                }
+                if (colorRule.bgColor) {
+                    getInputElement(obj.bgID).value = colorRule.bgColor.toCSSColor('hex');
+                }
             }
-            document.getElementsByClassName(demoCharID)[0].innerHTML = that.convertToSpan(ch);
+            document.getElementsByClassName(obj.demoCharID)[0].innerHTML = that.convertToSpan(ch);
+            const nestColorRule = that.matchMatch(ch, obj.open);
+            const nestRule = open ? 'nestedOpenColorRule' : 'nestedCloseColorRule';
+            if (nestColorRule) {
+                if (nestColorRule) {
+                    getInputElement(obj.nestfgID).value = nestColorRule[nestRule].fgColor.toCSSColor('hex');
+                }
+                if (nestColorRule) {
+                    getInputElement(obj.nestbgID).value = nestColorRule[nestRule].bgColor.toCSSColor('hex');
+                }
+            }
+            document.getElementsByClassName(obj.demoCharNestID)[0].innerHTML = that.convertToSpan(ch);
+        }
+
+        /**
+         * @param {MatchColor} matchRule
+         * @param {Object} obj
+         */
+        function updateTopOrBottom(matchRule, obj) {
+            const disabled = matchRule.borderPosition === 'None';
+            getInputElement(obj.thicknessID).disabled = disabled;
+            getInputElement(obj.borderColorID).disabled = disabled;
+
+            /** @type{HTMLSelectElement} */
+            let el = document.getElementById(obj.styleID);
+            for (let i = 0; i < el.options.length; i++) {
+                el.options.item(i).selected = el.options.item(i).text === matchRule.borderPosition;
+            }
+
+            el = document.getElementById(obj.thicknessID);
+            for (let i = 0; i < el.options.length; i++) {
+            getInputElement(obj.thicknessID).value = matchRule.borderThickness;
+            getInputElement(obj.thicknessID).value = matchRule.borderThickness;
+                el.options.item(i).selected = el.options.item(i).text === matchRule.borderThickness;
+            }
+
+            if (matchRule.borderColor) {
+                getInputElement(obj.borderColorID).value = matchRule.borderColor.toCSSColor('hex');;
+            }
+            if (matchRule.bgColor) {
+                getInputElement(obj.bgColorID).value = matchRule.bgColor.toCSSColor('hex');
+            }
+            getInputElement(obj.insideID).setAttribute('style', matchRule.buildSpanStyle());
         }
 
         const that = this;
-        updateTopLevelCharElements('match-open-char', 'match-area-fg-top', 'match-area-bg-top', 'match-area-open-top');
-        updateTopLevelCharElements('match-close-char', 'match-area-r-fg-top', 'match-area-r-bg-top', 'match-area-close-top');
+        updateLeftOrRightSide({
+            open: true,
+            charID: 'match-open-char',
+            fgID:'match-area-fg-top',
+            bgID:'match-area-bg-top',
+            demoCharID: 'match-area-open-top',
+            nestfgID: 'match-area-fg-bottom',
+            nestbgID: 'match-area-bg-bottom',
+            demoCharNestID: 'match-area-open-bottom'
+        });
+        updateLeftOrRightSide({
+            open: false,
+            charID: 'match-close-char',
+            fgID:'match-area-r-fg-top',
+            bgID:'match-area-r-bg-top',
+            demoCharID: 'match-area-close-top',
+            nestfgID: 'match-area-r-fg-bottom',
+            nestbgID: 'match-area-r-bg-bottom',
+            demoCharNestID: 'match-area-close-bottom'
+        });
+
+        const matchRule = this.matchMatch(getInputElement('match-open-char').innerText, true);
+        updateTopOrBottom(matchRule.topMatchColor, {
+            styleID: 'border-style-top',
+            thicknessID: 'border-thickness-top',
+            borderColorID: 'border-color-top',
+            bgColorID: 'bg-top',
+            insideID: 'match-area-contents-top'
+        });
+        updateTopOrBottom(matchRule.nestedMatchColor, {
+            styleID: 'border-style-bottom',
+            thicknessID: 'border-thickness-bottom',
+            borderColorID: 'border-color-bottom',
+            bgColorID: 'bg-bottom',
+            insideID: 'match-area-contents-bottom'
+})
+
     }
 
     updateTestInput() {

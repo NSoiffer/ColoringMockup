@@ -104,10 +104,10 @@
             <span class="border-label-top">Border&nbsp;</span>
             <label class="border-style-label-top" for="border-style-top">Style:</label>
             <select id='border-style-top' name="Style">
-                <option value="0em">None</option>
-                <option value="0.111em">Above</option> 
-                <option value="0.222em">Below</option>
-                <option value="0.278em">Box</option>
+                <option>None</option>
+                <option>Above</option> 
+                <option>Below</option>
+                <option>Box</option>
             </select>
             <label class="border-thickness-label-top" for="border-thickness-top">Thickness:</label>
             <select id='border-thickness-top' name="Thickness">
@@ -117,8 +117,10 @@
                 <option value="0.278em">Thick</option>
                 <option value="0.389em">Very Thick</option>
             </select>
-            <label class="border-color-label-top" for="border-color-top">Color:</label>
+            <label class="border-color-label-top" for="border-color-top">Border Color:</label>
             <input type="color" value="#ffffff" id="border-color-top">
+            <label class="bg-label-top" for="bg-color-top">Background Color:</label>
+            <input type="color" value="#ffffff" id="bg-top">
 
             <div class="match-area-label-top">Top<br>Level&nbsp;</div>
             <label for="match-area-fg-top" class="match-area-fg-label-top">Text color:</label>
@@ -126,7 +128,7 @@
             <label for="match-area-bg-top" class='match-area-bg-label-top'>Background<br>color:</label>
             <input type="color" value="#ffffff" id="match-area-bg-top">
             <span class='match-area-open-top'>(</span>
-            <span class='match-area-contents-top'>inside of open/close</span>
+            <span id='match-area-contents-top'>inside of open/close</span>
             <span class='match-area-close-top'>)</span>
             <label for="match-area-r-fg-top" class="match-area-r-fg-label-top">Text color:</label>
             <input type="color" value="#ffffff" id="match-area-r-fg-top">
@@ -138,10 +140,10 @@
             <span class="border-label-bottom">Border&nbsp;</span>
             <label class="border-style-label-bottom" for="border-style-bottom">Style:</label>
             <select id='border-style-bottom' name="Style">
-                <option value="0em">None</option>
-                <option value="0.111em">Above</option> 
-                <option value="0.222em">Below</option>
-                <option value="0.278em">Box</option>
+                <option>None</option>
+                <option>Above</option> 
+                <option>Below</option>
+                <option>Box</option>
             </select>
             <label class="border-thickness-label-bottom" for="border-thickness-bottom">Thickness:</label>
             <select id='border-thickness-bottom' name="Thickness">
@@ -151,8 +153,10 @@
                 <option value="0.278em">Thick</option>
                 <option value="0.389em">Very Thick</option>
             </select>
-            <label class="border-color-label-bottom" for="border-color-bottom">Color:</label>
+            <label class="border-color-label-bottom" for="border-color-bottom">Border Color:</label>
             <input type="color" value="#ffffff" id="border-color-bottom">
+            <label class="bg-label-bottom" for="bg-bottom">Background Color:</label>
+            <input type="color" value="#ffffff" id="bg-bottom">
 
             <div class="match-area-label-bottom">Nested&nbsp;</div>
             <label for="match-area-fg-bottom" class="match-area-fg-label-bottom">Text color:</label>
@@ -160,7 +164,7 @@
             <label for="match-area-bg-bottom" class='match-area-bg-label-bottom'>Background<br>color:</label>
             <input type="color" value="#ffffff" id="match-area-bg-bottom">
             <span class='match-area-open-bottom'>(</span>
-            <span class='match-area-contents-bottom'>inside of open/close</span>
+            <span id='match-area-contents-bottom'>inside of open/close</span>
             <span class='match-area-close-bottom'>)</span>
             <label for="match-area-r-fg-bottom" class="match-area-r-fg-label-bottom">Text color:</label>
             <input type="color" value="#ffffff" id="match-area-r-fg-bottom">

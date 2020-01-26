@@ -117,16 +117,18 @@ text-align: center;
     margin-right: .5em;
     grid-gap: .2em;
     grid-template-areas:
-    ".     ol       ol     .    bl-t  bl-t   .    cl       cl      .     ."
+    ".     ol       ol     .    bl-t  bl-t  bl-t cl       cl      .     ."
     ".     o       o      .     bsl-t bs-t  .     c        c       .     ."
-    ".     .       .      .     btl-t bt-t  .     .        .       .     ."
-    ".     .       .      .     bcl-t bc-t  .     .        .       .     ."
+    ".     .       .      .     btl-t bt-t  bt-t  .        .       .     ."
+    ".     .       bcl-t  bcl-t bcl-t bc-t  .     .        .       .     ."
+    ".     .       bgl-t  bgl-t bgl-t bg-t  .     .        .       .     ."
     "mal-t mafgl-t mafg-t mao-t ma-t  ma-t  mac-t marfgl-t marfg-t mas-t masl-t"
     "mal-t mabgl-t mabg-t mao-t ma-t  ma-t  mac-t marbgl-t marbg-t mas-t masl-t"
     "mal-b mafgl-b mafg-b mao-b ma-b  ma-b  mac-b marfgl-b marfg-b mas-b masl-b"
     "mal-b mabgl-b mabg-b mao-b ma-b  ma-b  mac-b marbgl-b marbg-b mas-b masl-b"
-    ".     .       .      .     bcl-b bc-b  .     .        .       .     ."
-    ".     .       .      .     btl-b bt-b  .     .        .       .     ."
+    ".     .       bgl-b  bgl-b bgl-b bg-b  .     .        .       .     ."
+    ".     .       bcl-b  bcl-b bcl-b bc-b  .     .        .       .     ."
+    ".     .       .      .     btl-b bt-b  bt-b  .        .       .     ."
     ".     .       .      .     bsl-b bs-b  .     .        .       .     ."
     ".     .       .      .     bl-b  bl-b  .     .        .       .     ."
 }
@@ -180,6 +182,14 @@ text-align: center;
     justify-self: left;
     grid-area: bc-t;
 }
+.bg-label-top {
+    justify-self: right;
+    grid-area: bgl-t;
+}
+#bg-top {
+    justify-self: left;
+    grid-area: bg-t;
+}
 
 .match-area-label-top {
     grid-area: mal-t;
@@ -199,12 +209,14 @@ text-align: center;
 }
 
 .match-area-open-top{
+    font-size: 200%;
     grid-area: mao-t;
 }
-.match-area-contents-top {
+#match-area-contents-top {
     grid-area: ma-t;  
 }
 .match-area-close-top{
+    font-size: 200%;
     grid-area: mac-t;
 }
 
@@ -257,6 +269,14 @@ text-align: center;
     justify-self: left;
     grid-area: bt-b;
 }
+.bg-label-bottom {
+    justify-self: right;
+    grid-area: bgl-b;
+}
+#bg-bottom {
+    justify-self: left;
+    grid-area: bg-b;
+}
 .border-color-label-bottom {
     justify-self: right;
     grid-area: bcl-b;
@@ -284,12 +304,14 @@ text-align: center;
 }
 
 .match-area-open-bottom{
+    font-size: 200%;
     grid-area: mao-b;
 }
-.match-area-contents-bottom {
+#match-area-contents-bottom {
     grid-area: ma-b;  
 }
 .match-area-close-bottom{
+    font-size: 200%;
     grid-area: mac-b;
 }
 
