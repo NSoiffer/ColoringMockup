@@ -1,60 +1,60 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <title>Coloring mockup</title>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <link rel="stylesheet" type="text/css" href="coloring.css">
     <script type="module" src="coloring.mjs"> </script>
     <script>
         function ToggleCollapse(el) {
-          el.classList.toggle("active");
-          let content = el.nextElementSibling;
-          if (content.style.display === "block") {
-            content.style.display = "none";
-          } else {
-            content.style.display = "block";
-          }
+            el.classList.toggle("active");
+            let content = el.nextElementSibling;
+            if (content.style.display === "block") {
+                content.style.display = "none";
+            } else {
+                content.style.display = "block";
+            }
         };
-    </script>      
-    </head>
+    </script>
+</head>
 
-    <body>
-        <h1>Coloring mockup</h1>
-        <p>
-            This is a mockup to experiment with some ideas of coloring math for severely dyslexic students.
-            This is <em>not</em> not meant to be used by the student to actually do math.
-        </p>
-        <p>
-            The page is divided into two area: the work area where you define the colors and other font aspects
-            for each character, and the test area where you can type some linear math to see what your settings look like.
-        </p>
-        <button type="button" class="accordion" onclick="ToggleCollapse(this)">
+<body>
+    <h1>Coloring mockup</h1>
+    <p>
+        This is a mockup to experiment with some ideas of coloring math for severely dyslexic students.
+        This is <em>not</em> not meant to be used by the student to actually do math.
+    </p>
+    <p>
+        The page is divided into two area: the work area where you define the colors and other font aspects
+        for each character, and the test area where you can type some linear math to see what your settings look like.
+    </p>
+    <button type="button" class="accordion" onclick="ToggleCollapse(this)">
         <h2>Example of Use</h2>
-        </button>
-        <div class="panel">
+    </button>
+    <div class="panel">
         <p>
-                The palettes have been preloaded with some settings to show some examples. To modify a character:
+            The palettes have been preloaded with some settings to show some examples. To modify a character:
             <ol>
                 <li>Click on a palette character or directly type the character into the 'Character to Color' area.</li>
                 <li>Select one or more properties to change. You will see the change reflected in the character and in
-                    palette and test area (but new chararacters typed their won't have the change until you click "Change").</li>
-                <li>Once you are satisfied with your changes, click the 'Change' button to make those changes permanent.
-                    You can click 'Cancel' to revert back to the previous coloring for that character.
+                    palette and test area.</li>
+                <li>Once you are satisfied with your changes, click the 'Save' button to remember the changes for later.
                 </li>
-                <li>In the box in the test area, you can type a linear expression to see how the coloring looks in a larger context.</li>
+                <li>In the box in the test area, you can type a linear expression to see how the coloring looks in a
+                    larger context.</li>
             </ol>
         </p>
-        </div>
-        <h2>Work Area</h2>
-        Click the "Change" button to permantently change the coloring or "Cancel" button to revert the changes.
-        </p>
-        <div class="palettes">
-            <span id='lc-letters' class='grid'>abcdefghijklmnopqrstuvwxyz</span> <!-- filled in by script -->
-            <span id='uc-letters' class='grid'>ABCDEFGHIJKLMNOPQRSTUVWXYZ</span> <!-- filled in by script -->
-            <span id='digits' class='grid'>0123456789</span>    <!-- filled in by script -->
-            <span id='symbols' class='grid'>+-·×÷=&lt;&gt;±≠≤≥()[]⌊⌋⌈⌉|</span>    <!-- filled in by script -->
-        </div>
-        <div class='action-area'>
+    </div>
+    <h2>Work Area</h2>
+    <div id="current-rule"></div>
+    <div class="palettes">
+        <span id='lc-letters' class='grid'>abcdefghijklmnopqrstuvwxyz</span> <!-- filled in by script -->
+        <span id='uc-letters' class='grid'>ABCDEFGHIJKLMNOPQRSTUVWXYZ</span> <!-- filled in by script -->
+        <span id='digits' class='grid'>0123456789</span> <!-- filled in by script -->
+        <span id='symbols' class='grid'>+-·×÷=&lt;&gt;±≠≤≥()[]⌊⌋⌈⌉|</span> <!-- filled in by script -->
+    </div>
+    <div class='action-area'>
         <table id='char-table'>
             <tr>
                 <th><label for="edit-input">Character to Color:</label></th>
@@ -79,8 +79,8 @@
                 <td>
                     <select id='spacing' name="Extra Space">
                         <option value="0em">None</option>
-                        <option value="0.111em">Very Small</option>  <!-- 2/18 em -->
-                        <option value="0.167em">Small</option>       <!-- 3/18 em -->
+                        <option value="0.111em">Very Small</option> <!-- 2/18 em -->
+                        <option value="0.167em">Small</option> <!-- 3/18 em -->
                         <option value="0.222em">Medium</option>
                         <option value="0.278em">Large</option>
                         <option value="0.389em">Very Large</option>
@@ -88,34 +88,31 @@
                 </td>
                 <td><span id='opposite-input'> <input type="text" name="Character" value="" size="2"> </span></td>
             </tr>
-        </table>              
-        <div class='change-cancel-buttons'>
-            <button id='change' class="button"> Change </button> 
-            <button id='cancel' class="button"> Cancel </button>
-        </div>
+        </table>
         <hr>
 
         <div id="open-close-area">
             <span class='match-open-char-label'>Open Char:</span>
-            <colored-edit-area id='match-open-char' class="char" contenteditable="true" spellcheck="false">(</colored-edit-area>
+            <colored-edit-area id='match-open-char' class="char" contenteditable="true" spellcheck="false">(
+            </colored-edit-area>
             <span class='match-close-char-label'>Close Char:</span>
-            <colored-edit-area id='match-close-char' class="char" contenteditable="true" spellcheck="false">)</colored-edit-area>
+            <colored-edit-area id='match-close-char' class="char" contenteditable="true" spellcheck="false">)
+            </colored-edit-area>
 
             <span class="border-label-top">Border&nbsp;</span>
             <label class="border-style-label-top" for="border-style-top">Style:</label>
             <select id='border-style-top' name="Style">
                 <option>None</option>
-                <option>Above</option> 
+                <option>Above</option>
                 <option>Below</option>
                 <option>Box</option>
             </select>
             <label class="border-thickness-label-top" for="border-thickness-top">Thickness:</label>
             <select id='border-thickness-top' name="Thickness">
-                <option value="0em">None</option>
-                <option value="0.111em">Thin</option>  <!-- 2/18 em -->
-                <option value="0.222em">Medium</option>
-                <option value="0.278em">Thick</option>
-                <option value="0.389em">Very Thick</option>
+                <option value="1px">Thin</option>
+                <option value="2px">Medium</option>
+                <option value="3px">Thick</option>
+                <option value="4px">Very Thick</option>
             </select>
             <label class="border-color-label-top" for="border-color-top">Border Color:</label>
             <input type="color" value="#ffffff" id="border-color-top">
@@ -137,21 +134,21 @@
             <label for="match-area-same-top" class="match-area-same-label-top">Same as<br>open</label>
             <input type="checkbox" value="true" id="match-area-same-top">
 
+            <dummy class='dummyVertSpace' aria-hidden="true"></dummy>
             <span class="border-label-bottom">Border&nbsp;</span>
             <label class="border-style-label-bottom" for="border-style-bottom">Style:</label>
             <select id='border-style-bottom' name="Style">
                 <option>None</option>
-                <option>Above</option> 
+                <option>Above</option>
                 <option>Below</option>
                 <option>Box</option>
             </select>
             <label class="border-thickness-label-bottom" for="border-thickness-bottom">Thickness:</label>
             <select id='border-thickness-bottom' name="Thickness">
-                <option value="0em">None</option>
-                <option value="0.111em">Thin</option>  <!-- 2/18 em -->
-                <option value="0.222em">Medium</option>
-                <option value="0.278em">Thick</option>
-                <option value="0.389em">Very Thick</option>
+                <option value="1px">Thin</option>
+                <option value="2px">Medium</option>
+                <option value="3px">Thick</option>
+                <option value="4px">Very Thick</option>
             </select>
             <label class="border-color-label-bottom" for="border-color-bottom">Border Color:</label>
             <input type="color" value="#ffffff" id="border-color-bottom">
@@ -172,46 +169,48 @@
             <input type="color" value="#ffffff" id="match-area-r-bg-bottom">
             <label for="match-area-same-bottom" class="match-area-same-label-bottom">Same as<br>open</label>
             <input type="checkbox" value="true" id="match-area-same-bottom">
-            
+
 
         </div>
-        <div class='change-cancel-buttons'>
-            <button id='change-match' class="button"> Change </button> 
-            <button id='cancel-match' class="button"> Cancel </button>
-         </div>
-         <div id="current-rule"></div>
-         </div> 
-        <h2>Test Area</h2>
+    </div>
+    <h2>Test Area</h2>
 
-        <p>In the box below, try typing some text (only linear math is allowed):
-        </p>
-        <p>
-            Try it!
-            <colored-edit-area id='test-input' contenteditable="true" spellcheck="false"> 2([4+3+5]÷(4-1)+9)=17</colored-edit-area>
-        </p>
-        <div class="palettes">
-            <span>Symbols for the test area:</span>
-            <span id='symbols-test' class='grid'>+-·×÷=&lt;&gt;±≠≤≥()[]⌊⌋⌈⌉|</span>    <!-- filled in by script -->
-        </div>
-        <h2>Save and Load Stored (named) Rules</h2>
-        <ul>
+    <p>In the box below, try typing some text (only linear math is allowed):
+    </p>
+    <p>
+        Try it!
+        <colored-edit-area id='test-input' contenteditable="true" spellcheck="false"> 2([4+3+5]÷(4-1)+9)=17
+        </colored-edit-area>
+    </p>
+    <div class="palettes">
+        <span>Symbols for the test area:</span>
+        <span id='symbols-test' class='grid'>+-·×÷=&lt;&gt;±≠≤≥()[]⌊⌋⌈⌉|</span> <!-- filled in by script -->
+    </div>
+    <h2>Save and Load Stored (named) Rules</h2>
+    <ul>
         <li>After you have defined some new rules, choose a name for the rules, and click "Save" to save the rules.</li>
         <li>You can type or choose that name later from the drop down list and click "Load" reuse the saved rules.</li>
-        <li>To give the rules to someone else, click "Copy to clipboard" and mail them or use some other means to give them to the other person.
-            They can select those rules, copy them, and then use the "Paste from Clipboard" button to make them their current rules.
+        <li>To give the rules to someone else, click "Copy to clipboard" and mail them or use some other means to give
+            them to the other person.
+            They can select those rules, copy them, and then use the "Paste from Clipboard" button to make them their
+            current rules.
         </li>
     </ul>
-        <div class="rule-area">
-            <label for="saveRules" style="grid-area: 1/1/3/2;">Rules:</label>
-            <input type="text" placeholder="enter coloring rule name" id="rule-list-input" list="rulesList" style="grid-area: 1/2/3/3;">
-            <datalist id="rulesList"> <option value="foo"></option></datalist>     <!-- populated by code -->
-            <button class='button' id="saveRules" style="grid-area: 1/3/2/4;">Save</button>
-            <button class='button' id="loadRules" style="grid-area: 2/3/3/4;">Load</button>
-            <span style="width: 3em; grid-area: 1/4/2/5;" aria-hidden="true"></span>  <!-- spacing-->
-            <button class='button' id="copyToClipboard" style="grid-area: 1/5/2/6;">Copy to Clipboard</button>
-            <button class='button' id="pasteFromClipboard" style="grid-area: 2/5/3/6;">Paste from Clipboard</button>
+    <div class="rule-area">
+        <label for="saveRules" style="grid-area: 1/1/3/2;">Rules:</label>
+        <input type="text" placeholder="enter coloring rule name" id="rule-list-input" list="rulesList"
+            style="grid-area: 1/2/3/3;">
+        <datalist id="rulesList">
+            <option value="foo"></option>
+        </datalist> <!-- populated by code -->
+        <button class='button' id="saveRules" style="grid-area: 1/3/2/4;">Save</button>
+        <button class='button' id="loadRules" style="grid-area: 2/3/3/4;">Load</button>
+        <span style="width: 3em; grid-area: 1/4/2/5;" aria-hidden="true"></span> <!-- spacing-->
+        <button class='button' id="copyToClipboard" style="grid-area: 1/5/2/6;">Copy to Clipboard</button>
+        <button class='button' id="pasteFromClipboard" style="grid-area: 2/5/3/6;">Paste from Clipboard</button>
 
-            <button class='button' id='removeAllRules'  style="grid-column: 1/7;">Remove all stored rules</button>
-        </div>
-    </body>
+        <button class='button' id='removeAllRules' style="grid-column: 1/7;">Remove all stored rules</button>
+    </div>
+</body>
+
 </html>

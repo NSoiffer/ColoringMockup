@@ -31,12 +31,14 @@ body {
 }
 
 #current-rule {
-    padding-top: 1em;
-    padding-left: 5em;
+    padding-bottom: 1em;
+    text-align: center;
     font-weight: bold;
 }
 
-
+:disabled {
+    background: #bbb;
+}
 colored-edit-area {
     display: inline-block;
     font-size: 150%;
@@ -66,19 +68,6 @@ margin-top: 4ex;
 }
 #char-table td{
 text-align: center;
-}
-
-.change-cancel-buttons {
-    text-align: center;
-}
-
-.change-cancel-buttons button {
-    margin-top: 1em;
-    font-size: 12pt;
-    width: initial;
-}
-.change-cancel-buttons button:enabled {
-    background-color: salmon;
 }
 
 #buttons input {
@@ -124,13 +113,14 @@ text-align: center;
     ".     .       bgl-t  bgl-t bgl-t bg-t  .     .        .       .     ."
     "mal-t mafgl-t mafg-t mao-t ma-t  ma-t  mac-t marfgl-t marfg-t mas-t masl-t"
     "mal-t mabgl-t mabg-t mao-t ma-t  ma-t  mac-t marbgl-t marbg-t mas-t masl-t"
+    "vertsp .      .      .     .     .     .     .        .       .     ."
     "mal-b mafgl-b mafg-b mao-b ma-b  ma-b  mac-b marfgl-b marfg-b mas-b masl-b"
     "mal-b mabgl-b mabg-b mao-b ma-b  ma-b  mac-b marbgl-b marbg-b mas-b masl-b"
     ".     .       bgl-b  bgl-b bgl-b bg-b  .     .        .       .     ."
     ".     .       bcl-b  bcl-b bcl-b bc-b  .     .        .       .     ."
     ".     .       .      .     btl-b bt-b  bt-b  .        .       .     ."
     ".     .       .      .     bsl-b bs-b  .     .        .       .     ."
-    ".     .       .      .     bl-b  bl-b  .     .        .       .     ."
+    ".     .       .      .     bl-b  bl-b  bl-b  .        .       .     ."
 }
 
 .match-open-char-label {
@@ -243,7 +233,10 @@ text-align: center;
     grid-area: masl-t;
 }
 
-
+.dummyVertSpace {
+    margin-top: 2em;
+    grid-area: vertsp;
+}
 
 
 .border-label-bottom {
