@@ -20,26 +20,30 @@
 </head>
 
 <body>
-    <h1>Coloring mockup</h1>
-    <p>
-        This is a mockup to experiment with some ideas of coloring math for severely dyslexic students.
-        This is <em>not</em> not meant to be used by the student to actually do math.
-    </p>
-    <p>
-        The page is divided into two area: the work area where you define the colors and other font aspects
-        for each character, and the test area where you can type some linear math to see what your settings look like.
-    </p>
     <button type="button" class="accordion" onclick="ToggleCollapse(this)">
-        <h2>Example of Use</h2>
+        <h1>Coloring mockup</h1>
+        <span>(click to see instructions)</span>
     </button>
     <div class="panel">
+        <p>
+            This is a mockup to experiment with some ideas of coloring math for severely dyslexic students.
+            This is <em>not</em> not meant to be used by the student to actually do math.
+        </p>
+        <p>
+            The page is divided into three areas: the work area where you define the colors and other font aspects
+            for each character, the test area where you can type some linear math to see what your settings look like,
+            and the save/load area where you can save/restore your work.
+        </p>
         <p>
             The palettes have been preloaded with some settings to show some examples. To modify a character:
             <ol>
                 <li>Click on a palette character or directly type the character into the 'Character to Color' area.</li>
                 <li>Select one or more properties to change. You will see the change reflected in the character and in
                     palette and test area.</li>
-                <li>Once you are satisfied with your changes, click the 'Save' button to remember the changes for later.
+                <li>Once you are satisfied with your changes, pick a name and click the 'Save' button to remember the changes for later.
+                    To transfer the settings to a different machince, they can be copied to the clipboard, pasted into email or some other means of communication.
+                    The reciever can copy those rules to their clipboard and use the paste from clipboard to load them onto their machine.
+                    If desired they can save the rules for later.
                 </li>
                 <li>In the box in the test area, you can type a linear expression to see how the coloring looks in a
                     larger context.</li>
@@ -65,7 +69,9 @@
                 <th><label for="opposite-input">Opposite Color Character:</label></th>
             </tr>
             <tr>
-                <td><colored-edit-area  contenteditable="true" id='edit-input' spellcheck="false"> </colored-edit-area ></td>
+                <td>
+                    <colored-edit-area contenteditable="true" id='edit-input' spellcheck="false"> </colored-edit-area>
+                </td>
                 <td><input type="color" value="#000000" id="text-color"></td>
                 <td><input type="color" value="#ffffff" id="bg-color"></td>
                 <td>
@@ -86,17 +92,20 @@
                         <option value="0.389em">Very Large</option>
                     </select>
                 </td>
-                <td><colored-edit-area  contenteditable="true" id='opposite-input'spellcheck="false"> </colored-edit-area ></td>
+                <td>
+                    <colored-edit-area contenteditable="true" id='opposite-input' spellcheck="false">
+                    </colored-edit-area>
+                </td>
             </tr>
         </table>
         <hr>
 
         <div id="open-close-area">
             <span class='match-open-char-label'>Open Char:</span>
-            <colored-edit-area id='match-open-char'contenteditable="true" spellcheck="false">(
+            <colored-edit-area id='match-open-char' contenteditable="true" spellcheck="false">(
             </colored-edit-area>
             <span class='match-close-char-label'>Close Char:</span>
-            <colored-edit-area id='match-close-char'contenteditable="true" spellcheck="false">)
+            <colored-edit-area id='match-close-char' contenteditable="true" spellcheck="false">)
             </colored-edit-area>
 
             <span class="border-label-top">Border&nbsp;</span>

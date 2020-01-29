@@ -595,7 +595,7 @@ class ColoringRules {
         this.replaceMatch('(', new MatchingColorRule(
             new ColorRule(/\(/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
             new ColorRule(/\)/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
-            new MatchColor('', 'Box','4px','hsl(0,0%, 50%)'),
+            new MatchColor('', 'Box','2px','hsl(0,0%, 50%)'),
             new MatchColor('hsl(240, 100%, 95%)', 'None','1px','hsl(0,0%, 30%)')
          ));
 
