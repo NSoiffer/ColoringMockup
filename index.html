@@ -65,7 +65,7 @@
                 <th><label for="opposite-input">Opposite Color Character:</label></th>
             </tr>
             <tr>
-                <td><span contenteditable="true" id='edit-input' spellcheck="false"> </span></td>
+                <td><colored-edit-area  contenteditable="true" id='edit-input' spellcheck="false"> </colored-edit-area ></td>
                 <td><input type="color" value="#000000" id="text-color"></td>
                 <td><input type="color" value="#ffffff" id="bg-color"></td>
                 <td>
@@ -86,17 +86,17 @@
                         <option value="0.389em">Very Large</option>
                     </select>
                 </td>
-                <td><span id='opposite-input'> <input type="text" name="Character" value="" size="2"> </span></td>
+                <td><colored-edit-area  contenteditable="true" id='opposite-input'spellcheck="false"> </colored-edit-area ></td>
             </tr>
         </table>
         <hr>
 
         <div id="open-close-area">
             <span class='match-open-char-label'>Open Char:</span>
-            <colored-edit-area id='match-open-char' class="char" contenteditable="true" spellcheck="false">(
+            <colored-edit-area id='match-open-char'contenteditable="true" spellcheck="false">(
             </colored-edit-area>
             <span class='match-close-char-label'>Close Char:</span>
-            <colored-edit-area id='match-close-char' class="char" contenteditable="true" spellcheck="false">)
+            <colored-edit-area id='match-close-char'contenteditable="true" spellcheck="false">)
             </colored-edit-area>
 
             <span class="border-label-top">Border&nbsp;</span>
@@ -133,6 +133,7 @@
             <input type="color" value="#ffffff" id="match-area-r-bg-top">
             <label for="match-area-same-top" class="match-area-same-label-top">Same as<br>open</label>
             <input type="checkbox" value="true" id="match-area-same-top">
+            <span id="match-area-ellipsis-top" aria-hidden="true">}</span>
 
             <dummy class='dummyVertSpace' aria-hidden="true"></dummy>
             <span class="border-label-bottom">Border&nbsp;</span>
@@ -169,6 +170,7 @@
             <input type="color" value="#ffffff" id="match-area-r-bg-bottom">
             <label for="match-area-same-bottom" class="match-area-same-label-bottom">Same as<br>open</label>
             <input type="checkbox" value="true" id="match-area-same-bottom">
+            <span id="match-area-ellipsis-bottom" aria-hidden="true">}</span>
 
 
         </div>

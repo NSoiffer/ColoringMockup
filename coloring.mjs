@@ -65,6 +65,10 @@ class Color {
         }
     }
 
+    clone() {
+        return new Color(this.enc, this.c1, this.c2, this.c3);
+    }
+
     /**
      * 
      * @param {Object} obj 
@@ -577,38 +581,38 @@ class ColoringRules {
      */
     initialize() {
         this.name = DEFAULT_RULE_NAME;
-        this.patterns.push( new ColorRule('3', 'hsl(130, 70%, 43%)', 'hsl(4, 90%, 50%)', 'normal', '') );
-        this.patterns.push( new ColorRule('8', 'hsl(4, 90%, 50%)', 'hsl(130, 70%, 43%)', 'normal', '') );
-        this.patterns.push( new ColorRule('\\(', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'normal', '0.167em') );
-        this.patterns.push( new ColorRule('\\)', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'normal', '0.167em') );
-        this.patterns.push( new ColorRule('[0-9]', '', '', 'normal', '') );
+        this.patterns.push( new ColorRule('3', 'hsl(130, 70%, 43%)', 'hsl(4, 90%, 50%)', 'Normal', '') );
+        this.patterns.push( new ColorRule('8', 'hsl(4, 90%, 50%)', 'hsl(130, 70%, 43%)', 'Normal', '') );
+        this.patterns.push( new ColorRule('\\(', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'Normal', '0.167em') );
+        this.patterns.push( new ColorRule('\\)', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'Normal', '0.167em') );
+        this.patterns.push( new ColorRule('[0-9]', '', '', 'Normal', '') );
         this.patterns.push( new ColorRule('[a-zA-Z]', '', '', 'italic', '') );
-        this.patterns.push( new ColorRule('\\+|×|÷|±', '', '', 'normal', '.222em') );
+        this.patterns.push( new ColorRule('\\+|×|÷|±', '', '', 'Normal', '.222em') );
         this.patterns.push( new ColorRule('-', '', '', 'bold', '.222em') );
         this.patterns.push( new ColorRule('\\|', '', '', 'bold', '') );
-        this.patterns.push( new ColorRule('<|=|>|≠|≤|≥', 'hsl(0,0%,100%)', 'hsl(160, 10%, 10%)', 'normal', '.278em') );
+        this.patterns.push( new ColorRule('<|=|>|≠|≤|≥', 'hsl(0,0%,100%)', 'hsl(160, 10%, 10%)', 'Normal', '.278em') );
         
         this.replaceMatch('(', new MatchingColorRule(
-            new ColorRule(/\(/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
-            new ColorRule(/\)/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
+            new ColorRule(/\(/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
+            new ColorRule(/\)/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
             new MatchColor('', 'Box','4px','hsl(0,0%, 50%)'),
             new MatchColor('hsl(240, 100%, 95%)', 'None','1px','hsl(0,0%, 30%)')
          ));
 
-         this.patterns.push( new ColorRule(/\[/, '', '', 'normal', '') );
-         this.patterns.push( new ColorRule(/\]/, '', '', 'normal', '') );
+         this.patterns.push( new ColorRule(/\[/, '', '', 'Normal', '') );
+         this.patterns.push( new ColorRule(/\]/, '', '', 'Normal', '') );
          this.replaceMatch('\\[', new MatchingColorRule(
-            new ColorRule(/\[/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
-            new ColorRule(/\]/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
+            new ColorRule(/\[/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
+            new ColorRule(/\]/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
             new MatchColor('', 'Below','2px','hsl(0,0%, 50%)'),
             new MatchColor('hsl(270, 100%, 95%)', 'Above','2px','hsl(0,0%, 30%)')
         ));
 
-        this.patterns.push( new ColorRule(/\{/, '', '', 'normal', '') );
-        this.patterns.push( new ColorRule(/}/, '', '', 'normal', '') );
+        this.patterns.push( new ColorRule(/\{/, '', '', 'Normal', '') );
+        this.patterns.push( new ColorRule(/}/, '', '', 'Normal', '') );
         this.replaceMatch('\\{', new MatchingColorRule(
-            new ColorRule(/\{/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
-            new ColorRule('}', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'normal', ''),
+            new ColorRule(/\{/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
+            new ColorRule('}', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
             new MatchColor('', 'Box','2px','hsl(0,0%, 50%)'),
             new MatchColor('', 'None','1px','hsl(0,0%, 30%)')
         ));
@@ -780,6 +784,36 @@ class ColoringRules {
         }
     }
 
+    updateCharArea() {
+
+        const editAreaEl = getInputElement('edit-input');
+        const colorRule = this.match(editAreaEl.innerText.trim()) || new ColorRule('\uffff', '', '', "Normal", '');
+
+        editAreaEl.innerHTML = this.convertToSpan(editAreaEl.innerText.trim());
+
+        getInputElement('text-color').value = colorRule.fgColor ? colorRule.fgColor.toCSSColor('hex') : '#000000';
+        getInputElement('bg-color').value = colorRule.bgColor ? colorRule.bgColor.toCSSColor('hex') : '#ffffff';
+
+        /** @type{HTMLSelectElement} */
+        // @ts-ignore
+        let el = document.getElementById('font-style');
+        for (let i = 0; i < el.options.length; i++) {
+            el.options.item(i).selected = (el.options.item(i).text === colorRule.style);
+        }
+
+        // @ts-ignore
+        el = document.getElementById('spacing');
+        for (let i = 0; i < el.options.length; i++) {
+            el.options.item(i).selected = (el.options.item(i).value === colorRule.spacing);
+        }
+
+        const oppositeEditArea = getInputElement('opposite-input');
+        // @ts-ignore
+        const complementaryRules = getComplimentaryRules(oppositeEditArea.innerText, colorRule);
+        oppositeEditArea.style.color = complementaryRules.patterns[0].fgColor.toCSSColor('hsl');
+        oppositeEditArea.style.backgroundColor = complementaryRules.patterns[0].bgColor.toCSSColor('hsl');    
+    }
+
     updateMatchArea() {
 
         /**
@@ -836,6 +870,7 @@ class ColoringRules {
             getInputElement(obj.borderColorID).disabled = disabled;
 
             /** @type{HTMLSelectElement} */
+            // @ts-ignore
             let el = document.getElementById(obj.styleID);
             for (let i = 0; i < el.options.length; i++) {
                 el.options.item(i).selected = (el.options.item(i).text === matchRule.borderPosition);
@@ -904,6 +939,7 @@ class ColoringRules {
     
     updateAll() {
         this.updatePalettes();
+        this.updateCharArea();
         this.updateMatchArea();
         this.updateTestInput();
     }
@@ -1116,6 +1152,8 @@ const IdMapping = [
     {id: 'bg-color', charID: 'edit-input', matchFn: 'match', ruleAccessor: 'bgColor'},
     {id: 'font-style', charID: 'edit-input', matchFn: 'match', ruleAccessor: 'style'},
     {id: 'spacing', charID: 'edit-input', matchFn: 'match', ruleAccessor: 'spacing'},
+    {id: 'edit-input', charID: 'edit-input', matchFn: 'match', ruleAccessor: 'pattern'},
+    {id: 'opposite-input', charID: 'opposite-input', matchFn: 'match', ruleAccessor: 'pattern'},
     {id: 'match-open-char', charID: 'match-open-char', matchFn: 'match', ruleAccessor: 'pattern'},
     {id: 'match-close-char', charID: 'match-close-char', matchFn: 'match', ruleAccessor: 'pattern'},
     {id: 'match-area-fg-top', charID: 'match-open-char', matchFn: 'match', ruleAccessor: 'fgColor'},
@@ -1136,18 +1174,11 @@ const IdMapping = [
     {id: 'bg-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedMatchColor','bgColor']},
 ]
 
-const EditAreaIds = ['edit-input', 'text-color', 'bg-color', 'font-style', 'spacing',
-                    'match-open-char', 'match-close-char',
-                    'match-area-fg-top','match-area-bg-top', 'match-area-fg-bottom','match-area-bg-bottom',
-                    'match-area-r-fg-top', 'match-area-r-bg-top', 'match-area-r-fg-bottom', 'match-area-r-bg-bottom',
-                    'border-style-top', 'border-thickness-top', 'border-color-top', 'bg-top',
-                    'border-style-bottom', 'border-thickness-bottom', 'border-color-bottom', 'bg-bottom'
-                    ];
 const PaletteIds = ['lc-letters', 'uc-letters', 'digits', 'symbols', 'symbols-test'];
 const OnClickIds = ['saveRules', 'loadRules', 'copyToClipboard', 'pasteFromClipboard', 'removeAllRules'];
+const EditIds = ['edit-input', 'opposite-input', 'match-open-char', 'match-close-char'];
 
 EditHistory.testInput = new EditHistory( document.getElementById('test-input').textContent );
-EditHistory.editInput = new EditHistory( document.getElementById('edit-input').textContent );
 
 window.onload =
     function() {
@@ -1163,23 +1194,18 @@ window.onload =
         // add the palettes
         PaletteIds.forEach( palette => addCharacterPalette( document.getElementById(palette)) );
 
-        let testInput = document.getElementById('test-input');
-        testInput.addEventListener('input', updateTestArea.bind(EditHistory.testInput));
+        EditIds.forEach(
+            id => new EditHistory( document.getElementById(id).textContent )
+        );
 
-        let editInputArea = document.getElementById('edit-input');
-        editInputArea.addEventListener('input', updateTestArea.bind(EditHistory.editInput));
-        let oppositeEditArea = document.getElementById('opposite-input');
-        /** @type{HTMLInputElement} */
-        // @ts-ignore
-        let oppositeInputEditArea = oppositeEditArea.firstElementChild;
-        oppositeEditArea.addEventListener('input', function() {
-            const editAreaRules = gatherCharStyle(editInputArea);
-            const complementaryRules = getComplimentaryRules(oppositeInputEditArea.value, editAreaRules.patterns[0]);   
-            ColoringRules.Rules.merge( complementaryRules.merge(editAreaRules) ).updateAll();
-        });
+        // hook up input events for most input elements
+        IdMapping.forEach(
+            mappingObj => document.getElementById(mappingObj.id).addEventListener('input', updateFromNewValue));
 
-        EditAreaIds.forEach(
-            id => document.getElementById(id).addEventListener('input', updateFromNewValue));
+        // handle "same as open" separately
+        ['match-area-same-top', 'match-area-same-bottom'].forEach(
+            id => document.getElementById(id).addEventListener('onchange', makeFGandBGSame)
+        );
             
         document.getElementById('rule-list-input').addEventListener('focus', function() {
                 ColoringRules.Rules.rulesList() });
@@ -1187,6 +1213,9 @@ window.onload =
             id => document.getElementById(id).addEventListener('click', function() {
                 ColoringRules.Rules[id]( getInputElement('rule-list-input').value ); })
         );
+
+        let testInput = document.getElementById('test-input');
+        testInput.addEventListener('input', updateTestArea.bind(EditHistory.testInput));
 
         ColoringRules.Rules.updateAll();
     };
@@ -1224,16 +1253,8 @@ function copyCharToTestArea(ev) {
  */
 function copyCharToEditArea(ev) {
     let editInputArea = document.getElementById('edit-input');
-    editInputArea.innerHTML = ColoringRules.Rules.convertToSpan(this.innerText);
-
-    // update the edit area fields
-    // @ts-ignore
-    let targetStyle = editInputArea.children[0]. style;
-    getInputElement('text-color').value = targetStyle.color ? new Color(targetStyle.color).toCSSColor('hex') : '#000000';
-    getInputElement('bg-color').value = targetStyle.backgroundColor ? new Color(targetStyle.backgroundColor).toCSSColor('hex') : '#ffffff';
-    getInputElement('font-style').value = targetStyle.fontStyle ? targetStyle.fontStyle : 
-                                                  targetStyle.fontWeight ? targetStyle.fontWeight : 'normal';
-    getInputElement('spacing').value = targetStyle.marginLeft ? targetStyle.marginLeft : '0em';
+    editInputArea.innerHTML = this.innerText;
+    ColoringRules.Rules.updateAll();
 }
 
 /**
@@ -1283,6 +1304,27 @@ function gatherCharStyle(elementForChar) {
     return newRules;
 }
 
+function makeFGandBGSame(e) {
+    if (e.target.checked) {
+        // get open ch, look up the rule associated with it, then set the fg/bg for the close to the open values
+        const charElement = getInputElement('match-open-char');
+        if (charElement.innerText.trim().length === 0) {
+            return;
+        }
+        
+        const chRegExp = ColoringRules.escapeSpecialChars(charElement.innerText);
+        const rule = ColoringRules.Rules.matchMatch(chRegExp);
+        if (rule) {
+            ColoringRules.Rules = ColoringRules.Rules.replaceMatch(
+                chRegExp,
+                new MatchingColorRule(rule.nestedOpenColorRule, rule.nestedOpenColorRule.clone(),
+                                      rule.topMatchColor.clone(), rule.nestedMatchColor.clone()));
+        }
+        ColoringRules.Rules.updateAll();
+    }
+}
+
+
 /**
  * 
  * @param {string} chars       // could be more than one character
@@ -1290,7 +1332,7 @@ function gatherCharStyle(elementForChar) {
  * @returns {ColoringRules}
  */
 function getComplimentaryRules(chars, colorRule) {
-    const bgColor = colorRule.bgColor ? colorRule.bgColor.toHSL() : new Color('hsl', 0, 0, 100) /* white */
+    const bgColor = colorRule.bgColor ? colorRule.bgColor.toHSL().clone() : new Color('hsl', 0, 0, 100) /* white */
     let [compForeground, compBackground] = bgColor.toComplementary();
 
     chars = chars || '\uffff';  // safe value to use since it will never match anything
@@ -1346,47 +1388,36 @@ function updateFromNewValue(e) {
         ColoringRules.Rules[replaceFn](ch, rule);
     }
 
+    // from the target (the field that changed), we get the info to figure out how to:
+    // 1. get the rule for the character associated with the target
+    // 2. the rule associated with that character (if any)
+    // 3. the way to access the appropriate structure so that we create a new rule/replace the old one with the new value
+    /** @type {HTMLInputElement} */
+    // @ts-ignore
+    const targetEl = e.target;
     /** @type {{id: string, charID: string, matchFn: string, ruleAccessor: string | string[]}} */
-    const mappingObj = IdMapping.find( obj => obj.id === e.target.id);
+    const mappingObj = IdMapping.find( obj => obj.id === targetEl.id);
     const charElement = getInputElement(mappingObj.charID);
     if (charElement.innerText.trim().length === 0) {
         return;
     }
     
     const chRegExp = ColoringRules.escapeSpecialChars(charElement.innerText);
-    const rule = ColoringRules.Rules[mappingObj.matchFn](chRegExp);
-    if (rule) {
-        const newRule = (mappingObj.matchFn === 'match') ?
-            new ColorRule(chRegExp, rule.fgColor, rule.bgColor, rule.style, rule.spacing) :
-            new MatchingColorRule(rule.nestedOpenColorRule, rule.nestedCloseColorRule,
-                                  rule.topMatchColor.clone(), rule.nestedMatchColor.clone());
-        const replaceFn = mappingObj.matchFn === 'match' ? 'replace' : 'replaceMatch';
-        setValue(chRegExp, newRule, mappingObj.ruleAccessor, replaceFn, e.target);
-    }
+    const rule = mappingObj.id === 'opposite-input' ?
+            new ColorRule(ColoringRules.escapeSpecialChars(charElement.innerText), charElement.style.color, charElement.style.backgroundColor, 'Normal','') :
+            ColoringRules.Rules[mappingObj.matchFn](chRegExp) || new ColorRule('\uffff', '', '', "Normal", '');
+    const newRule = (mappingObj.matchFn === 'match') ?
+        new ColorRule(chRegExp, rule.fgColor, rule.bgColor, rule.style, rule.spacing) :
+        new MatchingColorRule(rule.nestedOpenColorRule, rule.nestedCloseColorRule,
+                                rule.topMatchColor.clone(), rule.nestedMatchColor.clone());
+    const replaceFn = mappingObj.matchFn === 'match' ? 'replace' : 'replaceMatch';
+    setValue(chRegExp, newRule, mappingObj.ruleAccessor, replaceFn, targetEl);
 
-    // gather up all the values that were set
-    const elementForChar = getInputElement('edit-input')
-    const editAreaRules = gatherCharStyle(elementForChar);
-
-    const oppositeEditArea = getInputElement('opposite-input');
-    // @ts-ignore
-    let complementaryRules = getComplimentaryRules(oppositeEditArea.firstElementChild.value, editAreaRules.patterns[0]);
-
-    //ColoringRules.Rules = ColoringRules.Rules.merge( complementaryRules.merge(editAreaRules) );
-    // @ts-ignore
-    if (typeof e.inputType !== 'undefined') {
-        // typing directly in the field
-        e.preventDefault();
-        document.execCommand('insertHTML', false, ColoringRules.Rules.convertToSpan(elementForChar.innerText));
-    } else {
-        // change of values
-        elementForChar.innerHTML = ColoringRules.Rules.convertToSpan(elementForChar.innerText);
+    if (EditIds.find( id => id === targetEl.id)) {
+        charElement.innerText = e.data;     // reset the field so that there is only a single char in it
     }
 
     ColoringRules.Rules.updateAll();
-    
-    oppositeEditArea.style.color = complementaryRules.patterns[0].fgColor.toCSSColor('hsl');
-    oppositeEditArea.style.backgroundColor = complementaryRules.patterns[0].bgColor.toCSSColor('hsl');    
 }
 
 

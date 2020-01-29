@@ -41,17 +41,17 @@ body {
 }
 colored-edit-area {
     display: inline-block;
-    font-size: 150%;
-    border-style: solid;
-    border-width: 1px;
-    padding: .3em;
-    width: 20em;
+    font-size: 130%;
+    background-color: white;
+    border: 2px solid black;
+    padding: .2ex;
+    width: 1em;
     white-space: nowrap;
 }
 
-colored-edit-area.char {
-    font-size: 100%;
-    width: 1em;
+#test-input {
+    padding: .4em;
+    width: 20em
 }
 
 #refresh {
@@ -74,22 +74,6 @@ text-align: center;
     margin: 10px;
 }
 
-#edit-input {
-    display: inline-block;
-    width: 3em;
-    padding: .2ex;
-    background-color: white;
-    border: 2px solid black;
-}
-
-#opposite-input {
-    background-color: white;
-}
-#opposite-input input {
-    color: inherit;
-    background-color: inherit;
-}
-
 .action-area {
     background-color: lightblue;
 }
@@ -106,21 +90,21 @@ text-align: center;
     margin-right: .5em;
     grid-gap: .2em;
     grid-template-areas:
-    ".     ol       ol     .    bl-t  bl-t  bl-t cl       cl      .     ."
-    ".     o       o      .     bsl-t bs-t  .     c        c       .     ."
-    ".     .       .      .     btl-t bt-t  bt-t  .        .       .     ."
-    ".     .       bcl-t  bcl-t bcl-t bc-t  .     .        .       .     ."
-    ".     .       bgl-t  bgl-t bgl-t bg-t  .     .        .       .     ."
-    "mal-t mafgl-t mafg-t mao-t ma-t  ma-t  mac-t marfgl-t marfg-t mas-t masl-t"
-    "mal-t mabgl-t mabg-t mao-t ma-t  ma-t  mac-t marbgl-t marbg-t mas-t masl-t"
-    "vertsp .      .      .     .     .     .     .        .       .     ."
-    "mal-b mafgl-b mafg-b mao-b ma-b  ma-b  mac-b marfgl-b marfg-b mas-b masl-b"
-    "mal-b mabgl-b mabg-b mao-b ma-b  ma-b  mac-b marbgl-b marbg-b mas-b masl-b"
-    ".     .       bgl-b  bgl-b bgl-b bg-b  .     .        .       .     ."
-    ".     .       bcl-b  bcl-b bcl-b bc-b  .     .        .       .     ."
-    ".     .       .      .     btl-b bt-b  bt-b  .        .       .     ."
-    ".     .       .      .     bsl-b bs-b  .     .        .       .     ."
-    ".     .       .      .     bl-b  bl-b  bl-b  .        .       .     ."
+    ".     ol       ol     .    bl-t  bl-t  bl-t  cl       cl      .     .      ."
+    ".     o       o      .     bsl-t bs-t  .     c        c       .     .      ."
+    ".     .       .      .     btl-t bt-t  bt-t  .        .       .     .      ."
+    ".     .       bcl-t  bcl-t bcl-t bc-t  .     .        .       .     .      ."
+    ".     .       bgl-t  bgl-t bgl-t bg-t  .     .        .       .     .      ."
+    "mal-t mafgl-t mafg-t mao-t ma-t  ma-t  mac-t marfgl-t marfg-t mae-t mas-t  masl-t"
+    "mal-t mabgl-t mabg-t mao-t ma-t  ma-t  mac-t marbgl-t marbg-t mae-t mas-t  masl-t"
+    "vertsp .      .      .     .     .     .     .        .       .     .      ."
+    "mal-b mafgl-b mafg-b mao-b ma-b  ma-b  mac-b marfgl-b marfg-b mae-b mas-b  masl-b"
+    "mal-b mabgl-b mabg-b mao-b ma-b  ma-b  mac-b marbgl-b marbg-b mae-b mas-b  masl-b"
+    ".     .       bgl-b  bgl-b bgl-b bg-b  .     .        .       .     .      ."
+    ".     .       bcl-b  bcl-b bcl-b bc-b  .     .        .       .     .      ."
+    ".     .       .      .     btl-b bt-b  bt-b  .        .       .     .      ."
+    ".     .       .      .     bsl-b bs-b  .     .        .       .     .      ."
+    ".     .       .      .     bl-b  bl-b  bl-b  .        .       .     .      ."
 }
 
 .match-open-char-label {
@@ -226,6 +210,12 @@ text-align: center;
     grid-area: marbg-t;
 }
 
+#match-area-ellipsis-top {
+    font-size: 250%;
+    font-weight: lighter;
+    padding-bottom: .4ex;
+    grid-area: mae-t;
+}
 #match-area-same-top {
     grid-area: mas-t;
 }
@@ -329,6 +319,12 @@ text-align: center;
 }
 .match-area-same-label-bottom {
     grid-area: masl-b;
+}
+#match-area-ellipsis-bottom {
+    font-size: 250%;
+    font-weight: lighter;
+    padding-bottom: .4ex;
+    grid-area: mae-b;
 }
 
 
