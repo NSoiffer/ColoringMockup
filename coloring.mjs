@@ -10,7 +10,7 @@ const STORAGE_NAME__STARTUP_COLORING_RULES = 'ColoringRulesStartupRuleName';
  *************************/
 Object.defineProperty(RegExp.prototype, "toJSON", {
     value: RegExp.prototype.toString
-  });
+});
 
 
 
@@ -90,7 +90,7 @@ class Color {
         if (typeof val === 'string') {
             val = parseInt(val);
         }
-        return Math.round( Math.max(min, Math.min(max, val)) );
+        return Math.round(Math.max(min, Math.min(max, val)));
     }
 
     /**
@@ -103,7 +103,7 @@ class Color {
         this.enc = 'hsl';
         this.c1 = this.standardize(h, 0, 360);
         this.c2 = this.standardize(s, 0, 100);
-        this.c3 = this.standardize(l, 0, 100);    
+        this.c3 = this.standardize(l, 0, 100);
     }
 
     /**
@@ -116,7 +116,7 @@ class Color {
         this.enc = 'rgb';
         this.c1 = this.standardize(r, 0, 255);
         this.c2 = this.standardize(g, 0, 255);
-        this.c3 = this.standardize(b, 0, 255);    
+        this.c3 = this.standardize(b, 0, 255);
     }
 
     /**
@@ -183,10 +183,10 @@ class Color {
         if (this.enc === 'rgb') {
             return this;
         }
-        
+
         let hue = ((this.c1 + 360) % 360) / 60.0;
-        let light = Math.max(0, Math.min(this.c3/100.0, 1.0));
-        let sat = Math.max(0, Math.min(this.c2/100.0, 1.0));
+        let light = Math.max(0, Math.min(this.c3 / 100.0, 1.0));
+        let sat = Math.max(0, Math.min(this.c2 / 100.0, 1.0));
         const t2 = light <= 0.5 ? light * (sat + 1) : light + sat - light * sat;
         const t1 = light * 2 - t2;
         return new Color(
@@ -243,7 +243,7 @@ class Color {
             s = delta / (2 - max - min);
         }
 
-        return new Color('hsl', h, 100*s, 100*l);
+        return new Color('hsl', h, 100 * s, 100 * l);
     }
 
     /**
@@ -254,15 +254,15 @@ class Color {
             return this.toRGB().luma();
         }
 
-       // Source: https://www.w3.org/TR/WCAG20/#relativeluminancedef
-       let r = this.c1 / 255.0;
-       let g = this.c2 / 255.0;
-       let b = this.c3 / 255.0;
-       r = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
-       g = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
-       b = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+        // Source: https://www.w3.org/TR/WCAG20/#relativeluminancedef
+        let r = this.c1 / 255.0;
+        let g = this.c2 / 255.0;
+        let b = this.c3 / 255.0;
+        r = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
+        g = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
+        b = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
 
-       return 0.2126 * r + 0.7152 * g + 0.0722 * b;     
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     }
 
     /**
@@ -304,14 +304,14 @@ class Color {
     mixColor(mixColor, weight) {
         // @todo: support additional color models. See color-convert npm module.
         const color1 = this.toHSL();
-        const color2 = mixColor.toHSL();    
+        const color2 = mixColor.toHSL();
         return new Color('hsl',
             color1.c1 + (color2.c1 - color1.c1) * weight,
             color1.c2 + (color2.c2 - color1.c2) * weight,
             color1.c3 + (color2.c3 - color1.c3) * weight,
         );
     }
-    
+
     /**
      * @returns {[Color, Color]}    
      */
@@ -332,13 +332,13 @@ class Color {
             color2.c1 - 20 * Math.sin(4 * Math.PI * (color2.c1 / 360)),
             color2.c2 + 20 * Math.sin(2 * Math.PI * (color2.c1 / 360)),
             color2.c1 >= 180
-                    ? color2.c3 - 35
-                    : color2.c3 - 20 + 10 * Math.sin(4 * Math.PI * (color2.c1 / 360)),
+                ? color2.c3 - 35
+                : color2.c3 - 20 + 10 * Math.sin(4 * Math.PI * (color2.c1 / 360)),
         );
 
         return [color1.mixColor(color2, 0.15), color3.mixColor(color2, 0.15)]; // lower numbers => more contrast
     }
-    
+
     /**
      * @returns [Color Color]   // [foreground, background]
      */
@@ -357,8 +357,8 @@ class Color {
  * @retruns {RegExp}
  */
 function RegExpFromPatternString(str) {
-    if (str.length > 2 && str[0] === '/' && str[str.length-1] === '/') {
-        str = str.slice(1,-1);
+    if (str.length > 2 && str[0] === '/' && str[str.length - 1] === '/') {
+        str = str.slice(1, -1);
     }
     return new RegExp(str);
 }
@@ -373,7 +373,7 @@ class ColorRule {
      * @param {string} spacing 
      */
     constructor(pattern, fgColor, bgColor, style, spacing) {
-        this.pattern = typeof pattern === 'string' ? RegExpFromPatternString(pattern) : pattern;
+        this.pattern = typeof pattern === 'string' ? RegExpFromPatternString(ColoringRules.escapeSpecialChars(pattern)) : pattern;
         this.fgColor = fgColor ? (typeof fgColor === 'string' ? new Color(fgColor) : fgColor) : null;
         this.bgColor = bgColor ? (typeof bgColor === 'string' ? new Color(bgColor) : bgColor) : null;
         this.style = style;
@@ -387,12 +387,12 @@ class ColorRule {
      */
     static readJSON(obj) {
         return obj ? new ColorRule(
-                            obj.pattern,
-                            Color.readJSON(obj.fgColor),
-                            Color.readJSON(obj.bgColor),
-                            obj.style,
-                            obj.spacing)
-                 : null;
+            obj.pattern,
+            Color.readJSON(obj.fgColor),
+            Color.readJSON(obj.bgColor),
+            obj.style,
+            obj.spacing)
+            : null;
     }
 
     clone() {
@@ -414,7 +414,7 @@ class ColorRule {
         }
         if (this.style) {
             let css = this.style.toLowerCase() === 'bold' || this.style.toLowerCase() === 'bolder' ?
-                    'font-weight' : 'font-style';
+                'font-weight' : 'font-style';
             style += ` ${css}: ${this.style};`;
         };
         if (this.spacing) {
@@ -450,11 +450,11 @@ class MatchColor {
      */
     static readJSON(obj) {
         return obj ? new MatchColor(
-                            Color.readJSON(obj.bgColor),
-                            obj.borderPosition,
-                            obj.borderThickness,
-                            Color.readJSON(obj.borderColor))
-                 : null;
+            Color.readJSON(obj.bgColor),
+            obj.borderPosition,
+            obj.borderThickness,
+            Color.readJSON(obj.borderColor))
+            : null;
     }
 
     /**
@@ -469,11 +469,11 @@ class MatchColor {
         if (this.bgColor) {
             style += ` background-color: ${this.bgColor.toCSSColor('hex')};`;
         }
-        switch(this.borderPosition) {
+        switch (this.borderPosition) {
             case 'Above':
                 style += ' border-top-style: solid;';
                 break;
-           case 'Below':
+            case 'Below':
                 style += ' border-bottom-style: solid;';
                 break;
             case 'Box':
@@ -515,7 +515,7 @@ class MatchingColorRule {
 
     clone() {
         new MatchingColorRule(this.nestedOpenColorRule.clone(), this.nestedCloseColorRule.clone(),
-                              this.topMatchColor.clone(), this.nestedMatchColor.clone());
+            this.topMatchColor.clone(), this.nestedMatchColor.clone());
     }
 
     /**
@@ -525,11 +525,11 @@ class MatchingColorRule {
      */
     static readJSON(obj) {
         return obj ? new MatchingColorRule(
-                            ColorRule.readJSON(obj.nestedOpenColorRule),
-                            ColorRule.readJSON(obj.nestedCloseColorRule),
-                            MatchColor.readJSON(obj.topMatchColor),
-                            MatchColor.readJSON(obj.nestedMatchColor))
-                 : null;
+            ColorRule.readJSON(obj.nestedOpenColorRule),
+            ColorRule.readJSON(obj.nestedCloseColorRule),
+            MatchColor.readJSON(obj.topMatchColor),
+            MatchColor.readJSON(obj.nestedMatchColor))
+            : null;
     }
 }
 
@@ -542,8 +542,8 @@ class ColoringRules {
         this.name = name;
         /** @type {ColorRule[]} */
         this.patterns = [];
-         /** @type {MatchingColorRule[]} */
-        this.matches  = [];
+        /** @type {MatchingColorRule[]} */
+        this.matches = [];
     }
 
     /**
@@ -557,11 +557,11 @@ class ColoringRules {
         /**
          * @param {any} rule
          */
-        rules.patterns = obj.patterns.map( rule => ColorRule.readJSON(rule) );
+        rules.patterns = obj.patterns.map(rule => ColorRule.readJSON(rule));
         /**
          * @param {any} match
          */
-        rules.matches = obj.matches.map( match => MatchingColorRule.readJSON(match) );
+        rules.matches = obj.matches.map(match => MatchingColorRule.readJSON(match));
         return rules;
     }
 
@@ -581,40 +581,40 @@ class ColoringRules {
      */
     initialize() {
         this.name = DEFAULT_RULE_NAME;
-        this.patterns.push( new ColorRule('3', 'hsl(130, 70%, 43%)', 'hsl(4, 90%, 50%)', 'Normal', '') );
-        this.patterns.push( new ColorRule('8', 'hsl(4, 90%, 50%)', 'hsl(130, 70%, 43%)', 'Normal', '') );
-        this.patterns.push( new ColorRule('\\(', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'Normal', '0.167em') );
-        this.patterns.push( new ColorRule('\\)', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'Normal', '0.167em') );
-        this.patterns.push( new ColorRule('[0-9]', '', '', 'Normal', '') );
-        this.patterns.push( new ColorRule('[a-zA-Z]', '', '', 'italic', '') );
-        this.patterns.push( new ColorRule('\\+|×|÷|±', '', '', 'Normal', '.222em') );
-        this.patterns.push( new ColorRule('-', '', '', 'bold', '.222em') );
-        this.patterns.push( new ColorRule('\\|', '', '', 'bold', '') );
-        this.patterns.push( new ColorRule('<|=|>|≠|≤|≥', 'hsl(0,0%,100%)', 'hsl(160, 10%, 10%)', 'Normal', '.278em') );
-        
+        this.patterns.push(new ColorRule('3', 'hsl(130, 70%, 43%)', 'hsl(4, 90%, 50%)', 'Normal', ''));
+        this.patterns.push(new ColorRule('8', 'hsl(4, 90%, 50%)', 'hsl(130, 70%, 43%)', 'Normal', ''));
+        this.patterns.push(new ColorRule('\\(', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'Normal', '0.167em'));
+        this.patterns.push(new ColorRule('\\)', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'Normal', '0.167em'));
+        this.patterns.push(new ColorRule('[0-9]', '', '', 'Normal', ''));
+        this.patterns.push(new ColorRule('[a-zA-Z]', '', '', 'italic', ''));
+        this.patterns.push(new ColorRule('\\+|×|÷|±', '', '', 'Normal', '.222em'));
+        this.patterns.push(new ColorRule('-', '', '', 'bold', '.222em'));
+        this.patterns.push(new ColorRule('\\|', '', '', 'bold', ''));
+        this.patterns.push(new ColorRule('<|=|>|≠|≤|≥', 'hsl(0,0%,100%)', 'hsl(160, 10%, 10%)', 'Normal', '.278em'));
+
         this.replaceMatch('(', new MatchingColorRule(
             new ColorRule(/\(/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
             new ColorRule(/\)/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
-            new MatchColor('', 'Box','2px','hsl(0,0%, 50%)'),
-            new MatchColor('hsl(240, 100%, 95%)', 'None','1px','hsl(0,0%, 30%)')
-         ));
-
-         this.patterns.push( new ColorRule(/\[/, '', '', 'Normal', '') );
-         this.patterns.push( new ColorRule(/\]/, '', '', 'Normal', '') );
-         this.replaceMatch('\\[', new MatchingColorRule(
-            new ColorRule(/\[/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
-            new ColorRule(/\]/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
-            new MatchColor('', 'Below','2px','hsl(0,0%, 50%)'),
-            new MatchColor('hsl(270, 100%, 95%)', 'Above','2px','hsl(0,0%, 30%)')
+            new MatchColor('', 'Box', '2px', 'hsl(0,0%, 50%)'),
+            new MatchColor('hsl(240, 100%, 95%)', 'None', '1px', 'hsl(0,0%, 30%)')
         ));
 
-        this.patterns.push( new ColorRule(/\{/, '', '', 'Normal', '') );
-        this.patterns.push( new ColorRule(/}/, '', '', 'Normal', '') );
+        this.patterns.push(new ColorRule(/\[/, '', '', 'Normal', ''));
+        this.patterns.push(new ColorRule(/\]/, '', '', 'Normal', ''));
+        this.replaceMatch('\\[', new MatchingColorRule(
+            new ColorRule(/\[/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
+            new ColorRule(/\]/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
+            new MatchColor('', 'Below', '2px', 'hsl(0,0%, 50%)'),
+            new MatchColor('hsl(270, 100%, 95%)', 'Above', '2px', 'hsl(0,0%, 30%)')
+        ));
+
+        this.patterns.push(new ColorRule(/\{/, '', '', 'Normal', ''));
+        this.patterns.push(new ColorRule(/}/, '', '', 'Normal', ''));
         this.replaceMatch('\\{', new MatchingColorRule(
             new ColorRule(/\{/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
             new ColorRule('}', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
-            new MatchColor('', 'Box','2px','hsl(0,0%, 50%)'),
-            new MatchColor('', 'None','1px','hsl(0,0%, 30%)')
+            new MatchColor('', 'Box', '2px', 'hsl(0,0%, 50%)'),
+            new MatchColor('', 'None', '1px', 'hsl(0,0%, 30%)')
         ));
         return this;
     }
@@ -628,15 +628,16 @@ class ColoringRules {
         return ch.length > 1 ? ch : ch.replace(/[(\\\^\$\.\|\?\*\+\(\)\[\{)]/g, '\\$&');
     }
     /** 
-     * @param {string} ch // should be a single character
+     * @param {string} ch // should be a single character (will escape special chars inside this function
      * @returns {ColorRule}
      */
     match(ch) {
-        return this.patterns.find( colorRule => colorRule.pattern.test(ColoringRules.escapeSpecialChars(ch)) );
+        ch = ColoringRules.escapeSpecialChars(ch)
+        return this.patterns.find(colorRule => colorRule.pattern.test(ch));
     }
 
     /** 
-     * @param {string} ch // should be a single character
+     * @param {string} ch // should be a single character (will escape special chars inside this function)
      * @param {boolean} [matchOpen] // should be a single character
      * @returns {MatchingColorRule}
      */
@@ -644,19 +645,20 @@ class ColoringRules {
         if (typeof matchOpen === "undefined") {
             matchOpen = true;
         }
+        ch = ColoringRules.escapeSpecialChars(ch);
         return matchOpen ?
-        this.matches.find( matchRule => matchRule.nestedOpenColorRule.pattern.test(ColoringRules.escapeSpecialChars(ch)) ) :
-        this.matches.find( matchRule => matchRule.nestedCloseColorRule.pattern.test(ColoringRules.escapeSpecialChars(ch)) );
+            this.matches.find(matchRule => matchRule.nestedOpenColorRule.pattern.test(ch)) :
+            this.matches.find(matchRule => matchRule.nestedCloseColorRule.pattern.test(ch));
     }
 
     /**
      * Replaces 'ch' in patterns; if not present, adds it
-     * @param {string} ch 
+     * @param {string} ch // should be a single character (will escape special chars inside this function)
      * @param {ColorRule} rule 
      */
     replace(ch, rule) {
-        const regExForCh = new RegExp( ColoringRules.escapeSpecialChars(ch) );
-        const i = this.patterns.findIndex( p => p.pattern.source === regExForCh.source);
+        const regExForCh = new RegExp(ColoringRules.escapeSpecialChars(ch));
+        const i = this.patterns.findIndex(p => p.pattern.source === regExForCh.source);
         if (i >= 0) {
             this.patterns[i] = rule;
         } else {
@@ -666,12 +668,12 @@ class ColoringRules {
 
     /**
      * Replaces 'ch' in patterns; if not present, adds it
-     * @param {string} ch 
+     * @param {string} ch // should be a single character (will escape special chars inside this function)
      * @param {MatchingColorRule} rule 
      */
     replaceMatch(ch, rule) {
-        const regExForCh = new RegExp( ColoringRules.escapeSpecialChars(ch) );
-        const i = this.matches.findIndex( m => m.nestedOpenColorRule.pattern.source === regExForCh.source );
+        const regExForCh = new RegExp(ColoringRules.escapeSpecialChars(ch));
+        const i = this.matches.findIndex(m => m.nestedOpenColorRule.pattern.source === regExForCh.source);
         if (i >= 0) {
             this.matches[i] = rule;
         } else {
@@ -747,14 +749,14 @@ class ColoringRules {
                 result += buildSpan(ch, colorRule);
                 if (matchRule) {
                     i += 1;                     // we've handled 'ch' already
-                    matchStack.push({open: ch, close: matchRule.nestedCloseColorRule.pattern.source.replace("\\", "")});
+                    matchStack.push({ open: ch, close: matchRule.nestedCloseColorRule.pattern.source.replace("\\", "") });
                     const nestedSpan = nestConvertToSpan(str, matchRule.nestedCloseColorRule.pattern.source.replace("\\", ""));
                     matchStack.pop();
                     ch = str[i];
                     if (nestedSpan) {
                         const nestSpanStyle = stackDepth(ch) === 0 ?
-                                matchRule.topMatchColor.buildSpanStyle() :
-                                matchRule.nestedMatchColor.buildSpanStyle('nested');
+                            matchRule.topMatchColor.buildSpanStyle() :
+                            matchRule.nestedMatchColor.buildSpanStyle('nested');
                         result += `<span style="${nestSpanStyle}">${nestedSpan}</span>`;
                     }
 
@@ -784,8 +786,54 @@ class ColoringRules {
         }
     }
 
-    updateCharArea() {
+    makeFGandBGSame() {
+        const topCheckBox = getInputElement('match-area-same-top');
+        const bottomCheckBox = getInputElement('match-area-same-bottom');
+        if (!(topCheckBox.checked || bottomCheckBox.checked)) {
+            return;     // neither box checked -- nothing to do
+        }
 
+        // get open ch, look up the rule associated with it, then set the fg/bg for the close to the open values
+        const openElement = getInputElement('match-open-char');
+        const openCh = openElement.innerText.trim();
+        const closeElement = getInputElement('match-close-char');
+        const closeCh = closeElement.innerText.trim();
+        if (openCh.length !== 1 || closeCh.length !== 1) {
+            return;     // an open or close char is missing, so we can't do anything
+        }
+
+        // if toplevel, we are changing the close char
+        if (topCheckBox.checked) {
+            const openRule = this.match(openCh);
+            const closeRule = this.match(closeCh);
+            if (openRule && closeRule) {
+                this.replace(
+                    closeCh,
+                    new ColorRule(
+                        closeCh,
+                        openRule.fgColor,
+                        openRule.bgColor,
+                        openRule.style,
+                        openRule.spacing)
+                )
+            }
+        }
+
+        // if nested, we change the matching char which is keyed off the open char
+        if (bottomCheckBox.checked) {
+            const rule = this.matchMatch(openCh);
+            if (rule) {
+                let newCloseRule = rule.nestedOpenColorRule.clone();
+                newCloseRule.pattern = rule.nestedCloseColorRule.pattern;
+                this.replaceMatch(
+                    openCh,
+                    new MatchingColorRule(rule.nestedOpenColorRule, newCloseRule,
+                        rule.topMatchColor, rule.nestedMatchColor));
+            }
+        }
+    }
+
+    updateCharArea() {
         const editAreaEl = getInputElement('edit-input');
         const colorRule = this.match(editAreaEl.innerText.trim()) || new ColorRule('\uffff', '', '', "Normal", '');
 
@@ -811,11 +859,10 @@ class ColoringRules {
         // @ts-ignore
         const complementaryRules = getComplimentaryRules(oppositeEditArea.innerText, colorRule);
         oppositeEditArea.style.color = complementaryRules.patterns[0].fgColor.toCSSColor('hsl');
-        oppositeEditArea.style.backgroundColor = complementaryRules.patterns[0].bgColor.toCSSColor('hsl');    
+        oppositeEditArea.style.backgroundColor = complementaryRules.patterns[0].bgColor.toCSSColor('hsl');
     }
 
     updateMatchArea() {
-
         /**
          * @param {string} elClass 
          * @param {ColorRule} rule 
@@ -823,8 +870,8 @@ class ColoringRules {
         function updateDemoChar(elClass, rule) {
             const demoCharElement = document.getElementsByClassName(elClass)[0];
             const charPatternSource = RegExpFromPatternString(rule.pattern.source).source;  // potentially strips //s
-            demoCharElement.textContent = charPatternSource.charAt(charPatternSource.length-1);     // ignores a potential leading \
-            demoCharElement.setAttribute('style', rule.buildSpanStyle());           
+            demoCharElement.textContent = charPatternSource.charAt(charPatternSource.length - 1);     // ignores a potential leading \
+            demoCharElement.setAttribute('style', rule.buildSpanStyle());
         }
         /**
          * @param {Object} obj
@@ -835,7 +882,7 @@ class ColoringRules {
             const caretOffset = getCaretPosition(el);
             el.innerHTML = that.convertToSpan(ch);
             setCaretPosition(el, caretOffset);
-            
+
             const colorRule = that.match(ch);
             if (colorRule) {
                 if (colorRule.fgColor) {
@@ -845,10 +892,10 @@ class ColoringRules {
                     getInputElement(obj.bgID).value = colorRule.bgColor.toCSSColor('hex');
                 }
             }
+            updateDemoChar(obj.demoCharID, colorRule);
 
             const nestColorRule = that.matchMatch(ch, obj.open);
             const nestRule = obj.open ? 'nestedOpenColorRule' : 'nestedCloseColorRule';
-            updateDemoChar(obj.demoCharID, nestColorRule[nestRule]);
             if (nestColorRule) {
                 if (nestColorRule) {
                     getInputElement(obj.nestfgID).value = nestColorRule[nestRule].fgColor.toCSSColor('hex');
@@ -894,8 +941,8 @@ class ColoringRules {
         updateLeftOrRightSide({
             open: true,
             charID: 'match-open-char',
-            fgID:'match-area-fg-top',
-            bgID:'match-area-bg-top',
+            fgID: 'match-area-fg-top',
+            bgID: 'match-area-bg-top',
             demoCharID: 'match-area-open-top',
             nestfgID: 'match-area-fg-bottom',
             nestbgID: 'match-area-bg-bottom',
@@ -904,8 +951,8 @@ class ColoringRules {
         updateLeftOrRightSide({
             open: false,
             charID: 'match-close-char',
-            fgID:'match-area-r-fg-top',
-            bgID:'match-area-r-bg-top',
+            fgID: 'match-area-r-fg-top',
+            bgID: 'match-area-r-bg-top',
             demoCharID: 'match-area-close-top',
             nestfgID: 'match-area-r-fg-bottom',
             nestbgID: 'match-area-r-bg-bottom',
@@ -926,8 +973,7 @@ class ColoringRules {
             borderColorID: 'border-color-bottom',
             bgColorID: 'bg-bottom',
             insideID: 'match-area-contents-bottom'
-})
-
+        })
     }
 
     updateTestInput() {
@@ -936,8 +982,9 @@ class ColoringRules {
         testArea.innerHTML = this.convertToSpan(testArea.textContent);
         setCaretPosition(testArea, caretOffset);
     }
-    
+
     updateAll() {
+        this.makeFGandBGSame();
         this.updatePalettes();
         this.updateCharArea();
         this.updateMatchArea();
@@ -963,13 +1010,13 @@ class ColoringRules {
             let value;
             try {
                 value = JSON.parse(storage.getItem(key));
-            } catch(e) {
+            } catch (e) {
                 value = {};
             }
             if (this.looksLikeColoringRule(value)) {
                 const newOptionElement = document.createElement('option');
                 newOptionElement.setAttribute('value', storage.key(i));
-                dataListElement.appendChild(newOptionElement);    
+                dataListElement.appendChild(newOptionElement);
             }
         }
     }
@@ -982,7 +1029,7 @@ class ColoringRules {
             alert('You must type a name for the rule');
             return;
         }
-       
+
         const storage = window.localStorage;
 
         // put up a warning if we are about to overwrite an existing rule (without this name)
@@ -1002,7 +1049,7 @@ class ColoringRules {
             storage.setItem(STORAGE_NAME__STARTUP_COLORING_RULES, name);
             this.saveStatus(true);
         }
-        catch(err) {
+        catch (err) {
             alert("Could not store rule!");
         }
     }
@@ -1020,7 +1067,7 @@ class ColoringRules {
         if (!ColoringRules.Saved && confirm(`Current coloring rule ${this.name} is not saved. Do you want to save it?`)) {
             this.saveRules(this.name);
         }
-       
+
         const storage = window.localStorage;
         const ruleString = storage.getItem(name);
         const ruleObj = !ruleString || JSON.parse(ruleString);
@@ -1037,10 +1084,10 @@ class ColoringRules {
 
     copyToClipboard() {
         navigator.clipboard.writeText(JSON.stringify(ColoringRules.Rules))
-          .catch(
-          err => {
-            alert(`Error! Could not copy text: ${err}`);
-          });
+            .catch(
+                err => {
+                    alert(`Error! Could not copy text: ${err}`);
+                });
     }
 
     pasteFromClipboard() {
@@ -1054,22 +1101,22 @@ class ColoringRules {
                     ColoringRules.Rules = newRules;
                     window.localStorage.setItem(STORAGE_NAME__STARTUP_COLORING_RULES, newRules.name);
                     ColoringRules.Rules.saveStatus(true);
-                    ColoringRules.Rules.updateAll();    
+                    ColoringRules.Rules.updateAll();
                 } else {
                     alert("Error: clipboard does not contain rules for coloring math");
                 }
             }
-          )
-          .catch(
-          err => {
-            alert(`Error: wasn't able to read text from clipbaord: ${err}`);
-          })
-   }
+        )
+            .catch(
+                err => {
+                    alert(`Error: wasn't able to read text from clipbaord: ${err}`);
+                })
+    }
 
     removeAllRules() {
-       if (confirm('Are you sure you want to remove all of the stored coloring rules?')) {
+        if (confirm('Are you sure you want to remove all of the stored coloring rules?')) {
             window.localStorage.clear();
-       }
+        }
     }
 
     /**
@@ -1148,40 +1195,40 @@ function getInputElement(id) {
 
 /** @type {{id: string, charID: string, matchFn: string, ruleAccessor: string | string[]}[]} */
 const IdMapping = [
-    {id: 'text-color', charID: 'edit-input', matchFn: 'match', ruleAccessor: 'fgColor'},
-    {id: 'bg-color', charID: 'edit-input', matchFn: 'match', ruleAccessor: 'bgColor'},
-    {id: 'font-style', charID: 'edit-input', matchFn: 'match', ruleAccessor: 'style'},
-    {id: 'spacing', charID: 'edit-input', matchFn: 'match', ruleAccessor: 'spacing'},
-    {id: 'edit-input', charID: 'edit-input', matchFn: 'match', ruleAccessor: 'pattern'},
-    {id: 'opposite-input', charID: 'opposite-input', matchFn: 'match', ruleAccessor: 'pattern'},
-    {id: 'match-open-char', charID: 'match-open-char', matchFn: 'match', ruleAccessor: 'pattern'},
-    {id: 'match-close-char', charID: 'match-close-char', matchFn: 'match', ruleAccessor: 'pattern'},
-    {id: 'match-area-fg-top', charID: 'match-open-char', matchFn: 'match', ruleAccessor: 'fgColor'},
-    {id: 'match-area-bg-top', charID: 'match-open-char', matchFn: 'match', ruleAccessor: 'bgColor'},
-    {id: 'match-area-fg-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedOpenColorRule','fgColor']},
-    {id: 'match-area-bg-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedOpenColorRule','bgColor']},
-    {id: 'match-area-r-fg-top', charID: 'match-close-char', matchFn: 'match', ruleAccessor: 'fgColor'},
-    {id: 'match-area-r-bg-top', charID: 'match-close-char', matchFn: 'match', ruleAccessor: 'bgColor'},
-    {id: 'match-area-r-fg-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedCloseColorRule','fgColor']},
-    {id: 'match-area-r-bg-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedCloseColorRule','bgColor']},
-    {id: 'border-style-top', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['topMatchColor','borderPosition']},
-    {id: 'border-thickness-top', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['topMatchColor','borderThickness']},
-    {id: 'border-color-top', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['topMatchColor','borderColor']},
-    {id: 'bg-top', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['topMatchColor','bgColor']},
-    {id: 'border-style-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedMatchColor','borderPosition']},
-    {id: 'border-thickness-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedMatchColor','borderThickness']},
-    {id: 'border-color-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedMatchColor','borderColor']},
-    {id: 'bg-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedMatchColor','bgColor']},
+    { id: 'text-color', charID: 'edit-input', matchFn: 'match', ruleAccessor: 'fgColor' },
+    { id: 'bg-color', charID: 'edit-input', matchFn: 'match', ruleAccessor: 'bgColor' },
+    { id: 'font-style', charID: 'edit-input', matchFn: 'match', ruleAccessor: 'style' },
+    { id: 'spacing', charID: 'edit-input', matchFn: 'match', ruleAccessor: 'spacing' },
+    { id: 'edit-input', charID: 'edit-input', matchFn: 'match', ruleAccessor: 'pattern' },
+    { id: 'opposite-input', charID: 'opposite-input', matchFn: 'match', ruleAccessor: 'pattern' },
+    { id: 'match-open-char', charID: 'match-open-char', matchFn: 'match', ruleAccessor: 'pattern' },
+    { id: 'match-close-char', charID: 'match-close-char', matchFn: 'match', ruleAccessor: 'pattern' },
+    { id: 'match-area-fg-top', charID: 'match-open-char', matchFn: 'match', ruleAccessor: 'fgColor' },
+    { id: 'match-area-bg-top', charID: 'match-open-char', matchFn: 'match', ruleAccessor: 'bgColor' },
+    { id: 'match-area-fg-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedOpenColorRule', 'fgColor'] },
+    { id: 'match-area-bg-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedOpenColorRule', 'bgColor'] },
+    { id: 'match-area-r-fg-top', charID: 'match-close-char', matchFn: 'match', ruleAccessor: 'fgColor' },
+    { id: 'match-area-r-bg-top', charID: 'match-close-char', matchFn: 'match', ruleAccessor: 'bgColor' },
+    { id: 'match-area-r-fg-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedCloseColorRule', 'fgColor'] },
+    { id: 'match-area-r-bg-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedCloseColorRule', 'bgColor'] },
+    { id: 'border-style-top', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['topMatchColor', 'borderPosition'] },
+    { id: 'border-thickness-top', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['topMatchColor', 'borderThickness'] },
+    { id: 'border-color-top', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['topMatchColor', 'borderColor'] },
+    { id: 'bg-top', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['topMatchColor', 'bgColor'] },
+    { id: 'border-style-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedMatchColor', 'borderPosition'] },
+    { id: 'border-thickness-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedMatchColor', 'borderThickness'] },
+    { id: 'border-color-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedMatchColor', 'borderColor'] },
+    { id: 'bg-bottom', charID: 'match-open-char', matchFn: 'matchMatch', ruleAccessor: ['nestedMatchColor', 'bgColor'] },
 ]
 
 const PaletteIds = ['lc-letters', 'uc-letters', 'digits', 'symbols', 'symbols-test'];
 const OnClickIds = ['saveRules', 'loadRules', 'copyToClipboard', 'pasteFromClipboard', 'removeAllRules'];
 const EditIds = ['edit-input', 'opposite-input', 'match-open-char', 'match-close-char'];
 
-EditHistory.testInput = new EditHistory( document.getElementById('test-input').textContent );
+EditHistory.testInput = new EditHistory(document.getElementById('test-input').textContent);
 
 window.onload =
-    function() {
+    function () {
         // get initial coloring rules
         const initColoringRuleName = window.localStorage.getItem(STORAGE_NAME__STARTUP_COLORING_RULES);
         if (initColoringRuleName) {
@@ -1189,13 +1236,13 @@ window.onload =
             // loadRules sets saveStatus
         } else {
             ColoringRules.Rules = new ColoringRules(DEFAULT_RULE_NAME).initialize();
-            ColoringRules.Rules.saveStatus(true); 
+            ColoringRules.Rules.saveStatus(true);
         }
         // add the palettes
-        PaletteIds.forEach( palette => addCharacterPalette( document.getElementById(palette)) );
+        PaletteIds.forEach(palette => addCharacterPalette(document.getElementById(palette)));
 
         EditIds.forEach(
-            id => new EditHistory( document.getElementById(id).textContent )
+            id => new EditHistory(document.getElementById(id).textContent)
         );
 
         // hook up input events for most input elements
@@ -1203,15 +1250,16 @@ window.onload =
             mappingObj => document.getElementById(mappingObj.id).addEventListener('input', updateFromNewValue));
 
         // handle "same as open" separately
-        ['match-area-same-top', 'match-area-same-bottom'].forEach(
-            id => document.getElementById(id).addEventListener('onchange', makeFGandBGSame)
-        );
-            
-        document.getElementById('rule-list-input').addEventListener('focus', function() {
-                ColoringRules.Rules.rulesList() });
+        document.getElementById('match-area-same-top').addEventListener('change', e => ColoringRules.Rules.updateAll());
+        document.getElementById('match-area-same-bottom').addEventListener('change', e => ColoringRules.Rules.updateAll());
+
+        document.getElementById('rule-list-input').addEventListener('focus', function () {
+            ColoringRules.Rules.rulesList()
+        });
         OnClickIds.forEach(
-            id => document.getElementById(id).addEventListener('click', function() {
-                ColoringRules.Rules[id]( getInputElement('rule-list-input').value ); })
+            id => document.getElementById(id).addEventListener('click', function () {
+                ColoringRules.Rules[id](getInputElement('rule-list-input').value);
+            })
         );
 
         let testInput = document.getElementById('test-input');
@@ -1227,13 +1275,13 @@ window.onload =
 function addCharacterPalette(grid) {
     const chars = grid.textContent;
     grid.textContent = '';
-    chars.split('').forEach( function(char) {
+    chars.split('').forEach(function (char) {
         let button = document.createElement('button');
         button.className = 'button';
         button.innerHTML = ColoringRules.Rules.convertToSpan(char);
         button.onclick = /test/.test(grid.id) ? copyCharToTestArea : copyCharToEditArea;
         grid.appendChild(button);
-    } );
+    });
 }
 
 
@@ -1281,49 +1329,9 @@ function updateTestArea(e) {
             e.preventDefault();
             this.newState(e.currentTarget.textContent);
             break;
-        }
+    }
     ColoringRules.Rules.updateTestInput();
 }
-
-/**
- * @param {HTMLElement} elementForChar
- * @returns {ColoringRules} 
- */
-function gatherCharStyle(elementForChar) {
-    const ruleValues = EditAreaIds.slice(1).map(  id => getInputElement(id).value);
-
-    // create a rule based on those values and *add* it to a temporary set of rules
-    let newRules = new ColoringRules('temp');
-    let text = elementForChar.innerText ? elementForChar.innerText : '\uffff';  // use char that can't be typed
-
-    for (const ch of text.split('')) {      // for loop because there could be more than one char
-        // @ts-ignore
-        const newRule = new ColorRule( ...[ColoringRules.escapeSpecialChars(ch)].concat(ruleValues) );    
-        newRules.replace(ch, newRule);
-    }
-    return newRules;
-}
-
-function makeFGandBGSame(e) {
-    if (e.target.checked) {
-        // get open ch, look up the rule associated with it, then set the fg/bg for the close to the open values
-        const charElement = getInputElement('match-open-char');
-        if (charElement.innerText.trim().length === 0) {
-            return;
-        }
-        
-        const chRegExp = ColoringRules.escapeSpecialChars(charElement.innerText);
-        const rule = ColoringRules.Rules.matchMatch(chRegExp);
-        if (rule) {
-            ColoringRules.Rules = ColoringRules.Rules.replaceMatch(
-                chRegExp,
-                new MatchingColorRule(rule.nestedOpenColorRule, rule.nestedOpenColorRule.clone(),
-                                      rule.topMatchColor.clone(), rule.nestedMatchColor.clone()));
-        }
-        ColoringRules.Rules.updateAll();
-    }
-}
-
 
 /**
  * 
@@ -1338,7 +1346,7 @@ function getComplimentaryRules(chars, colorRule) {
     chars = chars || '\uffff';  // safe value to use since it will never match anything
     let result = new ColoringRules('temp');;
     for (const ch of chars) {
-        result.replace(ColoringRules.escapeSpecialChars(ch), new ColorRule(ch, compForeground, compBackground, colorRule.style, colorRule.spacing));
+        result.replace(ch, new ColorRule(ch, compForeground, compBackground, colorRule.style, colorRule.spacing));
     }
 
     return result;
@@ -1364,10 +1372,10 @@ function updateFromNewValue(e) {
             key = accessor;
         } else {
 
-            for (let i=0; i < accessor.length-1; i++) {
+            for (let i = 0; i < accessor.length - 1; i++) {
                 subRule = subRule[accessor[i]];
             }
-            key = accessor[accessor.length-1];
+            key = accessor[accessor.length - 1];
         }
         let value;
         switch (el.type) {
@@ -1375,13 +1383,13 @@ function updateFromNewValue(e) {
                 value = new Color(el.value);
                 break;
             case 'select-one':
-                value = key==='borderPosition' ? el.selectedOptions[0].label : el.selectedOptions[0].value;
+                value = key === 'borderPosition' ? el.selectedOptions[0].label : el.selectedOptions[0].value;
                 break;
             default:    // should be contenteditable input field
                 if (typeof el.type !== 'undefined') {
                     console.log(`Unknown input type '${el.type}'`);
                 }
-                value = new RegExp( ColoringRules.escapeSpecialChars(el.innerText) );
+                value = new RegExp(ColoringRules.escapeSpecialChars(el.innerText));
                 break;
         }
         subRule[key] = value;
@@ -1396,24 +1404,24 @@ function updateFromNewValue(e) {
     // @ts-ignore
     const targetEl = e.target;
     /** @type {{id: string, charID: string, matchFn: string, ruleAccessor: string | string[]}} */
-    const mappingObj = IdMapping.find( obj => obj.id === targetEl.id);
+    const mappingObj = IdMapping.find(obj => obj.id === targetEl.id);
     const charElement = getInputElement(mappingObj.charID);
     if (charElement.innerText.trim().length === 0) {
         return;
     }
-    
-    const chRegExp = ColoringRules.escapeSpecialChars(charElement.innerText);
-    const rule = mappingObj.id === 'opposite-input' ?
-            new ColorRule(ColoringRules.escapeSpecialChars(charElement.innerText), charElement.style.color, charElement.style.backgroundColor, 'Normal','') :
-            ColoringRules.Rules[mappingObj.matchFn](chRegExp) || new ColorRule('\uffff', '', '', "Normal", '');
-    const newRule = (mappingObj.matchFn === 'match') ?
-        new ColorRule(chRegExp, rule.fgColor, rule.bgColor, rule.style, rule.spacing) :
-        new MatchingColorRule(rule.nestedOpenColorRule, rule.nestedCloseColorRule,
-                                rule.topMatchColor.clone(), rule.nestedMatchColor.clone());
-    const replaceFn = mappingObj.matchFn === 'match' ? 'replace' : 'replaceMatch';
-    setValue(chRegExp, newRule, mappingObj.ruleAccessor, replaceFn, targetEl);
 
-    if (EditIds.find( id => id === targetEl.id)) {
+    const ch = charElement.innerText.trim();
+    const rule = mappingObj.id === 'opposite-input' ?
+        new ColorRule(charElement.innerText.trim(), charElement.style.color, charElement.style.backgroundColor, 'Normal', '') :
+        ColoringRules.Rules[mappingObj.matchFn](ch) || new ColorRule('\uffff', '', '', "Normal", '');
+    const newRule = (mappingObj.matchFn === 'match') ?
+        new ColorRule(ch, rule.fgColor, rule.bgColor, rule.style, rule.spacing) :
+        new MatchingColorRule(rule.nestedOpenColorRule, rule.nestedCloseColorRule,
+            rule.topMatchColor.clone(), rule.nestedMatchColor.clone());
+    const replaceFn = mappingObj.matchFn === 'match' ? 'replace' : 'replaceMatch';
+    setValue(ch, newRule, mappingObj.ruleAccessor, replaceFn, targetEl);
+
+    if (EditIds.find(id => id === targetEl.id)) {
         charElement.innerText = e.data;     // reset the field so that there is only a single char in it
     }
 
@@ -1445,7 +1453,7 @@ function getCaretPosition(editEl) {
             preCaretRange.setEnd(range.endContainer, range.endOffset);
             caretOffset = preCaretRange.toString().length;
         }
-    } else if ( (sel = doc.selection) && sel.type != "Control") {
+    } else if ((sel = doc.selection) && sel.type != "Control") {
         let textRange = sel.createRange();
         let preCaretTextRange = doc.body.createTextRange();
         preCaretTextRange.moveToeditElText(editEl);
@@ -1463,13 +1471,13 @@ function getCaretPosition(editEl) {
  * @param {number} chars 
  */
 function setCaretPosition(editEl, chars) {
-/**
- * 
- * @param {Node} node 
- * @param {number} chars 
- * @param {Range} [range]
- * @returns {[number, Range]}
- */
+    /**
+     * 
+     * @param {Node} node 
+     * @param {number} chars 
+     * @param {Range} [range]
+     * @returns {[number, Range]}
+     */
     function createRange(node, chars, range) {
         if (!range) {
             range = document.createRange()
@@ -1488,7 +1496,7 @@ function setCaretPosition(editEl, chars) {
                     chars = 0;
                 }
             } else {
-            for (let lp = 0; lp < node.childNodes.length; lp++) {
+                for (let lp = 0; lp < node.childNodes.length; lp++) {
                     [chars, range] = createRange(node.childNodes[lp], chars, range);
 
                     if (chars === 0) {
@@ -1496,7 +1504,7 @@ function setCaretPosition(editEl, chars) {
                     }
                 }
             }
-        } 
+        }
 
         return [chars, range];
     };
