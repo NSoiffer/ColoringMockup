@@ -352,6 +352,9 @@ class Color {
     }
 }
 
+Color.White = new Color('#FFFFFF');
+Color.Black = new Color('#000000');
+
 /**
  * @param{string} str
  * @retruns {RegExp}
@@ -374,8 +377,8 @@ class ColorRule {
      */
     constructor(pattern, fgColor, bgColor, style, spacing) {
         this.pattern = typeof pattern === 'string' ? RegExpFromPatternString(ColoringRules.escapeSpecialChars(pattern)) : pattern;
-        this.fgColor = fgColor ? (typeof fgColor === 'string' ? new Color(fgColor) : fgColor) : null;
-        this.bgColor = bgColor ? (typeof bgColor === 'string' ? new Color(bgColor) : bgColor) : null;
+        this.fgColor = fgColor ? (typeof fgColor === 'string' ? new Color(fgColor) : fgColor) : Color.Black;
+        this.bgColor = bgColor ? (typeof bgColor === 'string' ? new Color(bgColor) : bgColor) : Color.White;
         this.style = style;
         this.spacing = spacing;
     }
@@ -415,7 +418,7 @@ class ColorRule {
         if (this.style) {
             let css = this.style.toLowerCase() === 'bold' || this.style.toLowerCase() === 'bolder' ?
                 'font-weight' : 'font-style';
-            style += ` ${css}: ${this.style};`;
+            style += ` ${css}: ${this.style.toLowerCase()};`;
         };
         if (this.spacing) {
             style += ` margin-left: ${this.spacing}; margin-right: ${this.spacing};`
@@ -433,10 +436,10 @@ class MatchColor {
      * @param {string|Color} borderColor 
      */
     constructor(bgColor, borderPosition, borderThickness, borderColor) {
-        this.bgColor = bgColor ? (typeof bgColor === 'string' ? new Color(bgColor) : bgColor) : null;
+        this.bgColor = typeof bgColor === 'string' ? new Color(bgColor) : bgColor;
         this.borderPosition = borderPosition;
         this.borderThickness = borderThickness;
-        this.borderColor = borderColor ? (typeof borderColor === 'string' ? new Color(borderColor) : borderColor) : null;
+        this.borderColor = typeof borderColor === 'string' ? new Color(borderColor) : borderColor;
     }
 
     clone() {
@@ -586,16 +589,16 @@ class ColoringRules {
         this.patterns.push(new ColorRule('\\(', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'Normal', '0.167em'));
         this.patterns.push(new ColorRule('\\)', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'Normal', '0.167em'));
         this.patterns.push(new ColorRule('[0-9]', '', '', 'Normal', ''));
-        this.patterns.push(new ColorRule('[a-zA-Z]', '', '', 'italic', ''));
-        this.patterns.push(new ColorRule('\\+|×|÷|±', '', '', 'Normal', '.222em'));
-        this.patterns.push(new ColorRule('-', '', '', 'bold', '.222em'));
-        this.patterns.push(new ColorRule('\\|', '', '', 'bold', ''));
-        this.patterns.push(new ColorRule('<|=|>|≠|≤|≥', 'hsl(0,0%,100%)', 'hsl(160, 10%, 10%)', 'Normal', '.278em'));
+        this.patterns.push(new ColorRule('[a-zA-Z]', '', '', 'Italic', ''));
+        this.patterns.push(new ColorRule('\\+|×|÷|±', '', '', 'Normal', '0.222em'));
+        this.patterns.push(new ColorRule('-', '', '', 'Bold', '0.222em'));
+        this.patterns.push(new ColorRule('\\|', '', '', 'Bold', ''));
+        this.patterns.push(new ColorRule('<|=|>|≠|≤|≥', 'hsl(0,0%,100%)', 'hsl(160, 10%, 10%)', 'Normal', '0.278em'));
 
         this.replaceMatch('(', new MatchingColorRule(
             new ColorRule(/\(/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
             new ColorRule(/\)/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
-            new MatchColor('', 'Box', '2px', 'hsl(0,0%, 50%)'),
+            new MatchColor(Color.White, 'Box', '2px', 'hsl(0,0%, 50%)'),
             new MatchColor('hsl(240, 100%, 95%)', 'None', '1px', 'hsl(0,0%, 30%)')
         ));
 
@@ -604,7 +607,7 @@ class ColoringRules {
         this.replaceMatch('\\[', new MatchingColorRule(
             new ColorRule(/\[/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
             new ColorRule(/\]/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
-            new MatchColor('', 'Below', '2px', 'hsl(0,0%, 50%)'),
+            new MatchColor(Color.White, 'Below', '2px', 'hsl(0,0%, 50%)'),
             new MatchColor('hsl(270, 100%, 95%)', 'Above', '2px', 'hsl(0,0%, 30%)')
         ));
 
@@ -613,8 +616,8 @@ class ColoringRules {
         this.replaceMatch('\\{', new MatchingColorRule(
             new ColorRule(/\{/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
             new ColorRule('}', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
-            new MatchColor('', 'Box', '2px', 'hsl(0,0%, 50%)'),
-            new MatchColor('', 'None', '1px', 'hsl(0,0%, 30%)')
+            new MatchColor(Color.White, 'Box', '2px', 'hsl(0,0%, 50%)'),
+            new MatchColor(Color.White, 'None', '1px', 'hsl(0,0%, 30%)')
         ));
         return this;
     }
@@ -839,14 +842,14 @@ class ColoringRules {
 
         editAreaEl.innerHTML = this.convertToSpan(editAreaEl.innerText.trim());
 
-        getInputElement('text-color').value = colorRule.fgColor ? colorRule.fgColor.toCSSColor('hex') : '#000000';
-        getInputElement('bg-color').value = colorRule.bgColor ? colorRule.bgColor.toCSSColor('hex') : '#ffffff';
+        getInputElement('text-color').value = colorRule.fgColor.toCSSColor('hex');
+        getInputElement('bg-color').value = colorRule.bgColor.toCSSColor('hex');
 
         /** @type{HTMLSelectElement} */
         // @ts-ignore
         let el = document.getElementById('font-style');
         for (let i = 0; i < el.options.length; i++) {
-            el.options.item(i).selected = (el.options.item(i).text === colorRule.style);
+            el.options.item(i).selected = (el.options.item(i).label === colorRule.style);
         }
 
         // @ts-ignore
@@ -885,24 +888,16 @@ class ColoringRules {
 
             const colorRule = that.match(ch);
             if (colorRule) {
-                if (colorRule.fgColor) {
-                    getInputElement(obj.fgID).value = colorRule.fgColor.toCSSColor('hex');
-                }
-                if (colorRule.bgColor) {
-                    getInputElement(obj.bgID).value = colorRule.bgColor.toCSSColor('hex');
-                }
+                getInputElement(obj.fgID).value = colorRule.fgColor.toCSSColor('hex');
+                getInputElement(obj.bgID).value = colorRule.bgColor.toCSSColor('hex');
             }
             updateDemoChar(obj.demoCharID, colorRule);
 
             const nestColorRule = that.matchMatch(ch, obj.open);
             const nestRule = obj.open ? 'nestedOpenColorRule' : 'nestedCloseColorRule';
             if (nestColorRule) {
-                if (nestColorRule) {
-                    getInputElement(obj.nestfgID).value = nestColorRule[nestRule].fgColor.toCSSColor('hex');
-                }
-                if (nestColorRule) {
-                    getInputElement(obj.nestbgID).value = nestColorRule[nestRule].bgColor.toCSSColor('hex');
-                }
+                getInputElement(obj.nestfgID).value = nestColorRule[nestRule].fgColor.toCSSColor('hex');
+                getInputElement(obj.nestbgID).value = nestColorRule[nestRule].bgColor.toCSSColor('hex');
             }
             updateDemoChar(obj.demoCharNestID, nestColorRule[nestRule]);
         }
@@ -928,12 +923,8 @@ class ColoringRules {
                 el.options.item(i).selected = (el.options.item(i).value === matchRule.borderThickness);
             }
 
-            if (matchRule.borderColor) {
-                getInputElement(obj.borderColorID).value = matchRule.borderColor.toCSSColor('hex');;
-            }
-            if (matchRule.bgColor) {
-                getInputElement(obj.bgColorID).value = matchRule.bgColor.toCSSColor('hex');
-            }
+            getInputElement(obj.borderColorID).value = matchRule.borderColor.toCSSColor('hex');;
+            getInputElement(obj.bgColorID).value = matchRule.bgColor.toCSSColor('hex');
             getInputElement(obj.insideID).setAttribute('style', matchRule.buildSpanStyle());
         }
 
@@ -1340,7 +1331,7 @@ function updateTestArea(e) {
  * @returns {ColoringRules}
  */
 function getComplimentaryRules(chars, colorRule) {
-    const bgColor = colorRule.bgColor ? colorRule.bgColor.toHSL().clone() : new Color('hsl', 0, 0, 100) /* white */
+    const bgColor = colorRule.bgColor.toHSL().clone();
     let [compForeground, compBackground] = bgColor.toComplementary();
 
     chars = chars || '\uffff';  // safe value to use since it will never match anything
