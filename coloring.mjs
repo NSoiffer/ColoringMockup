@@ -16,9 +16,11 @@ Object.defineProperty(RegExp.prototype, "toJSON", {
 
 class Color {
     // A general definition of a color object
+    // FIX: currently not supporting an alpha channel, but do want to support 'transparent'.
+    // FIX:  to do this, we highjack rgb(255, 255, 254) and make it transparent and vice-versa when needed
     /**
      * 
-     * @param {string} cssColor   // or encoding name
+     * @param {string} cssColor     // or encoding name
      * @param {number} [c1]         // first part of rgb or hsa (number or %)
      * @param {number} [c2]         // second...
      * @param {number} [c3]         // third...
@@ -37,7 +39,6 @@ class Color {
             return;
         }
 
-        // dealing with a string
         let components = cssColor.match(/rgb\((\d+%?), *(\d+%?), *(\d+%?)\)/);
         if (components) {
             this.setRGBValues(components[1], components[2], components[3]);
@@ -78,6 +79,10 @@ class Color {
         return obj ? new Color(obj.enc, obj.c1, obj.c2, obj.c3) : null;
     }
 
+
+    isTransparent() {
+        return this.enc === 'rgb' && this.c1 === 255 && this.c2 === 255 && this.c3 === 254;
+    }
 
     /**
      * Makes sure 'val is between min and max, rounds to an int, and deals with %s (% of max)
@@ -121,7 +126,7 @@ class Color {
 
     /**
      * 
-     * @param {'hsl'|'rgb'|'hex'} colorType  ()
+     * @param {'hsl'|'rgb'|'hex'|'hexa'} colorType  ()
      * @returns {string}
      */
     toCSSColor(colorType) {
@@ -136,14 +141,14 @@ class Color {
                 if (colorType === 'rgb') {
                     return `rgb(${this.c1}, ${this.c2}, ${this.c3})`;
                 } else {
-                    // colorType === 'hex'
+                    // colorType === 'hex' or 'hexa'
                     /**
                      * @param {number} num 
                      */
                     function make2Chars(num) {
                         return (num < 16 ? '0' : '') + num.toString(16);
                     }
-                    return '#' + make2Chars(this.c1) + make2Chars(this.c2) + make2Chars(this.c3);
+                    return (colorType === 'hexa' && this.isTransparent()) ? '#ffffff00' : '#' + make2Chars(this.c1) + make2Chars(this.c2) + make2Chars(this.c3);
                 }
             } else {
                 return this.toRGB().toCSSColor(colorType);
@@ -203,7 +208,7 @@ class Color {
      */
     toHSL() {
 
-        if (this.enc === 'hsl') {
+        if (this.enc === 'hsl' || this.enc === 'transparent') {
             return this;
         }
 
@@ -354,6 +359,7 @@ class Color {
 
 Color.White = new Color('#FFFFFF');
 Color.Black = new Color('#000000');
+Color.Transparent = new Color('#FFFFFE'); // hack to indicate transparent
 
 /**
  * @param{string} str
@@ -378,7 +384,7 @@ class ColorRule {
     constructor(pattern, fgColor, bgColor, style, spacing) {
         this.pattern = typeof pattern === 'string' ? RegExpFromPatternString(ColoringRules.escapeSpecialChars(pattern)) : pattern;
         this.fgColor = fgColor ? (typeof fgColor === 'string' ? new Color(fgColor) : fgColor) : Color.Black;
-        this.bgColor = bgColor ? (typeof bgColor === 'string' ? new Color(bgColor) : bgColor) : Color.White;
+        this.bgColor = bgColor ? (typeof bgColor === 'string' ? new Color(bgColor) : bgColor) : Color.Transparent;
         this.style = style;
         this.spacing = spacing;
     }
@@ -410,10 +416,10 @@ class ColorRule {
     buildSpanStyle() {
         let style = '';
         if (this.fgColor) {
-            style += ` color: ${this.fgColor.toCSSColor('hex')};`;
+            style += ` color: ${this.fgColor.toCSSColor('hexa')};`;
         }
         if (this.bgColor) {
-            style += ` background-color: ${this.bgColor.toCSSColor('hex')};`;
+            style += ` background-color: ${this.bgColor.toCSSColor('hexa')};`;
         }
         if (this.style) {
             let css = this.style.toLowerCase() === 'bold' || this.style.toLowerCase() === 'bolder' ?
@@ -594,11 +600,12 @@ class ColoringRules {
         this.patterns.push(new ColorRule('-', '', '', 'Bold', '0.222em'));
         this.patterns.push(new ColorRule('\\|', '', '', 'Bold', ''));
         this.patterns.push(new ColorRule('<|=|>|≠|≤|≥', 'hsl(0,0%,100%)', 'hsl(160, 10%, 10%)', 'Normal', '0.278em'));
+        this.patterns.push(new ColorRule('.', '', '', 'Normal', ''));   // catch everything
 
         this.replaceMatch('(', new MatchingColorRule(
             new ColorRule(/\(/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
             new ColorRule(/\)/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
-            new MatchColor(Color.White, 'Box', '2px', 'hsl(0,0%, 50%)'),
+            new MatchColor(Color.Transparent, 'Box', '2px', 'hsl(0,0%, 50%)'),
             new MatchColor('hsl(240, 100%, 95%)', 'None', '1px', 'hsl(0,0%, 30%)')
         ));
 
@@ -607,7 +614,7 @@ class ColoringRules {
         this.replaceMatch('\\[', new MatchingColorRule(
             new ColorRule(/\[/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
             new ColorRule(/\]/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
-            new MatchColor(Color.White, 'Below', '2px', 'hsl(0,0%, 50%)'),
+            new MatchColor(Color.Transparent, 'Below', '2px', 'hsl(0,0%, 50%)'),
             new MatchColor('hsl(270, 100%, 95%)', 'Above', '2px', 'hsl(0,0%, 30%)')
         ));
 
@@ -616,8 +623,8 @@ class ColoringRules {
         this.replaceMatch('\\{', new MatchingColorRule(
             new ColorRule(/\{/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
             new ColorRule('}', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
-            new MatchColor(Color.White, 'Box', '2px', 'hsl(0,0%, 50%)'),
-            new MatchColor(Color.White, 'None', '1px', 'hsl(0,0%, 30%)')
+            new MatchColor(Color.Transparent, 'Box', '2px', 'hsl(0,0%, 50%)'),
+            new MatchColor(Color.Transparent, 'None', '1px', 'hsl(0,0%, 30%)')
         ));
         return this;
     }
@@ -641,17 +648,11 @@ class ColoringRules {
 
     /** 
      * @param {string} ch // should be a single character (will escape special chars inside this function)
-     * @param {boolean} [matchOpen] // should be a single character
      * @returns {MatchingColorRule}
      */
-    matchMatch(ch, matchOpen) {
-        if (typeof matchOpen === "undefined") {
-            matchOpen = true;
-        }
+    matchMatch(ch) {
         ch = ColoringRules.escapeSpecialChars(ch);
-        return matchOpen ?
-            this.matches.find(matchRule => matchRule.nestedOpenColorRule.pattern.test(ch)) :
-            this.matches.find(matchRule => matchRule.nestedCloseColorRule.pattern.test(ch));
+        return this.matches.find(matchRule => matchRule.nestedOpenColorRule.pattern.test(ch));
     }
 
     /**
@@ -747,7 +748,7 @@ class ColoringRules {
                 if (ch === closeCh) {
                     return result;  // closeCh not part of match
                 }
-                const matchRule = that.matchMatch(ch, true);
+                const matchRule = that.matchMatch(ch);
                 const colorRule = !matchRule || (stackDepth(ch) === 0) ? that.match(ch) : matchRule.nestedOpenColorRule;
                 result += buildSpan(ch, colorRule);
                 if (matchRule) {
@@ -881,19 +882,32 @@ class ColoringRules {
          */
         function updateLeftOrRightSide(obj) {
             const el = getInputElement(obj.charID);
-            const ch = el.innerText;
+            const ch = el.innerText.trim();
             const caretOffset = getCaretPosition(el);
             el.innerHTML = that.convertToSpan(ch);
             setCaretPosition(el, caretOffset);
 
-            const colorRule = that.match(ch);
+            let colorRule = that.match(ch);
+            if (!colorRule) {
+                colorRule = new ColorRule(ch, null, null, 'Normal', '');
+                that.patterns.unshift(colorRule);
+            }
             if (colorRule) {
                 getInputElement(obj.fgID).value = colorRule.fgColor.toCSSColor('hex');
                 getInputElement(obj.bgID).value = colorRule.bgColor.toCSSColor('hex');
             }
             updateDemoChar(obj.demoCharID, colorRule);
 
-            const nestColorRule = that.matchMatch(ch, obj.open);
+            let nestColorRule = that.matchMatch(obj.open ? ch : getInputElement(obj.otherCharId).innerText.trim());
+            if (!nestColorRule) {
+                nestColorRule = new MatchingColorRule(
+                    colorRule.clone(),
+                    that.match(obj.open ? getInputElement(obj.otherCharId).innerText.trim() : ch).clone(),
+                    new MatchColor(Color.Transparent, 'None', '1px', Color.Black),
+                    new MatchColor(Color.Transparent, 'None', '1px', Color.Black));
+                that.matches.unshift(nestColorRule);
+            }
+
             const nestRule = obj.open ? 'nestedOpenColorRule' : 'nestedCloseColorRule';
             if (nestColorRule) {
                 getInputElement(obj.nestfgID).value = nestColorRule[nestRule].fgColor.toCSSColor('hex');
@@ -918,6 +932,7 @@ class ColoringRules {
                 el.options.item(i).selected = (el.options.item(i).text === matchRule.borderPosition);
             }
 
+            // @ts-ignore
             el = document.getElementById(obj.thicknessID);
             for (let i = 0; i < el.options.length; i++) {
                 el.options.item(i).selected = (el.options.item(i).value === matchRule.borderThickness);
@@ -932,6 +947,7 @@ class ColoringRules {
         updateLeftOrRightSide({
             open: true,
             charID: 'match-open-char',
+            otherCharId: 'match-close-char',
             fgID: 'match-area-fg-top',
             bgID: 'match-area-bg-top',
             demoCharID: 'match-area-open-top',
@@ -942,6 +958,7 @@ class ColoringRules {
         updateLeftOrRightSide({
             open: false,
             charID: 'match-close-char',
+            otherCharId: 'match-open-char',
             fgID: 'match-area-r-fg-top',
             bgID: 'match-area-r-bg-top',
             demoCharID: 'match-area-close-top',
@@ -950,7 +967,7 @@ class ColoringRules {
             demoCharNestID: 'match-area-close-bottom'
         });
 
-        const matchRule = this.matchMatch(getInputElement('match-open-char').innerText, true);
+        const matchRule = this.matchMatch(getInputElement('match-open-char').innerText);
         updateTopOrBottom(matchRule.topMatchColor, {
             styleID: 'border-style-top',
             thicknessID: 'border-thickness-top',
@@ -970,7 +987,7 @@ class ColoringRules {
     updateTestInput() {
         const testArea = getInputElement('test-input');
         const caretOffset = getCaretPosition(testArea);
-        testArea.innerHTML = this.convertToSpan(testArea.textContent);
+        testArea.innerHTML = this.convertToSpan(testArea.textContent.trim());
         setCaretPosition(testArea, caretOffset);
     }
 
@@ -1223,8 +1240,14 @@ window.onload =
         // get initial coloring rules
         const initColoringRuleName = window.localStorage.getItem(STORAGE_NAME__STARTUP_COLORING_RULES);
         if (initColoringRuleName) {
-            new ColoringRules(initColoringRuleName).loadRules(initColoringRuleName);
-            // loadRules sets saveStatus
+            try {
+                new ColoringRules(initColoringRuleName).loadRules(initColoringRuleName);
+                // loadRules sets saveStatus
+            }
+            catch(error) {
+                this.alert("Unable to load stored rule. Will use defaults.")
+                ColoringRules.Rules = new ColoringRules(DEFAULT_RULE_NAME).initialize();
+                }
         } else {
             ColoringRules.Rules = new ColoringRules(DEFAULT_RULE_NAME).initialize();
             ColoringRules.Rules.saveStatus(true);
@@ -1397,7 +1420,7 @@ function updateFromNewValue(e) {
     /** @type {{id: string, charID: string, matchFn: string, ruleAccessor: string | string[]}} */
     const mappingObj = IdMapping.find(obj => obj.id === targetEl.id);
     const charElement = getInputElement(mappingObj.charID);
-    if (charElement.innerText.trim().length === 0) {
+    if (charElement.innerText.trim().length !== 1) {
         return;
     }
 
@@ -1414,6 +1437,16 @@ function updateFromNewValue(e) {
 
     if (EditIds.find(id => id === targetEl.id)) {
         charElement.innerText = e.data;     // reset the field so that there is only a single char in it
+    }
+    if (targetEl.id === 'match-close-char') {
+        // need to update the close char that matches the open char
+        const openCh = getInputElement('match-open-char').innerText.trim();
+        if (openCh.length === 1) {
+            const rule = ColoringRules.Rules.matchMatch(openCh);
+            rule.nestedCloseColorRule = new ColorRule(ch,
+                rule.nestedCloseColorRule.fgColor, rule.nestedCloseColorRule.bgColor,
+                rule.nestedCloseColorRule.style, rule.nestedCloseColorRule.spacing);
+        }
     }
 
     ColoringRules.Rules.updateAll();
