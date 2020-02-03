@@ -1365,6 +1365,7 @@ function updateTestArea(e) {
     // @ts-ignore
     const targetEl = e.target;
     const caretPos = getCaretPosition(targetEl);   // the history cases muck up the caret position
+    console.log(`Caret pos before: ${caretPos}; data: '${e.data}'; inputType: ${e.inputType}`);
     switch (e.inputType) {
         case 'historyRedo':
             e.preventDefault();
@@ -1387,7 +1388,12 @@ function updateTestArea(e) {
 
         default:
             e.preventDefault();
-            this.newState(targetEl.innerText, caretPos);
+            // someone could have clicked elsewhere before making a change -- reset cursor position
+            const newStr = targetEl.textContent.trim();
+            const nChange = newStr.length - this.state[this.current].str.length;
+            this.state[this.current].caretPos = caretPos - nChange;
+            console.log(`New str '${targetEl.textContent.trim()}'; change: ${nChange}, changed pos: ${this.state[this.current].caretPos}`);
+            this.newState(newStr, caretPos);
             break;
     }
     ColoringRules.Rules.updateTestInput(targetEl);
