@@ -782,8 +782,11 @@ class ColoringRules {
     }
 
     updatePalettes() {
-        for (const palette of PaletteIds) {
-            const buttons = getInputElement(palette).getElementsByTagName('button');
+        for (const paletteId of PaletteIds) {
+            const paletteElement = getInputElement(paletteId);
+            if (!paletteElement)
+                break;
+            const buttons = paletteElement.getElementsByTagName('button');
             for (const button of buttons) {
                 button.innerHTML = this.convertToSpan(button.innerText);
             }
@@ -984,19 +987,37 @@ class ColoringRules {
         })
     }
 
-    updateTestInput() {
-        const testArea = getInputElement('test-input');
+    /**
+     * 
+     * @param {HTMLInputElement} testArea 
+     */
+    updateTestInput(testArea) {
         const caretOffset = getCaretPosition(testArea);
         testArea.innerHTML = this.convertToSpan(testArea.textContent.trim());
-        setCaretPosition(testArea, caretOffset);
+        setCaretPosition(testArea, caretOffset); 
     }
 
     updateAll() {
-        this.makeFGandBGSame();
+        const isRuleCreationPage = document.getElementById('match-open-char');
+        if (isRuleCreationPage) this.makeFGandBGSame();
         this.updatePalettes();
-        this.updateCharArea();
-        this.updateMatchArea();
-        this.updateTestInput();
+        if (isRuleCreationPage) {
+            this.updateCharArea();
+            this.updateMatchArea();    
+        }
+
+        // on the creation page, there is an element with *id* 'test-input'
+        // on the try-it page, there are potentially many elements with *class* test-input
+        if (document.getElementById('test-input')) {
+            // @ts-ignore
+            this.updateTestInput(document.getElementById('test-input'));
+        } else {
+            const testAreas = document.getElementsByClassName('test-input');
+            for (let i = 0; i < testAreas.length; i++) {
+                // @ts-ignore
+                this.updateTestInput(testAreas.item(i));
+            }
+        }
     }
 
     /**
@@ -1151,38 +1172,42 @@ class EditHistory {
      * @param {string} initState 
      */
     constructor(initState) {
-        // @type {string[]}
-        this.state = [initState];
+        // @type {{string, number}[]
+        this.state = [{str: initState, caretPos: initState.length}];
         this.current = 0;       // pointer to the current state (undo doesn't pop stat) -- normally this.state.length()-1
     }
 
     /**
      * 
-     * @param {string} str  // the element this 
+     * @param {string} str       // new string 
+     * @param {number} caretPos  // where caret is in string 
      */
-    newState(str) {
+    newState(str, caretPos) {
         if (this.current + 1 < this.state.length) {
             this.state = this.state.slice(0, this.current + 1);
         }
-        this.state.push(str);
+        this.state.push({str: str, caretPos: caretPos});
         this.current++;
     }
 
     /**
-     * @return {string} -- the new state or ''
+     * @return {{string, number}} -- the new state or null
      */
     redo() {
         if (this.current + 1 > this.state.length) {
-            return '';
+            return null;
         } else {
             this.current++;
             return this.state[this.current];
         }
     }
 
+    /**
+     * @return {{string, number}} -- the new state or null
+     */
     undo() {
         if (this.current < 1) {
-            return '';
+            return null;
         } else {
             this.current--;
             return this.state[this.current];
@@ -1233,8 +1258,6 @@ const PaletteIds = ['lc-letters', 'uc-letters', 'digits', 'symbols', 'symbols-te
 const OnClickIds = ['saveRules', 'loadRules', 'copyToClipboard', 'pasteFromClipboard', 'removeAllRules'];
 const EditIds = ['edit-input', 'opposite-input', 'match-open-char', 'match-close-char'];
 
-EditHistory.testInput = new EditHistory(document.getElementById('test-input').textContent);
-
 window.onload =
     function () {
         // get initial coloring rules
@@ -1255,29 +1278,39 @@ window.onload =
         // add the palettes
         PaletteIds.forEach(palette => addCharacterPalette(document.getElementById(palette)));
 
-        EditIds.forEach(
-            id => new EditHistory(document.getElementById(id).textContent)
-        );
+        EditIds.forEach( function(id) {
+                const el = document.getElementById(id);
+                if (el) {
+                    new EditHistory(el.textContent);
+                }
+        });
 
         // hook up input events for most input elements
-        IdMapping.forEach(
-            mappingObj => document.getElementById(mappingObj.id).addEventListener('input', updateFromNewValue));
+        IdMapping.forEach( function(mappingObj) {
+            const el = document.getElementById(mappingObj.id);
+            if (el) {
+                el.addEventListener('input', updateFromNewValue);
+            }
+        });
 
         // handle "same as open" separately
-        document.getElementById('match-area-same-top').addEventListener('change', e => ColoringRules.Rules.updateAll());
-        document.getElementById('match-area-same-bottom').addEventListener('change', e => ColoringRules.Rules.updateAll());
+        if (document.getElementById('match-area-same-top')) {
+            document.getElementById('match-area-same-top').addEventListener('change', e => ColoringRules.Rules.updateAll());
+            document.getElementById('match-area-same-bottom').addEventListener('change', e => ColoringRules.Rules.updateAll());
+    
+            document.getElementById('rule-list-input').addEventListener('focus', () => ColoringRules.Rules.rulesList());
+        }
 
-        document.getElementById('rule-list-input').addEventListener('focus', function () {
-            ColoringRules.Rules.rulesList()
-        });
         OnClickIds.forEach(
             id => document.getElementById(id).addEventListener('click', function () {
                 ColoringRules.Rules[id](getInputElement('rule-list-input').value);
             })
         );
 
-        let testInput = document.getElementById('test-input');
-        testInput.addEventListener('input', updateTestArea.bind(EditHistory.testInput));
+        const testInput = document.getElementById('test-input');
+        if (testInput) {
+            testInput.addEventListener('input', updateTestArea.bind(new EditHistory(testInput.textContent)));
+        }
 
         ColoringRules.Rules.updateAll();
     };
@@ -1287,6 +1320,10 @@ window.onload =
  * @param {HTMLElement} grid 
  */
 function addCharacterPalette(grid) {
+    if (!grid) {
+        return;
+    }
+
     const chars = grid.textContent;
     grid.textContent = '';
     chars.split('').forEach(function (char) {
@@ -1324,27 +1361,36 @@ function copyCharToEditArea(ev) {
  * @param {InputEvent} e 
  */
 function updateTestArea(e) {
+    /** @type {HTMLElement} */
+    // @ts-ignore
+    const targetEl = e.target;
+    const caretPos = getCaretPosition(targetEl);   // the history cases muck up the caret position
     switch (e.inputType) {
         case 'historyRedo':
             e.preventDefault();
             const redoText = this.redo();
-            if (redoText) {
-                e.currentTarget.innerText = redoText;
+            if (typeof redoText !== 'undefined') {
+                targetEl.innerText = redoText.str;
+                setCaretPosition(targetEl, redoText.caretPos);
             }
             break;
         case 'historyUndo':
             e.preventDefault();
             const undoText = this.undo();
-            if (undoText) {
-                e.currentTarget.innerText = undoText;
+            if (typeof undoText !== 'undefined') {
+                targetEl.innerText = undoText.str;
+                setCaretPosition(targetEl, undoText.caretPos);
             }
             break;
+        case 'fakeEvent':
+            break;      // synthesized fake event
+
         default:
             e.preventDefault();
-            this.newState(e.currentTarget.textContent);
+            this.newState(targetEl.innerText, caretPos);
             break;
     }
-    ColoringRules.Rules.updateTestInput();
+    ColoringRules.Rules.updateTestInput(targetEl);
 }
 
 /**
@@ -1546,3 +1592,5 @@ function setCaretPosition(editEl, chars) {
         }
     }
 };
+
+export {EditHistory, updateTestArea}

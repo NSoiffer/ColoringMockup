@@ -20,7 +20,7 @@ body {
 }
 
 .button {
-    width: 2em;
+    width: auto;
     text-align: center;
     border-radius: 4px;
     transition-duration: 500ms;
@@ -30,6 +30,9 @@ body {
     box-shadow: 3px 3px #85b9f5;
 }
 
+.palettes .button {
+    width: 2em;
+}
 #current-rule {
     padding-bottom: 1em;
     text-align: center;
@@ -49,9 +52,9 @@ colored-edit-area {
     white-space: nowrap;
 }
 
-#test-input {
+.test-input, #test-input {
     padding: .4em;
-    width: 20em
+    width: 25em
 }
 
 #refresh {
@@ -339,7 +342,6 @@ text-align: center;
 }
 
 .rule-area button {
-    width: auto;
     font-size: 12pt;
 }
 
