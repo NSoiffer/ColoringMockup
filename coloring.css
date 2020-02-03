@@ -9,6 +9,8 @@ body {
     margin-left: .5em;
     margin-right: .5em;
     grid-gap: 1px;
+    align-items: center;
+    justify-items: center;
 }
 
 #lc-letters, #uc-letters, #digits {
