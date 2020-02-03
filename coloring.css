@@ -33,6 +33,10 @@ body {
 .palettes .button {
     width: 2em;
 }
+
+.larger .button {
+    font-size:130%;
+}
 #current-rule {
     padding-bottom: 1em;
     text-align: center;
