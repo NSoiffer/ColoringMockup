@@ -14,7 +14,7 @@
 
         // keep track of history
         let testAreaHistory = {};
-        window.update = function update(ev) {
+        window.update = function(ev) {
             updateTestArea.bind(testAreaHistory[ev.target.id])(ev);
         }
 
@@ -41,7 +41,7 @@
             testAreaHistory[newTestAreaElement.id] = new EditHistory(newLineContents);
 
             if (copyLine) {     // not just efficient, needed for first line because ColoringRules.Rules not yet set
-                update({inputType: 'fakeEvent', target: newTestAreaElement});   // fake event for update
+                window.update({inputType: 'fakeEvent', target: newTestAreaElement});   // fake event for update
             }
 
             window.scrollTo(0,document.body.scrollHeight);
@@ -97,7 +97,7 @@
     </p>
     <template id="input-line-template">
         <div>
-            <button class="button" onclick="deleteLine(event)"><img src="delete.png" height="24" alt="delete line"></button>
+            <button class="button" onclick="deleteLine(event)"><img src="delete.png" height="24" alt="delete line" style="vertical-align:middle"></button>
             Line <span class="lineNumber"></span>
             <colored-edit-area class='test-input' contenteditable="true" spellcheck="false" oninput="update(event)"> </colored-edit-area>
             <span class="grid" style="align-content: center; grid-column-gap: 0.5em; vertical-align: top;">
