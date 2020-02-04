@@ -522,8 +522,11 @@ class MatchingColorRule {
         this.nestedMatchColor = nestedMatchColor;
     }
 
+    /**
+     * @returns {MatchingColorRule}
+     */
     clone() {
-        new MatchingColorRule(this.nestedOpenColorRule.clone(), this.nestedCloseColorRule.clone(),
+        return new MatchingColorRule(this.nestedOpenColorRule.clone(), this.nestedCloseColorRule.clone(),
             this.topMatchColor.clone(), this.nestedMatchColor.clone());
     }
 
@@ -563,13 +566,9 @@ class ColoringRules {
     static readJSON(obj) {
         let rules = new ColoringRules(obj.name);
         Object.assign(rules, obj);
-        /**
-         * @param {any} rule
-         */
+        /** @type {ColorRule[]} */
         rules.patterns = obj.patterns.map(rule => ColorRule.readJSON(rule));
-        /**
-         * @param {any} match
-         */
+        /** @type {MatchingColorRule[]} */
         rules.matches = obj.matches.map(match => MatchingColorRule.readJSON(match));
         return rules;
     }
@@ -580,8 +579,8 @@ class ColoringRules {
      */
     clone() {
         let newRules = new ColoringRules(this.name);
-        newRules.patterns = Object.assign([], this.patterns);
-        newRules.matches = Object.assign([], this.matches);
+        newRules.patterns = this.patterns.map(pattern => pattern.clone());
+        newRules.matches = this.matches.map(match => match.clone());
         return newRules;
     }
 
@@ -994,7 +993,7 @@ class ColoringRules {
     updateTestInput(testArea) {
         const caretOffset = getCaretPosition(testArea);
         testArea.innerHTML = this.convertToSpan(testArea.textContent.trim());
-        setCaretPosition(testArea, caretOffset); 
+        setCaretPosition(testArea, caretOffset);
     }
 
     updateAll() {
@@ -1003,7 +1002,7 @@ class ColoringRules {
         this.updatePalettes();
         if (isRuleCreationPage) {
             this.updateCharArea();
-            this.updateMatchArea();    
+            this.updateMatchArea();
         }
 
         // on the creation page, there is an element with *id* 'test-input'
@@ -1109,6 +1108,7 @@ class ColoringRules {
         storage.setItem(STORAGE_NAME__STARTUP_COLORING_RULES, name);
         ColoringRules.Rules.saveStatus(true);
         ColoringRules.Rules.updateAll();
+        modifyColor.savedRules = ColoringRules.Rules;     // bad hack -- shouldn't need to know this!
     }
 
     copyToClipboard() {
@@ -1126,11 +1126,12 @@ class ColoringRules {
                     this.saveRules(this.name);
                 }
                 const newRules = ColoringRules.readJSON(JSON.parse(result));
-                if ('name' in newRules && 'patterns' in newRules && 'matches' in newRules) {
+                if (this.looksLikeColoringRule(newRules)) {
                     ColoringRules.Rules = newRules;
                     window.localStorage.setItem(STORAGE_NAME__STARTUP_COLORING_RULES, newRules.name);
                     ColoringRules.Rules.saveStatus(true);
                     ColoringRules.Rules.updateAll();
+                    modifyColor.savedRules = ColoringRules.Rules;     // bad hack -- shouldn't need to know this!
                 } else {
                     alert("Error: clipboard does not contain rules for coloring math");
                 }
@@ -1160,6 +1161,7 @@ class ColoringRules {
 }
 
 // The global (permantent) instance of coloring rules
+/** @type{ColoringRules} */
 ColoringRules.Rules = null;
 ColoringRules.Saved = true;
 
@@ -1173,7 +1175,7 @@ class EditHistory {
      */
     constructor(initState) {
         // @type {{string, number}[]
-        this.state = [{str: initState, caretPos: initState.length}];
+        this.state = [{ str: initState, caretPos: initState.length }];
         this.current = 0;       // pointer to the current state (undo doesn't pop stat) -- normally this.state.length()-1
     }
 
@@ -1186,7 +1188,7 @@ class EditHistory {
         if (this.current + 1 < this.state.length) {
             this.state = this.state.slice(0, this.current + 1);
         }
-        this.state.push({str: str, caretPos: caretPos});
+        this.state.push({ str: str, caretPos: caretPos });
         this.current++;
     }
 
@@ -1267,10 +1269,10 @@ window.onload =
                 new ColoringRules(initColoringRuleName).loadRules(initColoringRuleName);
                 // loadRules sets saveStatus
             }
-            catch(error) {
+            catch (error) {
                 this.alert("Unable to load stored rule. Will use defaults.")
                 ColoringRules.Rules = new ColoringRules(DEFAULT_RULE_NAME).initialize();
-                }
+            }
         } else {
             ColoringRules.Rules = new ColoringRules(DEFAULT_RULE_NAME).initialize();
             ColoringRules.Rules.saveStatus(true);
@@ -1278,15 +1280,15 @@ window.onload =
         // add the palettes
         PaletteIds.forEach(palette => addCharacterPalette(document.getElementById(palette)));
 
-        EditIds.forEach( function(id) {
-                const el = document.getElementById(id);
-                if (el) {
-                    new EditHistory(el.textContent);
-                }
+        EditIds.forEach(function (id) {
+            const el = document.getElementById(id);
+            if (el) {
+                new EditHistory(el.textContent);
+            }
         });
 
         // hook up input events for most input elements
-        IdMapping.forEach( function(mappingObj) {
+        IdMapping.forEach(function (mappingObj) {
             const el = document.getElementById(mappingObj.id);
             if (el) {
                 el.addEventListener('input', updateFromNewValue);
@@ -1297,7 +1299,7 @@ window.onload =
         if (document.getElementById('match-area-same-top')) {
             document.getElementById('match-area-same-top').addEventListener('change', e => ColoringRules.Rules.updateAll());
             document.getElementById('match-area-same-bottom').addEventListener('change', e => ColoringRules.Rules.updateAll());
-    
+
             document.getElementById('rule-list-input').addEventListener('focus', () => ColoringRules.Rules.rulesList());
         }
 
@@ -1365,7 +1367,6 @@ function updateTestArea(e) {
     // @ts-ignore
     const targetEl = e.target;
     const caretPos = getCaretPosition(targetEl);   // the history cases muck up the caret position
-    console.log(`Caret pos before: ${caretPos}; data: '${e.data}'; inputType: ${e.inputType}`);
     switch (e.inputType) {
         case 'historyRedo':
             e.preventDefault();
@@ -1392,7 +1393,6 @@ function updateTestArea(e) {
             const newStr = targetEl.textContent.trim();
             const nChange = newStr.length - this.state[this.current].str.length;
             this.state[this.current].caretPos = caretPos - nChange;
-            console.log(`New str '${targetEl.textContent.trim()}'; change: ${nChange}, changed pos: ${this.state[this.current].caretPos}`);
             this.newState(newStr, caretPos);
             break;
     }
@@ -1504,6 +1504,43 @@ function updateFromNewValue(e) {
     ColoringRules.Rules.updateAll();
 }
 
+modifyColor.savedRules = ColoringRules.Rules;
+Color.LightGray = new Color('#D2D2D2');
+Color.Gray = new Color('#808080')
+function modifyColor(buttonStatus) {
+    ColoringRules.Rules = modifyColor.savedRules.clone();
+    // there is a little complication in that if (say) the text is white and we remove background, the text is invisible 
+    if (!buttonStatus.AsDesigned) {
+        if (buttonStatus.Text || buttonStatus.Background) {
+            ColoringRules.Rules.patterns = ColoringRules.Rules.patterns.map(function (pattern) {
+                if (buttonStatus.None) {
+                    if (buttonStatus.Text) {
+                        pattern.fgColor = (buttonStatus.Background || pattern.bgColor === null) ? null : pattern.bgColor.contrast(Color.Black, Color.Gray);
+                    }
+                    if (buttonStatus.Background) {
+                        pattern.bgColor = (buttonStatus.Text || pattern.fgColor === null) ? null : pattern.fgColor.contrast(Color.White, Color.Gray);
+                    }
+                } else if (buttonStatus.Weak) {
+                    // FIX: implement
+                } else if (buttonStatus.Strong) {
+                    // FIX: implement
+                }
+                return pattern;
+            })
+        }
+
+        if (buttonStatus.MatchingArea) {
+            if (buttonStatus.None) {
+                ColoringRules.Rules.matches = [];
+            } else if (buttonStatus.Weak) {
+                // FIX: implement
+            } else if (buttonStatus.Strong) {
+                // FIX: implement
+            }
+        }
+    }
+    ColoringRules.Rules.updateAll();
+}
 
 /***********
  * Code to get and set the caret/cursor position
@@ -1599,4 +1636,4 @@ function setCaretPosition(editEl, chars) {
     }
 };
 
-export {EditHistory, updateTestArea}
+export { EditHistory, updateTestArea, modifyColor }

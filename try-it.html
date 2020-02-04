@@ -10,7 +10,7 @@
         // @ts-check
         /* -*- Mode: Java; tab-width: 4; indent-tabs-mode:nil; c-basic-offset: 4 -*- */
         /* vim: set ts=4 et sw=4 tw=80: */
-        import {EditHistory, updateTestArea} from "./coloring.mjs"
+        import {EditHistory, updateTestArea, modifyColor} from "./coloring.mjs"
 
         // keep track of history
         let testAreaHistory = {};
@@ -58,9 +58,13 @@
             }
         }
 
-        window.turnOff = function(ev, amount) {
-            alert("Not yet implemented");
-            ev.target.checked = false;
+        window.changeColor = function() {
+            const buttons = document.getElementById('color-control').getElementsByTagName('input');
+            let checkedButtons = {};
+            for (let i = 0; i < buttons.length; i++) {
+                checkedButtons[buttons[i].value] = buttons[i].checked;
+            }
+            modifyColor(checkedButtons);
         }
     </script>
     <style>
@@ -90,6 +94,30 @@
 
         <button class='button' id='removeAllRules' style="grid-column: 1/7;">Remove all stored rules</button>
     </div>
+    <h2>Color Control</h2>
+    <p>Change the amount of coloring by using these buttons:</p>
+    <table id="color-control">
+        <tr>
+            <th style="padding-right: 3em;">What to change</th>
+            <th>Coloring</th>
+        </tr>
+        <tr>
+            <td><label><input type="checkbox" onclick="changeColor()" value="Text">Text</label></td>
+            <td><label><input type="radio" name="colorIntensity" onclick="changeColor()" value="None">None</label></td>
+        </tr>
+        <tr>
+            <td><label><input type="checkbox" onclick="changeColor()" value="Background">Background</label></td>
+            <td><label><input type="radio" name="colorIntensity" onclick="changeColor()" value="Weak">Weak</label></td>
+        </tr>
+        <tr>
+            <td><label><input type="checkbox" onclick="changeColor()" value="MatchingArea">Matching Area</label></td>
+            <td><label><input type="radio" name="colorIntensity" checked onclick="changeColor()" value="AsDesigned">As designed</label></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><label><input type="radio" name="colorIntensity" onclick="changeColor()" value="Strong">Strong</label></td> 
+        </tr>
+    </table>
 
     <h2>Test Area</h2>
 
@@ -100,13 +128,6 @@
             <button class="button" onclick="deleteLine(event)"><img src="delete.png" height="24" alt="delete line" style="vertical-align:middle"></button>
             Line <span class="lineNumber"></span>
             <colored-edit-area class='test-input' contenteditable="true" spellcheck="false" oninput="update(event)"> </colored-edit-area>
-            <span class="grid" style="align-content: center; grid-column-gap: 0.5em; vertical-align: top;">
-                <span style="grid-area: 1/1/1/3;">Turn off coloring</span>
-                <label style="grid-area: 2/1/2/1;"><input type="checkbox" onclick="turnOff(event, 'fg')">Text</label>
-                <label style="grid-area: 2/2/2/2;"><input type="checkbox" onclick="turnOff(event, 'bg')">Background</label>
-                <label style="grid-area: 2/3/2/3;"><input type="checkbox" onclick="turnOff(event, 'all')">All</label>
-            </span>
-
         </div>
     </template>
     <button id="add-line" class="button" onclick="addLine(false)">Add another line</button>
@@ -117,7 +138,7 @@
     </div>
 
     <script type="module">
-        addLine(false);  // start with one line
+        window.addLine(false);  // start with one line
     </script>
 </body>
 
