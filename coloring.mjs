@@ -318,9 +318,10 @@ class Color {
     }
 
     /**
+     * @param {number} contrast     // lower numbers => more contrast
      * @returns {[Color, Color]}    
      */
-    scaleColor() {
+    scaleColor(contrast) {
         // For an analysis of various ramps, see https://uxplanet.org/designing-systematic-colors-b5d2605b15c
         let color1 = new Color('hsl', 0, 0, 100); // white
         let color2 = this.toHSL();
@@ -341,7 +342,7 @@ class Color {
                 : color2.c3 - 20 + 10 * Math.sin(4 * Math.PI * (color2.c1 / 360)),
         );
 
-        return [color1.mixColor(color2, 0.15), color3.mixColor(color2, 0.15)]; // lower numbers => more contrast
+        return [color1.mixColor(color2, contrast), color3.mixColor(color2, contrast)];
     }
 
     /**
@@ -351,7 +352,7 @@ class Color {
         // complement the bg, get light and dark fg colors from scalerColor(), then get contrasting color
         const complementaryBackground = this.toHSL();
         complementaryBackground.c1 = (complementaryBackground.c1 + 180) % 360;
-        const [light, dark] = complementaryBackground.scaleColor();
+        const [light, dark] = complementaryBackground.scaleColor(0.15);
         const matchingForegound = complementaryBackground.contrast(dark, light);
         return [matchingForegound, complementaryBackground]
     }
@@ -405,7 +406,7 @@ class ColorRule {
     }
 
     clone() {
-        return new ColorRule(this.pattern, this.fgColor, this.bgColor, this.style, this.spacing);
+        return new ColorRule(this.pattern, this.fgColor.clone(), this.bgColor.clone(), this.style, this.spacing);
     }
 
 
@@ -449,7 +450,7 @@ class MatchColor {
     }
 
     clone() {
-        return new MatchColor(this.bgColor, this.borderPosition, this.borderThickness, this.borderColor);
+        return new MatchColor(this.bgColor.clone(), this.borderPosition, this.borderThickness, this.borderColor.clone());
     }
 
     /**
@@ -1315,6 +1316,7 @@ window.onload =
         }
 
         ColoringRules.Rules.updateAll();
+        modifyColor.savedRules = ColoringRules.Rules.clone();
     };
 
 /**
@@ -1504,12 +1506,35 @@ function updateFromNewValue(e) {
     ColoringRules.Rules.updateAll();
 }
 
-modifyColor.savedRules = ColoringRules.Rules;
 Color.LightGray = new Color('#D2D2D2');
 Color.Gray = new Color('#808080')
 function modifyColor(buttonStatus) {
+    /**
+     * Moves color half to 0 (dark) or 100 (light)
+     * @param {Color} color
+     * @param {boolean} bolder
+     * @param {boolean} lighter
+     * @returns {Color}
+     */
+    function lighten(color, bolder, lighter) {
+        if (color) {
+            color = color.toHSL();
+        } else {
+            color = Color[lighter ? 'Black' : 'White'].clone();
+        }
+
+        if (bolder) {
+            color.c3 = color.c3/2 + 25;       // move towards 50
+        } else {
+            const inc = lighter ? 100 : 0;      // move towards 100 (white) or 0 (black)
+            color.c3 = (inc + color.c3)/2;
+        }
+        return color;
+    }
+
     ColoringRules.Rules = modifyColor.savedRules.clone();
-    // there is a little complication in that if (say) the text is white and we remove background, the text is invisible 
+    // there is a complication in that if (say) the text is white and we remove background, the text is invisible
+    // in these cases, we find a contrast color if needed (same idea holds for weaker/stronger coloring)
     if (!buttonStatus.AsDesigned) {
         if (buttonStatus.Text || buttonStatus.Background) {
             ColoringRules.Rules.patterns = ColoringRules.Rules.patterns.map(function (pattern) {
@@ -1521,9 +1546,27 @@ function modifyColor(buttonStatus) {
                         pattern.bgColor = (buttonStatus.Text || pattern.fgColor === null) ? null : pattern.fgColor.contrast(Color.White, Color.Gray);
                     }
                 } else if (buttonStatus.Weak) {
-                    // FIX: implement
+                    const newFG = buttonStatus.Text ? lighten(pattern.fgColor, false, false) : pattern.fgColor;
+                    const newBG = buttonStatus.Background ? lighten(pattern.bgColor, false, true) : pattern.bgColor;
+                    if (buttonStatus.Text) {
+                        const [light, dark] = newFG.scaleColor(0.65);
+                        pattern.fgColor = newBG.contrast(newFG, light);
+                    }
+                    if (buttonStatus.Background) {
+                        const [light, dark] = newBG.scaleColor(0.65);
+                        pattern.bgColor = pattern.fgColor.contrast(newBG, dark);
+                    }
                 } else if (buttonStatus.Strong) {
-                    // FIX: implement
+                    const newFG = buttonStatus.Text ? lighten(pattern.fgColor, true, false) : pattern.fgColor;
+                    const newBG = buttonStatus.Background ? lighten(pattern.bgColor, true, true) : pattern.bgColor;
+                    if (buttonStatus.Text) {
+                        const [light, dark] = newFG.scaleColor(0.45);
+                        pattern.fgColor = newBG.contrast(newFG, light);
+                    }
+                    if (buttonStatus.Background) {
+                        const [light, dark] = newBG.scaleColor(0.45);
+                        pattern.bgColor = pattern.fgColor.contrast(newBG, dark);
+                    }
                 }
                 return pattern;
             })

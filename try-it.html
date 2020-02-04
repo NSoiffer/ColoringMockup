@@ -10,11 +10,11 @@
         // @ts-check
         /* -*- Mode: Java; tab-width: 4; indent-tabs-mode:nil; c-basic-offset: 4 -*- */
         /* vim: set ts=4 et sw=4 tw=80: */
-        import {EditHistory, updateTestArea, modifyColor} from "./coloring.mjs"
+        import { EditHistory, updateTestArea, modifyColor } from "./coloring.mjs"
 
         // keep track of history
         let testAreaHistory = {};
-        window.update = function(ev) {
+        window.update = function (ev) {
             updateTestArea.bind(testAreaHistory[ev.target.id])(ev);
         }
 
@@ -23,42 +23,42 @@
             return 'test' + idCounter++;
         }
 
-        window.addLine = function(copyLine) {
+        window.addLine = function (copyLine) {
             const template = document.getElementById('input-line-template');
             const newLine = template.content.cloneNode(true);
             template.parentNode.insertBefore(newLine, template);
 
             // set the line number
             const textLines = document.getElementsByClassName('test-input');
-            const newLineContents = copyLine && textLines.length>1 ? textLines[textLines.length-2].textContent : '';
-            textLines[textLines.length-1].textContent = newLineContents;
-            document.getElementsByClassName('lineNumber')[textLines.length-1].textContent = `${textLines.length}: `;
+            const newLineContents = copyLine && textLines.length > 1 ? textLines[textLines.length - 2].textContent : '';
+            textLines[textLines.length - 1].textContent = newLineContents;
+            document.getElementsByClassName('lineNumber')[textLines.length - 1].textContent = `${textLines.length}: `;
 
             // set up history (via an id)
             const testAreaElements = document.getElementsByClassName('test-input');
-            const newTestAreaElement = testAreaElements[testAreaElements.length-1];
+            const newTestAreaElement = testAreaElements[testAreaElements.length - 1];
             newTestAreaElement.id = getUniqueID();
             testAreaHistory[newTestAreaElement.id] = new EditHistory(newLineContents);
 
             if (copyLine) {     // not just efficient, needed for first line because ColoringRules.Rules not yet set
-                window.update({inputType: 'fakeEvent', target: newTestAreaElement});   // fake event for update
+                window.update({ inputType: 'fakeEvent', target: newTestAreaElement });   // fake event for update
             }
 
-            window.scrollTo(0,document.body.scrollHeight);
+            window.scrollTo(0, document.body.scrollHeight);
         };
 
-        window.deleteLine = function(ev) {
+        window.deleteLine = function (ev) {
             const target = ev.target.parentNode.parentNode; // 'div' node
             target.parentNode.removeChild(target);
 
             // update line numbers
             const lineNumbers = document.getElementsByClassName('lineNumber');
             for (let i = 0; i < lineNumbers.length; i++) {
-                lineNumbers[i].textContent = `${i+1}: `;
+                lineNumbers[i].textContent = `${i + 1}: `;
             }
         }
 
-        window.changeColor = function() {
+        window.changeColor = function () {
             const buttons = document.getElementById('color-control').getElementsByTagName('input');
             let checkedButtons = {};
             for (let i = 0; i < buttons.length; i++) {
@@ -66,11 +66,20 @@
             }
             modifyColor(checkedButtons);
         }
+
+        window.changeFontSize = function (ev) {
+            const body = document.getElementsByTagName('body')[0];
+            const val = ev.target;
+            document.getElementsByTagName('body')[0].style.fontSize = ev.target.value;
+        }
     </script>
     <style>
         #add-line {
             font-size: 120%;
             margin: 1em;
+        }
+        select {
+            font-size: 1em;
         }
     </style>
 </head>
@@ -115,19 +124,33 @@
         </tr>
         <tr>
             <td></td>
-            <td><label><input type="radio" name="colorIntensity" onclick="changeColor()" value="Strong">Strong</label></td> 
+            <td><label><input type="radio" name="colorIntensity" onclick="changeColor()" value="Strong">Strong</label>
+            </td>
         </tr>
     </table>
 
     <h2>Test Area</h2>
+    <label> Chose Font Size: 
+        <select onclick="changeFontSize(event)">
+            <option value="0.75em">Small</option>
+            <option selected value="1em">Normal</option>
+            <option value="1.25em">Large</option>
+            <option value="1.5em">Very Large</option>
+            <option value="2em">Huge</option>
+        </select>
+    </label>
 
-    <p>In the box below, try typing some text (only linear math is allowed):
+
+
+    <p>In the box below, try typing some text (no exponents or square roots allowed):
     </p>
     <template id="input-line-template">
-        <div>
-            <button class="button" onclick="deleteLine(event)"><img src="delete.png" height="24" alt="delete line" style="vertical-align:middle"></button>
+        <div class="inputLine">
+            <button class="button" onclick="deleteLine(event)"><img src="delete.png" height="24" alt="delete line"
+                    style="vertical-align:middle;"></button>
             Line <span class="lineNumber"></span>
-            <colored-edit-area class='test-input' contenteditable="true" spellcheck="false" oninput="update(event)"> </colored-edit-area>
+            <colored-edit-area class='test-input' contenteditable="true" spellcheck="false" oninput="update(event)">
+            </colored-edit-area>
         </div>
     </template>
     <button id="add-line" class="button" onclick="addLine(false)">Add another line</button>
