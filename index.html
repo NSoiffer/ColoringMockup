@@ -56,17 +56,17 @@
         <span id='lc-letters' class='grid'>abcdefghijklmnopqrstuvwxyz</span> <!-- filled in by script -->
         <span id='uc-letters' class='grid'>ABCDEFGHIJKLMNOPQRSTUVWXYZ</span> <!-- filled in by script -->
         <span id='digits' class='grid'>0123456789</span> <!-- filled in by script -->
-        <span id='symbols' class='grid'>+-·×÷=&lt;&gt;±≠≤≥()[]⌊⌋⌈⌉|</span> <!-- filled in by script -->
+        <span id='symbols' class='grid'>+-•×÷=&lt;&gt;±≠≤≥()[]⌊⌋⌈⌉|</span> <!-- filled in by script -->
     </div>
-    <div class='action-area'>
+    <div id='action-area'>
         <table id='char-table'>
             <tr>
-                <th><label for="edit-input">Character to Color:</label></th>
+                <th><label for="edit-input">Char to Color:</label></th>
                 <th><label for="text-color">Text color:</label></th>
                 <th><label for="bg-color">Background color:</label></th>
                 <th><label for="font-style">Choose Font Style:</label></th>
                 <th><label for="spacing">Extra Space:</label></th>
-                <th><label for="opposite-input">Opposite Color Character:</label></th>
+                <th><label for="opposite-input">Opposite Color Char:</label></th>
             </tr>
             <tr>
                 <td>
@@ -100,89 +100,79 @@
         </table>
         <hr>
 
-        <div id="open-close-area">
-            <span class='match-open-char-label'>Open Char:</span>
-            <colored-edit-area id='match-open-char' contenteditable="true" spellcheck="false">(
-            </colored-edit-area>
-            <span class='match-close-char-label'>Close Char:</span>
-            <colored-edit-area id='match-close-char' contenteditable="true" spellcheck="false">)
-            </colored-edit-area>
+        <div id="match-area-title">Open/Close Colorings</div>
+        <template id="match-area-template">
+            <div class="match-area">               
+                <span class="rule-label">Rule<span class="ruleNumber"></span></span>
+                <button class="button match-delete-rule">
+                    <img src="delete.png" height="24" alt="delete line" style="vertical-align:middle;">
+                </button>
+                <button class='button match-add-rule' >Add<br>rule</button>
+                <span class='match-vertical-divider1'></span>
 
-            <span class="border-label-top">Border&nbsp;</span>
-            <label class="border-style-label-top" for="border-style-top">Style:</label>
-            <select id='border-style-top' name="Style">
-                <option>None</option>
-                <option>Above</option>
-                <option>Below</option>
-                <option>Box</option>
-            </select>
-            <label class="border-thickness-label-top" for="border-thickness-top">Thickness:</label>
-            <select id='border-thickness-top' name="Thickness">
-                <option value="1px">Thin</option>
-                <option value="2px">Medium</option>
-                <option value="3px">Thick</option>
-                <option value="4px">Very Thick</option>
-            </select>
-            <label class="border-color-label-top" for="border-color-top">Border Color:</label>
-            <input type="color" value="#ffffff" id="border-color-top">
-            <label class="bg-label-top" for="bg-color-top">Background Color:</label>
-            <input type="color" value="#ffffff" id="bg-top">
+                <colored-edit-area class='match-area-test' spellcheck="false"> (inside of open/close) </colored-edit-area>
+                <span class='match-vertical-divider2'></span>
 
-            <div class="match-area-label-top">Top<br>Level&nbsp;</div>
-            <label for="match-area-fg-top" class="match-area-fg-label-top">Text color:</label>
-            <input type="color" value="#ffffff" id="match-area-fg-top">
-            <label for="match-area-bg-top" class='match-area-bg-label-top'>Background<br>color:</label>
-            <input type="color" value="#ffffff" id="match-area-bg-top">
-            <span class='match-area-open-top'>(</span>
-            <span id='match-area-contents-top'>inside of open/close</span>
-            <span class='match-area-close-top'>)</span>
-            <label for="match-area-r-fg-top" class="match-area-r-fg-label-top">Text color:</label>
-            <input type="color" value="#ffffff" id="match-area-r-fg-top">
-            <label for="match-area-r-bg-top" class='match-area-r-bg-label-top'>Background<br>color:</label>
-            <input type="color" value="#ffffff" id="match-area-r-bg-top">
-            <label for="match-area-same-top" class="match-area-same-label-top">Same as<br>open</label>
-            <input type="checkbox" checked id="match-area-same-top">
-            <span id="match-area-ellipsis-top" aria-hidden="true">}</span>
+                <label class='match-paren-label'>
+                    <input class="match-paren-button" type="radio" name="match-group">
+                    Open/Close
+                </label>
+                <span class="match-paren-group">
+                    <label class="match-paren-fg-label">
+                        Text Color:
+                        <input class="match-paren-fg" type="color" value="#000000">
+                    </label>
+                    <label class="match-paren-bg-label">
+                        Background Color:
+                        <input class="match-paren-bg" type="color" value="#ffffff">
+                    </label>    
+                </span>
 
-            <dummy class='dummyVertSpace' aria-hidden="true"></dummy>
-            <span class="border-label-bottom">Border&nbsp;</span>
-            <label class="border-style-label-bottom" for="border-style-bottom">Style:</label>
-            <select id='border-style-bottom' name="Style">
-                <option>None</option>
-                <option>Above</option>
-                <option>Below</option>
-                <option>Box</option>
-            </select>
-            <label class="border-thickness-label-bottom" for="border-thickness-bottom">Thickness:</label>
-            <select id='border-thickness-bottom' name="Thickness">
-                <option value="1px">Thin</option>
-                <option value="2px">Medium</option>
-                <option value="3px">Thick</option>
-                <option value="4px">Very Thick</option>
-            </select>
-            <label class="border-color-label-bottom" for="border-color-bottom">Border Color:</label>
-            <input type="color" value="#ffffff" id="border-color-bottom">
-            <label class="bg-label-bottom" for="bg-bottom">Background Color:</label>
-            <input type="color" value="#ffffff" id="bg-bottom">
+                <label class='match-contents-label'>
+                    <input class="match-contents-button" type="radio" name="match-group" checked>
+                    Inside Color
+                </label>
+                <span class="match-contents-group">
+                    <label class="match-contents-bg-label">
+                        Inside Background Color:
+                        <input class="match-contents-bg" type="color" value="#eeeeee">
+                    </label>
+                    <label class="match-parens-include-label">
+                        <input class="match-parens-include" type="checkbox">
+                        Use Inside Background Color:
+                    </label>
+                </span>
 
-            <div class="match-area-label-bottom">Nested&nbsp;</div>
-            <label for="match-area-fg-bottom" class="match-area-fg-label-bottom">Text color:</label>
-            <input type="color" value="#ffffff" id="match-area-fg-bottom">
-            <label for="match-area-bg-bottom" class='match-area-bg-label-bottom'>Background<br>color:</label>
-            <input type="color" value="#ffffff" id="match-area-bg-bottom">
-            <span class='match-area-open-bottom'>(</span>
-            <span id='match-area-contents-bottom'>inside of open/close</span>
-            <span class='match-area-close-bottom'>)</span>
-            <label for="match-area-r-fg-bottom" class="match-area-r-fg-label-bottom">Text color:</label>
-            <input type="color" value="#ffffff" id="match-area-r-fg-bottom">
-            <label for="match-area-r-bg-bottom" class='match-area-r-bg-label-bottom'>Background<br>color:</label>
-            <input type="color" value="#ffffff" id="match-area-r-bg-bottom">
-            <label for="match-area-same-bottom" class="match-area-same-label-bottom">Same as<br>open</label>
-            <input type="checkbox" checked id="match-area-same-bottom">
-            <span id="match-area-ellipsis-bottom" aria-hidden="true">}</span>
-
-
-        </div>
+                <label class="match-border-label">
+                    <input class="match-border-button" type="radio" name="match-group">
+                    Border
+                </label>
+                <span class="match-border-group">
+                    <label class="border-style-label">
+                        Style:
+                        <select class="border-style" name="Style">
+                            <option selected>None</option>
+                            <option>Above</option>
+                            <option>Below</option>
+                            <option>Box</option>
+                        </select>
+                    </label>
+                    <label class="border-thickness-label">
+                        Thickness:
+                        <select class="border-thickness" name="Thickness">
+                            <option selected value="1px">Thin</option>
+                            <option value="2px">Medium</option>
+                            <option value="3px">Thick</option>
+                            <option value="4px">Very Thick</option>
+                        </select>
+                    </label>
+                    <label class="border-color-label">
+                        Border Color:
+                        <input class="border-color" type="color" value="#000000">
+                    </label>
+                </span>
+            </div>
+        </template>
     </div>
     <h2>Test Area</h2>
 
@@ -190,12 +180,12 @@
     </p>
     <p>
         Try it!
-        <colored-edit-area id='test-input' contenteditable="true" spellcheck="false"> 2([4+3+5]÷(4-1)+9)=17
+        <colored-edit-area class='test-input' contenteditable="true" spellcheck="false"> 2([4+3+5]÷(4-1)+9)=17
         </colored-edit-area>
     </p>
     <div class="palettes">
         <span>Symbols for the test area:</span>
-        <span id='symbols-test' class='grid'>+-·×÷=&lt;&gt;±≠≤≥()[]⌊⌋⌈⌉|</span> <!-- filled in by script -->
+        <span id='symbols-test' class='grid'>+-•×÷=&lt;&gt;±≠≤≥()[]⌊⌋⌈⌉|</span> <!-- filled in by script -->
     </div>
     <h2>Save and Load Stored (named) Rules</h2>
     <ul>
