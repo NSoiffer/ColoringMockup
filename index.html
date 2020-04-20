@@ -103,32 +103,51 @@
         <div id="match-area-title">Open/Close Colorings</div>
         <template id="match-area-template">
             <div class="match-area">               
+                <span class="rule-label">Rule<span class="ruleNumber"></span></span>
                 <button class="button match-delete-rule">
                     <img src="delete.png" height="24" alt="delete line" style="vertical-align:middle;">
                 </button>
-                <span class="rule-label">Rule<span class="ruleNumber"></span></span>
                 <button class='button match-add-rule' >Add<br>rule</button>
+                <span class='match-vertical-divider1'></span>
+
                 <colored-edit-area class='match-area-test' spellcheck="false"> (inside of open/close) </colored-edit-area>
-                <span class='match-paren-label'>Open/Close</span>
-                <label class="match-paren-fg-label">
-                    Text:
-                    <input class="match-paren-fg" type="color" value="#000000">
+                <span class='match-vertical-divider2'></span>
+
+                <label class='match-paren-label'>
+                    <input class="match-paren-button" type="radio" name="match-group">
+                    Open/Close
                 </label>
-                <label class="match-paren-bg-label">
-                    Background:
-                    <input class="match-paren-bg" type="color" value="#ffffff">
+                <span class="match-paren-group">
+                    <label class="match-paren-fg-label">
+                        Text Color:
+                        <input class="match-paren-fg" type="color" value="#000000">
+                    </label>
+                    <label class="match-paren-bg-label">
+                        Background Color:
+                        <input class="match-paren-bg" type="color" value="#ffffff">
+                    </label>    
+                </span>
+
+                <label class='match-contents-label'>
+                    <input class="match-contents-button" type="radio" name="match-group" checked>
+                    Inside Color
                 </label>
-                <span class='match-contents-label'>Contents</span>
-                <label class="match-contents-bg-label">
-                    Inside Background Color:
-                    <input class="match-contents-bg" type="color" value="#eeeeee">
+                <span class="match-contents-group">
+                    <label class="match-contents-bg-label">
+                        Inside Background Color:
+                        <input class="match-contents-bg" type="color" value="#eeeeee">
+                    </label>
+                    <label class="match-parens-include-label">
+                        <input class="match-parens-include" type="checkbox">
+                        Use Inside Background Color:
+                    </label>
+                </span>
+
+                <label class="match-border-label">
+                    <input class="match-border-button" type="radio" name="match-group">
+                    Border
                 </label>
-                <label class="match-parens-include-label">
-                    <input class="match-parens-include" type="checkbox">
-                    Inside Background Color:
-                </label>
-                <span class="match-border">
-                    Border&nbsp;
+                <span class="match-border-group">
                     <label class="border-style-label">
                         Style:
                         <select class="border-style" name="Style">
@@ -151,7 +170,7 @@
                         Border Color:
                         <input class="border-color" type="color" value="#000000">
                     </label>
-                </span>                       
+                </span>
             </div>
         </template>
     </div>

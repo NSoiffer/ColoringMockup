@@ -24,13 +24,16 @@ body {
 
 .button {
     width: auto;
+    font-family: sans-serif, Arial;
     text-align: center;
     border-radius: 4px;
+    background-color: #ffd;
     transition-duration: 500ms;
     transition-property: border;
 }
 .button:hover {
     box-shadow: 3px 3px #85b9f5;
+    background-color: #ffa;
 }
 
 .palettes .button {
@@ -107,7 +110,7 @@ padding-right: 1em;
 
 .match-area {
     display: inline-grid;
-    grid-template-columns: repeat(7, auto); 
+    grid-template-columns: repeat(8, auto); 
     grid-row-gap:.5em;
     align-items: center;
     justify-items: center;
@@ -115,21 +118,53 @@ padding-right: 1em;
     margin-right: .5em;
     grid-gap: .2em;
     grid-template-areas: 
-        ".    .    header .    header2 header2"
-        "rule rule fg     test in-bg   in-check"
-        "del  add  bg     test border  border";
+        "rule rule vline1 test vline2 header  header2  header3"
+        "del  add  vline1 test vline2 group   group    group";
+}
+
+.match-paren-label, .match-contents-label, .match-border-label {
+    display: inline-block;
+    padding: 5px 7px;
+    background-color: #ffd;
+    font-family: sans-serif, Arial;
+    border: 2px solid #444;
+    border-radius: 4px;
+    transition-duration: 100ms;
+    transition-property: background-color;
+        font-weight: bold;
+    justify-self: center;
+    text-align: center;
+    width: 10em;
+}
+
+.match-paren-label:hover, .match-contents-label:hover, .match-border-label:hover {
+    box-shadow: 3px 3px #85b9f5;
+    background-color: #ffa;
+
 }
 
 .match-paren-label {
     grid-area: header;
-    font-weight: bold;
-    justify-self: center;
 }
 
 .match-contents-label {
     grid-area: header2;
-    font-weight: bold;
-    justify-self: center;
+}
+
+.match-border-label {
+    grid-area: header3;
+}
+
+/* make the circle "button" disappear -- can't use display:none because then you can't keyboard tab to them */
+.match-area input[type="radio"] {
+    opacity: 0;
+    position: fixed;
+    width: 0;
+  }
+
+.match-area input[type="radio"]:checked + label {
+    background-color: #bfb;
+    border-color: #4c4;
 }
 
 .match-paren-fg-label {
@@ -152,6 +187,13 @@ padding-right: 1em;
     width: auto;
 }
 
+.match-paren-group, .match-contents-group, .match-border-group {
+    display: none;
+    justify-self: left;
+    grid-area: group;
+    margin-left: 1em;
+    width: 36em;
+}
 .match-contents-bg-label {
     justify-self: left;
     grid-area: in-bg;
@@ -187,6 +229,20 @@ padding-right: 1em;
 .match-add-rule {
     grid-area: add;
     justify-self: left;
+}
+
+.match-vertical-divider1, .match-vertical-divider2 {
+    height: 4em;
+    width: 1.5em;
+    margin-left: 1em;
+    border-left: 2px solid black;
+}
+.match-vertical-divider1 {
+    grid-area: vline1;
+}
+
+.match-vertical-divider2 {
+    grid-area: vline2;
 }
 
 .match-area-hr {

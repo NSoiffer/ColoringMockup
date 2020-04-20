@@ -748,6 +748,25 @@ class ColoringRules {
      * @param {boolean} [isFirst]
      */
     addNewMatchDefinition(el, matchColor, isFirst) {
+
+        /**
+         * 
+         * @param {MouseEvent} ev 
+         */
+        function handleRadioButtonClick(ev) {
+            const buttons = ev.target.parentElement.parentElement.querySelectorAll('input[name]');
+            if (buttons.length !== 3) {
+                console.log(`Should have only been three buttons as targets. Found ${buttons.length}`);
+                return;
+            }
+            for (let i = 0; i < 3; i++) {
+                const isThisButtonTheTarget = buttons[i] === ev.target;
+                buttons[i].checked = isThisButtonTheTarget;
+                buttons[i].parentElement.style = isThisButtonTheTarget ? "font-size: 130%; background-color: #ffa" : "";
+                buttons[i].parentElement.nextElementSibling.style.display = isThisButtonTheTarget ? 'inline' : 'none';
+            }
+        }
+
         /** @type{HTMLTemplateElement} */
         const template = document.getElementById('match-area-template');
         const newRuleNode = template.content.cloneNode(true);
@@ -756,7 +775,12 @@ class ColoringRules {
             () => {this.deleteMatchDefinition(newRuleElement); ColoringRules.Rules.updateAll()} );
         newRuleElement.querySelector('.match-add-rule').addEventListener('click',
             () => {this.addNewMatchDefinition(newRuleElement, null); ColoringRules.Rules.updateAll()} );
-        
+
+        newRuleElement.querySelector('.match-paren-button').addEventListener('click', ev => handleRadioButtonClick(ev));
+        newRuleElement.querySelector('.match-contents-button').addEventListener('click', ev => handleRadioButtonClick(ev));
+        newRuleElement.querySelector('.match-border-button').addEventListener('click', ev => handleRadioButtonClick(ev));
+
+
         newRuleElement.querySelector('.match-paren-fg').addEventListener('change',
             () => this.updateMatchRules() );
         newRuleElement.querySelector('.match-paren-bg').addEventListener('change',
@@ -790,6 +814,8 @@ class ColoringRules {
             newRuleElement.parentNode.insertBefore(hr, newRuleElement);
         }
         el.parentNode.insertBefore(newRuleNode, el.nextElementSibling);
+        newRuleElement.querySelector('.match-contents-label').style.backgroundColor = '#ffa';
+        newRuleElement.querySelector('.match-contents-group').style.display = 'inline';
 
         // window.scrollTo(0, document.body.scrollHeight);
 
@@ -797,6 +823,14 @@ class ColoringRules {
         const ruleNumbers = el.parentNode.querySelectorAll('.ruleNumber');
         for (let i = 0; i < ruleNumbers.length; i++) {
             ruleNumbers[i].textContent = `${i + 1}: `;
+        }
+
+        // set/update radio button names (must be unique to each group of three)
+        const names = el.parentNode.querySelectorAll('input[name]');
+        for (let i = 0; i < names.length; i+=3) {
+            names[i].name = `match-group-${i}`;
+            names[i+1].name = `match-group-${i}`;
+            names[i+2].name = `match-group-${i}`;
         }
     };
 
@@ -1067,9 +1101,23 @@ class ColoringRules {
             storage.setItem(name, asString);
             storage.setItem(STORAGE_NAME__STARTUP_COLORING_RULES, name);
             this.saveStatus(true);
+            ColoringRules.Rules.rulesList();        // update the list of rules
         }
         catch (err) {
             alert("Could not store rule!");
+        }
+    }
+
+    versionCleanUp(ruleObj) {
+        if (ruleObj.version) {
+            if (ruleObj.version !== "0.2") {
+                console.log(`Attempting to read unknown rule version '${ruleObj.version}'`);
+            }
+            return ruleObj.data;     // v0.2 rules
+        } else {
+            // v0.1 -- matches don't make sense in V0.2, so drop them
+            ruleObj.matches = [];
+            return ruleObj;
         }
     }
 
@@ -1095,12 +1143,13 @@ class ColoringRules {
             return;
         }
 
-        ColoringRules.Rules = ColoringRules.readJSON(ruleObj.data);
+        ColoringRules.Rules = ColoringRules.readJSON(this.versionCleanUp(ruleObj));
         ColoringRules.Rules.updateHTML();
         storage.setItem(STORAGE_NAME__STARTUP_COLORING_RULES, name);
         ColoringRules.Rules.saveStatus(true);
         ColoringRules.Rules.updateAll();
         modifyColor.savedRules = ColoringRules.Rules;     // bad hack -- shouldn't need to know this!
+        ColoringRules.Rules.rulesList();        // update the list of rules
     }
 
     copyToClipboard() {
@@ -1119,7 +1168,7 @@ class ColoringRules {
                 }
                 const newRules = JSON.parse(result);
                 if (this.looksLikeColoringRule(newRules)) {
-                    ColoringRules.Rules = ColoringRules.readJSON(newRules.data);
+                    ColoringRules.Rules = ColoringRules.readJSON(this.versionCleanUp(newRules));
                     window.localStorage.setItem(STORAGE_NAME__STARTUP_COLORING_RULES, newRules.name);
                     ColoringRules.Rules.saveStatus(true);
                     ColoringRules.Rules.updateAll();
@@ -1303,6 +1352,10 @@ window.onload =
             }
         });
 
+        // load up all the rules into the 'datalist'
+        ColoringRules.Rules.rulesList();
+
+        // hook up save, load, etc
         OnClickIds.forEach(
             id => document.getElementById(id).addEventListener('click', function () {
                 ColoringRules.Rules[id](getInputElementByID('rule-list-input').value);
