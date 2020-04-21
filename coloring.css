@@ -2,6 +2,15 @@ body {
     font-family: Arial, Helvetica, sans-serif;
     margin-left: 1em;
 }
+
+instructions-grouping button span {
+    display: block;
+}
+
+instructions-grouping button span:first-child {
+    display: inline;
+}
+
 .palettes {
     background-color: lightgoldenrodyellow;
 }
@@ -110,13 +119,14 @@ padding-right: 1em;
 
 .match-area {
     display: inline-grid;
+    background-color: #fff;
     grid-template-columns: repeat(8, auto); 
     grid-row-gap:.5em;
     align-items: center;
     justify-items: center;
     margin-left: .5em;
     margin-right: .5em;
-    grid-gap: .2em;
+    column-gap: 0em;
     grid-template-areas: 
         "rule rule vline1 test vline2 header  header2  header3"
         "del  add  vline1 test vline2 group   group    group";
@@ -124,11 +134,10 @@ padding-right: 1em;
 
 .match-paren-label, .match-contents-label, .match-border-label {
     display: inline-block;
-    padding: 5px 7px;
+    padding: 7px 4px;
     background-color: #ffd;
     font-family: sans-serif, Arial;
-    border: 2px solid #444;
-    border-radius: 4px;
+    border: 1px solid #444;
     transition-duration: 100ms;
     transition-property: background-color;
         font-weight: bold;
@@ -137,10 +146,21 @@ padding-right: 1em;
     width: 10em;
 }
 
-.match-paren-label:hover, .match-contents-label:hover, .match-border-label:hover {
-    box-shadow: 3px 3px #85b9f5;
-    background-color: #ffa;
+.match-contents-label {
+    border-left-width: 0em;
+    border-right-width: 0em;
+}
 
+.match-paren-group, .match-contents-group, .match-border-group {
+    grid-area: group;
+    display: none;
+    justify-self: left;
+    margin-left: 0em;
+    width: 34em;
+}
+
+.match-paren-label:hover, .match-contents-label:hover, .match-border-label:hover {
+    background-color: #fff;
 }
 
 .match-paren-label {
@@ -159,23 +179,16 @@ padding-right: 1em;
 .match-area input[type="radio"] {
     opacity: 0;
     position: fixed;
+    height: 0;
     width: 0;
   }
 
-.match-area input[type="radio"]:checked + label {
-    background-color: #bfb;
-    border-color: #4c4;
-}
-
 .match-paren-fg-label {
-    grid-area: fg;
     justify-self: right;
 }
 
 .match-paren-bg-label {
-    grid-area: bg;
     justify-self: right;
-    margin-left: .5em
 }
 
 .match-area-test {
@@ -183,33 +196,29 @@ padding-right: 1em;
     justify-self: center;
     font-size: 120%;
     padding: 0.2em;
+    border: none;
     margin-left: .2em;
-    width: auto;
+    width: 10em;
 }
 
-.match-paren-group, .match-contents-group, .match-border-group {
-    display: none;
-    justify-self: left;
-    grid-area: group;
-    margin-left: 1em;
-    width: 36em;
-}
 .match-contents-bg-label {
     justify-self: left;
-    grid-area: in-bg;
-    margin-left: 1em;
 }
 
-.match-parens-include-label {
-    grid-area: in-check
-}
-.match-parens-include-label input {
+.match-parens-include {
+    background-color: #ffd;
+    margin-left: 3em;
     height: 1.5em;
     width: 1.5em;
 }
 
+.match-parens-include:hover {
+    box-shadow: 3px 3px #85b9f5;
+    background-color: #ffa;
+}
+
+
 .match-border {
-    grid-area: border;
     justify-self: left;
     margin-left: 1em;
     padding: 1px;
@@ -237,6 +246,11 @@ padding-right: 1em;
     margin-left: 1em;
     border-left: 2px solid black;
 }
+
+.toggle-off ~ .match-vertical-divider1, .toggle-off ~ .match-vertical-divider2 {
+    height: 1em;
+}
+
 .match-vertical-divider1 {
     grid-area: vline1;
 }
@@ -251,6 +265,7 @@ padding-right: 1em;
     height: 1px;
     background-color: black;
 }
+
 
 .rule-area {
     display: inline-grid;
@@ -297,22 +312,25 @@ padding-right: 1em;
 
 .accordion:before {
   content: '\25B6';
+  font-size: 2em;
+  height: 2em;
   color: #777;
   font-weight: bold;
-  float: left;
   margin-right: 5px;
 }
 
 .active:before {
-  content: "\25BC";
+    font-size: 2em;
+    height: 2em;
+    content: "\25BC";
 }
 
-.accordion h2 {
-    display:inline;
+.toggle-off {
+    width: 0;
+    height: 0;
+    opacity: 0;
 }
-.panel {
-  display: none;
-  padding: 0 18px;
-  overflow: hidden;
-  transition: max-height 0.2s ease-out;
+
+.toggle-on {
+    height: auto;
 }

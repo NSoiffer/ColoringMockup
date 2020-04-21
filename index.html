@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-us">
 
 <head>
     <title>Coloring mockup</title>
@@ -9,33 +9,34 @@
     <script>
         function ToggleCollapse(el) {
             el.classList.toggle("active");
-            let content = el.nextElementSibling;
-            if (content.style.display === "block") {
-                content.style.display = "none";
-            } else {
-                content.style.display = "block";
-            }
+            let toggles = el.parentElement.querySelectorAll(".toggle-off, .toggle-on");
+            toggles.forEach(element => {
+                element.className = element.className === 'toggle-off' ?  'toggle-on' : 'toggle-off';
+            });
         };
     </script>
 </head>
 
 <body>
-    <button type="button" class="accordion" onclick="ToggleCollapse(this)">
-        <h1>Coloring mockup</h1>
-        <span>(click to see instructions)</span>
-    </button>
-    <div class="panel">
-        <p>
-            This is a mockup to experiment with some ideas of coloring math for severely dyslexic students.
-            This is <em>not</em> not meant to be used by the student to actually do math.
-        </p>
-        <p>
-            The page is divided into three areas: the work area where you define the colors and other font aspects
-            for each character, the test area where you can type some linear math to see what your settings look like,
-            and the save/load area where you can save/restore your work.
-        </p>
-        <p>
-            The palettes have been preloaded with some settings to show some examples. To modify a character:
+    <instructions-grouping>
+        <button type="button" class="accordion" onclick="ToggleCollapse(this)">
+            <span>Coloring mockup</span>
+            <span class="toggle-on">(click to see instructions)</span>
+            <span class="toggle-off">(click to hide instructions)</span>
+        </button>
+        <div class="toggle-off">
+            <p>
+                This is a mockup to experiment with some ideas of coloring math for severely dyslexic students.
+                This is <em>not</em> not meant to be used by the student to actually do math.
+            </p>
+            <p>
+                The page is divided into three areas: the work area where you define the colors and other font aspects
+                for each character, the test area where you can type some linear math to see what your settings look like,
+                and the save/load area where you can save/restore your work.
+            </p>
+            <p>
+                The palettes have been preloaded with some settings to show some examples. To modify a character:
+            </p>
             <ol>
                 <li>Click on a palette character or directly type the character into the 'Character to Color' area.</li>
                 <li>Select one or more properties to change. You will see the change reflected in the character and in
@@ -48,8 +49,8 @@
                 <li>In the box in the test area, you can type a linear expression to see how the coloring looks in a
                     larger context.</li>
             </ol>
-        </p>
-    </div>
+        </div>    
+    </instructions-grouping>
     <h2>Work Area</h2>
     <div id="current-rule"></div>
     <div class="palettes">
@@ -76,7 +77,7 @@
                 <td><input type="color" value="#ffffff" id="bg-color"></td>
                 <td>
                     <select id='font-style' name="Font Style">
-                        <option>Normal</option>>
+                        <option>Normal</option>
                         <option>Bold</option>
                         <option>Bolder</option>
                         <option>Italic</option>
@@ -100,14 +101,14 @@
         </table>
         <hr>
 
-        <div id="match-area-title">Open/Close Colorings</div>
+        <div id="match-area-title">Matching Open/Close Colorings</div>
         <template id="match-area-template">
             <div class="match-area">               
                 <span class="rule-label">Rule<span class="ruleNumber"></span></span>
-                <button class="button match-delete-rule">
+                <button class="button match-delete-rule toggle-on">
                     <img src="delete.png" height="24" alt="delete line" style="vertical-align:middle;">
                 </button>
-                <button class='button match-add-rule' >Add<br>rule</button>
+                <button class='button match-add-rule toggle-on' >Add<br>rule</button>
                 <span class='match-vertical-divider1'></span>
 
                 <colored-edit-area class='match-area-test' spellcheck="false"> (inside of open/close) </colored-edit-area>
@@ -115,7 +116,7 @@
 
                 <label class='match-paren-label'>
                     <input class="match-paren-button" type="radio" name="match-group">
-                    Open/Close
+                    "Paren" Color
                 </label>
                 <span class="match-paren-group">
                     <label class="match-paren-fg-label">
@@ -139,7 +140,7 @@
                     </label>
                     <label class="match-parens-include-label">
                         <input class="match-parens-include" type="checkbox">
-                        Use Inside Background Color:
+                        Use Inside Background Color
                     </label>
                 </span>
 
