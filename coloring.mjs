@@ -737,11 +737,16 @@ class ColoringRules {
                 console.log(`Should have only been three buttons as targets. Found ${buttons.length}`);
                 return;
             }
+            const targets = ev.target.parentElement.parentElement.parentElement.querySelectorAll('.match-radio-button-target');
+            if (targets.length !== 3) {
+                console.log(`Should have only been three button targets. Found ${targets.length}`);
+                return;
+            }
             for (let i = 0; i < 3; i++) {
                 const isThisButtonTheTarget = buttons[i] === ev.target;
                 buttons[i].checked = isThisButtonTheTarget;
                 buttons[i].parentElement.style = isThisButtonTheTarget ? ACTIVE_COLOR_STYLE : "";
-                buttons[i].parentElement.nextElementSibling.style.display = isThisButtonTheTarget ? 'inline' : 'none';
+                targets[i].style.display = isThisButtonTheTarget ? 'inline' : 'none';
             }
         }
 

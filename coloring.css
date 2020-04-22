@@ -118,18 +118,82 @@ padding-right: 1em;
 }
 
 .match-area {
-    display: inline-grid;
+    display: inline-flex;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.match-area.collapsed {
+    margin-top: 0em;
+    margin-bottom: 0em;
+}
+
+.rule-and-buttons-area {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: space-between;
+    justify-items: flex-end;
+    background-color: #ffd;
+}
+
+.rule-buttons-area {
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: space-between;
+    justify-items: flex-end;
+    margin-top: 0.5em;
+}
+
+.rule-label {
+    justify-self: center;
+}
+
+.match-delete-rule {
+    justify-self: left;
+}
+
+.match-add-rule {
+    justify-self: left;
+}
+
+.match-vertical-divider1, .match-vertical-divider2 {
+    height: 4em;
+    width: 0em;
+    margin-left: 1em;
+    margin-right: 1em;
+    border-left: 2px solid black;
+}
+
+.collapsed .match-vertical-divider1, .collapsed  .match-vertical-divider2 {
+    height: 2em;
+    border-left: 2px solid #777;
+}
+
+.match-area-test {
+    font-size: 130%;
+    border: none;
+    margin-left: 0em;
+    margin-right: 0em;
+    width: 10.5em;      /* need to set width so that rules with/without borders have the same width */
+}
+
+.match-settings-area {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: space-between;
     background-color: #fff;
-    grid-template-columns: repeat(8, auto); 
-    grid-row-gap:.5em;
-    align-items: center;
-    justify-items: center;
     margin-left: .5em;
     margin-right: .5em;
-    column-gap: 0em;
-    grid-template-areas: 
-        "rule rule vline1 test vline2 header  header2  header3"
-        "del  add  vline1 test vline2 group   group    group";
+}
+
+.match-settings-labels {
+    display: inline-flex
+}
+
+.match-settings-values {
+    display: inline-flex;
+    justify-content: center;
+    width:auto;
 }
 
 .match-paren-label, .match-contents-label, .match-border-label {
@@ -152,27 +216,18 @@ padding-right: 1em;
 }
 
 .match-paren-group, .match-contents-group, .match-border-group {
-    grid-area: group;
     display: none;
     justify-self: left;
     margin-left: 0em;
     width: 34em;
 }
 
+.match-settings-spacer {
+    height: 0.8em;
+}
+
 .match-paren-label:hover, .match-contents-label:hover, .match-border-label:hover {
     background-color: #fff;
-}
-
-.match-paren-label {
-    grid-area: header;
-}
-
-.match-contents-label {
-    grid-area: header2;
-}
-
-.match-border-label {
-    grid-area: header3;
 }
 
 /* make the circle "button" disappear -- can't use display:none because then you can't keyboard tab to them */
@@ -183,31 +238,8 @@ padding-right: 1em;
     width: 0;
   }
 
-.match-paren-fg-label {
-    justify-self: right;
-}
-
-.match-paren-bg-label {
-    justify-self: right;
-}
-
-.match-area-test {
-    grid-area: test;
-    justify-self: center;
-    font-size: 120%;
-    padding: 0.2em;
-    border: none;
-    margin-left: .2em;
-    width: 10em;
-}
-
-.match-contents-bg-label {
-    justify-self: left;
-}
-
 .match-parens-include {
     background-color: #ffd;
-    margin-left: 3em;
     height: 1.5em;
     width: 1.5em;
 }
@@ -217,7 +249,6 @@ padding-right: 1em;
     background-color: #ffa;
 }
 
-
 .match-border {
     justify-self: left;
     margin-left: 1em;
@@ -225,47 +256,19 @@ padding-right: 1em;
     border: thin dotted gray;
 }
 
-.rule-label {
-    grid-area: rule;
-    justify-self: center;
-}
-
-.match-delete-rule {
-    grid-area: del;
-    justify-self: left;
-}
-
-.match-add-rule {
-    grid-area: add;
-    justify-self: left;
-}
-
-.match-vertical-divider1, .match-vertical-divider2 {
-    height: 4em;
-    width: 1.5em;
+.match-paren-bg-label, .border-thickness-label, .border-color-label{
     margin-left: 1em;
-    border-left: 2px solid black;
 }
 
-.toggle-off ~ .match-vertical-divider1, .toggle-off ~ .match-vertical-divider2 {
-    height: 1em;
-}
+.match-parens-include-label {
+    margin-left: 2em;
 
-.match-vertical-divider1 {
-    grid-area: vline1;
-}
-
-.match-vertical-divider2 {
-    grid-area: vline2;
 }
 
 .match-area-hr {
-    margin-top: 1em;
-    margin-bottom: 1em;
     height: 1px;
     background-color: black;
 }
-
 
 .rule-area {
     display: inline-grid;
@@ -296,7 +299,7 @@ padding-right: 1em;
 
 /* some styles for hiding/revealing content */
 .accordion {
-  background-color: rgb(225, 233, 250);
+  background-color: #ffd;
   cursor: pointer;
   padding: 2px;
   border: none;
@@ -307,30 +310,23 @@ padding-right: 1em;
 }
 
 .accordion:hover {
-  background-color: rgb(185, 144, 252);
+  background-color: #ffa;
 }
 
 .accordion:before {
   content: '\25B6';
-  font-size: 2em;
-  height: 2em;
+  font-size: 1.5em;
   color: #777;
   font-weight: bold;
   margin-right: 5px;
 }
 
 .active:before {
-    font-size: 2em;
-    height: 2em;
     content: "\25BC";
 }
 
-.toggle-off {
+.hidden {
     width: 0;
     height: 0;
     opacity: 0;
-}
-
-.toggle-on {
-    height: auto;
 }

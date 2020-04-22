@@ -7,11 +7,14 @@
     <link rel="stylesheet" type="text/css" href="coloring.css">
     <script type="module" src="coloring.mjs"> </script>
     <script>
-        function ToggleCollapse(el) {
+        function ToggleCollapse(el, scope) {
             el.classList.toggle("active");
-            let toggles = el.parentElement.querySelectorAll(".toggle-off, .toggle-on");
+            let toggles = Array.from(scope.querySelectorAll(".toggle"));
+            if (scope.classList.contains("toggle")) {
+                toggles.push(scope);
+            }
             toggles.forEach(element => {
-                element.className = element.className === 'toggle-off' ?  'toggle-on' : 'toggle-off';
+                element.classList.toggle("hidden");
             });
         };
     </script>
@@ -19,20 +22,20 @@
 
 <body>
     <instructions-grouping>
-        <button type="button" class="accordion" onclick="ToggleCollapse(this)">
+        <button type="button" class="accordion" onclick="ToggleCollapse(this, this.parentElement)">
             <span>Coloring mockup</span>
-            <span class="toggle-on">(click to see instructions)</span>
-            <span class="toggle-off">(click to hide instructions)</span>
+            <span class="toggle">(click to see instructions)</span>
+            <span class="toggle hidden">(click to hide instructions)</span>
         </button>
-        <div class="toggle-off">
+        <div class="toggle hidden">
             <p>
                 This is a mockup to experiment with some ideas of coloring math for severely dyslexic students.
                 This is <em>not</em> not meant to be used by the student to actually do math.
             </p>
             <p>
-                The page is divided into three areas: the work area where you define the colors and other font aspects
-                for each character, the test area where you can type some linear math to see what your settings look like,
-                and the save/load area where you can save/restore your work.
+                The page is divided into three areas: the <em>work area</em> where you define the colors and other font aspects
+                for each character, the <em>test area</em> where you can type some linear math to see what your settings look like,
+                and the <em>save/load area</em> where you can save/restore your work.
             </p>
             <p>
                 The palettes have been preloaded with some settings to show some examples. To modify a character:
@@ -49,6 +52,29 @@
                 <li>In the box in the test area, you can type a linear expression to see how the coloring looks in a
                     larger context.</li>
             </ol>
+            <p>
+                Below the palettes is an area where you can add rules for when parens, brackets, etc., match.
+                These rules allow you define the text/background color of the parens, the background color of the area inside the parens,
+                and an optional border/underline/overline (and its properties) around the matched area.
+                Taken together, these properties can help more quickly identify matching parens, etc.
+                You can create as many rules as you want so that each successive matching paren pair will have different color properties.
+                Use "Add rule" to add a rule and the "X" button to delete a rule.
+                To modify a rule:
+            </p>
+            <ol>
+                <li>To modify the colors used for parens, etc., click on the "Paren Color" tab
+                    and use the "text color" and "background color" pickers.</li>
+                <li>To modify the background color used inside the matching area, click on the "Inside Color" tab
+                    and use the color picker to choose a background color.
+                    The checkbox after the color picker is a quick way to make the background of the paren
+                    be the same as the inside background.</li>
+                <li>To emphasize the matched area, a border can be specified by clicking on the "Border" tab.
+                    The "style" allows for the specification of boxing the contents, putting a line under the contents,
+                    or putting a line above the contents.
+                    The thickness and the color of the line/box can be specified with the "Thickness" and "Border Color" options.
+                </li>
+            </ol>
+            <p>Clicking on the triangle on the left of each rule allows you to collapse or expand the rule.</p>
         </div>    
     </instructions-grouping>
     <h2>Work Area</h2>
@@ -103,74 +129,88 @@
 
         <div id="match-area-title">Matching Open/Close Colorings</div>
         <template id="match-area-template">
-            <div class="match-area">               
-                <span class="rule-label">Rule<span class="ruleNumber"></span></span>
-                <button class="button match-delete-rule toggle-on">
-                    <img src="delete.png" height="24" alt="delete line" style="vertical-align:middle;">
-                </button>
-                <button class='button match-add-rule toggle-on' >Add<br>rule</button>
+            <div class="match-area">   
+                <div class="rule-and-buttons-area" >
+                    <span class="rule-label accordion active"
+                         onclick="ToggleCollapse(this, this.parentElement.parentElement);
+                                  this.parentElement.parentElement.classList.toggle('collapsed')">
+                        Rule<span class="ruleNumber"></span>
+                    </span>
+                    <span class="rule-buttons-area toggle">
+                        <button class="button match-delete-rule">
+                            <img src="delete.png" height="24" alt="delete line" style="vertical-align:middle;">
+                        </button>
+                        <button class='button match-add-rule' >Add<br>rule</button>        
+                    </span>
+                </div>           
                 <span class='match-vertical-divider1'></span>
 
-                <colored-edit-area class='match-area-test' spellcheck="false"> (inside of open/close) </colored-edit-area>
+                <colored-edit-area class='match-area-test' spellcheck="false"> (&#x2004;inside of open/close&#x2004;) </colored-edit-area>
                 <span class='match-vertical-divider2'></span>
 
-                <label class='match-paren-label'>
-                    <input class="match-paren-button" type="radio" name="match-group">
-                    "Paren" Color
-                </label>
-                <span class="match-paren-group">
-                    <label class="match-paren-fg-label">
-                        Text Color:
-                        <input class="match-paren-fg" type="color" value="#000000">
-                    </label>
-                    <label class="match-paren-bg-label">
-                        Background Color:
-                        <input class="match-paren-bg" type="color" value="#ffffff">
-                    </label>    
-                </span>
-
-                <label class='match-contents-label'>
-                    <input class="match-contents-button" type="radio" name="match-group" checked>
-                    Inside Color
-                </label>
-                <span class="match-contents-group">
-                    <label class="match-contents-bg-label">
-                        Inside Background Color:
-                        <input class="match-contents-bg" type="color" value="#eeeeee">
-                    </label>
-                    <label class="match-parens-include-label">
-                        <input class="match-parens-include" type="checkbox">
-                        Use Inside Background Color
-                    </label>
-                </span>
-
-                <label class="match-border-label">
-                    <input class="match-border-button" type="radio" name="match-group">
-                    Border
-                </label>
-                <span class="match-border-group">
-                    <label class="border-style-label">
-                        Style:
-                        <select class="border-style" name="Style">
-                            <option selected>None</option>
-                            <option>Above</option>
-                            <option>Below</option>
-                            <option>Box</option>
-                        </select>
-                    </label>
-                    <label class="border-thickness-label">
-                        Thickness:
-                        <select class="border-thickness" name="Thickness">
-                            <option selected value="1px">Thin</option>
-                            <option value="2px">Medium</option>
-                            <option value="3px">Thick</option>
-                            <option value="4px">Very Thick</option>
-                        </select>
-                    </label>
-                    <label class="border-color-label">
-                        Border Color:
-                        <input class="border-color" type="color" value="#000000">
-                    </label>
+                <span class="match-settings-area toggle">
+                    <span class="match-settings-labels">
+                        <label class='match-paren-label'>
+                            <input class="match-paren-button" type="radio" name="match-group">
+                            "Paren" Color
+                        </label>
+                        <label class='match-contents-label'>
+                            <input class="match-contents-button" type="radio" name="match-group" checked>
+                            Inside Color
+                        </label>
+                        <label class="match-border-label">
+                            <input class="match-border-button" type="radio" name="match-group">
+                            Border
+                        </label>
+                    </span>
+    
+                    <div class="match-settings-spacer"></div>
+                    <span class="match-settings-values">
+                        <div class="match-paren-group match-radio-button-target">
+                            <label class="match-paren-fg-label">
+                                Text Color:
+                                <input class="match-paren-fg" type="color" value="#000000">
+                            </label>
+                            <label class="match-paren-bg-label">
+                                Background Color:
+                                <input class="match-paren-bg" type="color" value="#ffffff">
+                            </label>    
+                        </div>    
+                        <div class="match-contents-group match-radio-button-target">
+                            <label class="match-contents-bg-label">
+                                Inside Background Color:
+                                <input class="match-contents-bg" type="color" value="#eeeeee">
+                            </label>
+                            <label class="match-parens-include-label">
+                                <input class="match-parens-include" type="checkbox">
+                                Parens Use this BG Color
+                            </label>
+                        </div>    
+                        <div class="match-border-group match-radio-button-target">
+                            <label class="border-style-label">
+                                Style:
+                                <select class="border-style" name="Style">
+                                    <option selected>None</option>
+                                    <option>Above</option>
+                                    <option>Below</option>
+                                    <option>Box</option>
+                                </select>
+                            </label>
+                            <label class="border-thickness-label">
+                                Thickness:
+                                <select class="border-thickness" name="Thickness">
+                                    <option selected value="1px">Thin</option>
+                                    <option value="2px">Medium</option>
+                                    <option value="3px">Thick</option>
+                                    <option value="4px">Very Thick</option>
+                                </select>
+                            </label>
+                            <label class="border-color-label">
+                                Border Color:
+                                <input class="border-color" type="color" value="#000000">
+                            </label>
+                        </div>
+                    </span>
                 </span>
             </div>
         </template>
