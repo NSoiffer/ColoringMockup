@@ -637,40 +637,18 @@ class ColoringRules {
         this.patterns.push(new ColorRule('\\+|×|÷|±', '', '', 'Normal', '0.222em'));
         this.patterns.push(new ColorRule('-', '', '', 'Bold', '0.222em'));
         this.patterns.push(new ColorRule('\\|', '', '', 'Bold', ''));
-        this.patterns.push(new ColorRule('<|=|>|≠|≤|≥', 'hsl(0,0%,100%)', 'hsl(160, 10%, 10%)', 'Normal', '0.278em'));
+        this.patterns.push(new ColorRule('<|=|>|≠|≤|≥', '', '', 'Normal', '0.278em'));
         this.patterns.push(new ColorRule('.', '', '', 'Normal', ''));   // catch everything
 
-        this.patterns.push(new ColorRule('\\(', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'Normal', '0.167em'));
-        this.patterns.push(new ColorRule('\\)', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'Normal', '0.167em'));
+        this.patterns.push(new ColorRule('\\(', '', '', 'Normal', '0.167em'));
+        this.patterns.push(new ColorRule('\\)', '', '', 'Normal', '0.167em'));
 
-        this.patterns.push(new ColorRule('\\[', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'Normal', '0.167em'));
-        this.patterns.push(new ColorRule('\\]', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'Normal', '0.167em'));
+        this.patterns.push(new ColorRule('\\[', '', '', 'Normal', '0.167em'));
+        this.patterns.push(new ColorRule('\\]', '', '', 'Normal', '0.167em'));
 
-        this.patterns.push(new ColorRule('\\{', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'Normal', '0.167em'));
-        this.patterns.push(new ColorRule('\\}', 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'Normal', '0.167em'));
+        this.patterns.push(new ColorRule('\\{', '', '', 'Normal', '0.167em'));
+        this.patterns.push(new ColorRule('\\}', '', '', 'Normal', '0.167em'));
 
-        /* V 0.1 rules
-        this.replaceMatch('(', new MatchingColorRule(
-            new ColorRule(/\(/, 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'Normal', ''),
-            new ColorRule(/\)/, 'hsl(0, 0%, 100%)', 'hsl(0, 0%, 40%)', 'Normal', ''),
-            new MatchColor(Color.Transparent, 'Box', '2px', 'hsl(0,0%, 50%)'),
-            new MatchColor('hsl(240, 100%, 95%)', 'None', '1px', 'hsl(0,0%, 30%)')
-        ));
-
-        this.replaceMatch('\\[', new MatchingColorRule(
-            new ColorRule(/\[/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
-            new ColorRule(/\]/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
-            new MatchColor(Color.Transparent, 'Below', '2px', 'hsl(0,0%, 50%)'),
-            new MatchColor('hsl(270, 100%, 95%)', 'Above', '2px', 'hsl(0,0%, 30%)')
-        ));
-
-        this.replaceMatch('\\{', new MatchingColorRule(
-            new ColorRule(/\{/, 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
-            new ColorRule('}', 'hsl(240, 100%, 70%)', 'hsl(0, 0%, 60%)', 'Normal', ''),
-            new MatchColor(Color.Transparent, 'Box', '2px', 'hsl(0,0%, 50%)'),
-            new MatchColor(Color.Transparent, 'None', '1px', 'hsl(0,0%, 30%)')
-        ));
-        */
         return this;
     }
 
@@ -748,7 +726,7 @@ class ColoringRules {
      * @param {boolean} [isFirst]
      */
     addNewMatchDefinition(el, matchColor, isFirst) {
-
+        const ACTIVE_COLOR_STYLE = "font-size: 130%; background-color: #fff; padding-top: 2px; border-bottom: 0px;";
         /**
          * 
          * @param {MouseEvent} ev 
@@ -759,11 +737,16 @@ class ColoringRules {
                 console.log(`Should have only been three buttons as targets. Found ${buttons.length}`);
                 return;
             }
+            const targets = ev.target.parentElement.parentElement.parentElement.querySelectorAll('.match-radio-button-target');
+            if (targets.length !== 3) {
+                console.log(`Should have only been three button targets. Found ${targets.length}`);
+                return;
+            }
             for (let i = 0; i < 3; i++) {
                 const isThisButtonTheTarget = buttons[i] === ev.target;
                 buttons[i].checked = isThisButtonTheTarget;
-                buttons[i].parentElement.style = isThisButtonTheTarget ? "font-size: 130%; background-color: #ffa" : "";
-                buttons[i].parentElement.nextElementSibling.style.display = isThisButtonTheTarget ? 'inline' : 'none';
+                buttons[i].parentElement.style = isThisButtonTheTarget ? ACTIVE_COLOR_STYLE : "";
+                targets[i].style.display = isThisButtonTheTarget ? 'inline' : 'none';
             }
         }
 
@@ -814,7 +797,7 @@ class ColoringRules {
             newRuleElement.parentNode.insertBefore(hr, newRuleElement);
         }
         el.parentNode.insertBefore(newRuleNode, el.nextElementSibling);
-        newRuleElement.querySelector('.match-contents-label').style.backgroundColor = '#ffa';
+        newRuleElement.querySelector('.match-contents-label').style = ACTIVE_COLOR_STYLE;
         newRuleElement.querySelector('.match-contents-group').style.display = 'inline';
 
         // window.scrollTo(0, document.body.scrollHeight);
@@ -924,16 +907,18 @@ class ColoringRules {
                     that.mergeCharAndMatchRules(ch, colorRule, that.matches[iNextMatch]) :
                     colorRule);
                 if (closeColorRule) {
+                    const iFoundMatch = iNextMatch;
                     i += 1;                     // we've handled 'ch' already
                     const closeCh = closeColorRule.pattern.source.replace('\\', '');
                     matchStack.push({ open: ch, close: closeCh});
+                    iNextMatch = (iNextMatch + 1) % that.matches.length;
                     const nestedSpan = nestConvertToSpan(str, closeCh);
                     matchStack.pop();
                     ch = str[i];
                     if (nestedSpan) {
                         const nestSpanStyle = 
-                            that.matches[iNextMatch].buildSpanStyle(stackDepth(ch) === 0 ? '' : 'nested');
-                        iNextMatch = (iNextMatch + 1) % that.matches.length;
+                            that.matches[iFoundMatch].buildSpanStyle(stackDepth(ch) === 0 ? '' : 'nested');
+                        
                         result += `<span style="display: inline-block; ${nestSpanStyle}">${nestedSpan}</span>`;
                     }
 
