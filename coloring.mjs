@@ -649,6 +649,8 @@ class ColoringRules {
         this.patterns.push(new ColorRule('\\{', '', '', 'Normal', '0.167em'));
         this.patterns.push(new ColorRule('\\}', '', '', 'Normal', '0.167em'));
 
+        this.matches.push(new MatchColor('#000000', '#ffffff', false, '#ffffd0', 'None', '2px', '#000000'));
+
         return this;
     }
 
@@ -1300,6 +1302,8 @@ const EditIds = ['edit-input', 'opposite-input', 'match-open-char', 'match-close
 
 window.onload =
     function () {
+        const isRuleCreationPage = document.getElementById('match-area-title');
+
         // get initial coloring rules
         const initColoringRuleName = window.localStorage.getItem(STORAGE_NAME__STARTUP_COLORING_RULES);
         if (initColoringRuleName) {
@@ -1310,13 +1314,17 @@ window.onload =
             catch (error) {
                 this.alert("Unable to load stored rule. Will use defaults.")
                 ColoringRules.Rules = new ColoringRules(DEFAULT_RULE_NAME).initialize();
-                // add the initial match rule
-                ColoringRules.Rules.addNewMatchDefinition(document.getElementById("match-area-template"), null, true);
+                if (isRuleCreationPage) {
+                    // add the initial match rule
+                    ColoringRules.Rules.addNewMatchDefinition(document.getElementById("match-area-template"), null, true);
+                }
             }
         } else {
             ColoringRules.Rules = new ColoringRules(DEFAULT_RULE_NAME).initialize();
-            // add the initial match rule
-            ColoringRules.Rules.addNewMatchDefinition(document.getElementById("match-area-template"), null, true);
+            if (isRuleCreationPage) {
+                // add the initial match rule
+                ColoringRules.Rules.addNewMatchDefinition(document.getElementById("match-area-template"), null, true);
+            }
             ColoringRules.Rules.saveStatus(true);
         }
         // add the palettes
