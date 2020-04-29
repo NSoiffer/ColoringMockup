@@ -1569,6 +1569,10 @@ function RememberNewRules(rules) {
     modifyColor.savedRules = rules;
 }
 
+/**
+ * 
+ * @param {{}} buttonStatus 
+ */
 function modifyColor(buttonStatus) {
     /**
      * Moves color half to 0 (dark) or 100 (light)
@@ -1577,7 +1581,7 @@ function modifyColor(buttonStatus) {
      * @param {boolean} lighter
      * @returns {Color}
      */
-    let lighten = function(color, bolder, lighter) {
+    function lighten(color, bolder, lighter) {
         color = color || Color[lighter ? 'Black' : 'White'].clone();
         if (color.toRGB() == Color.Transparent) {
             return color;    // leave transparent color alone
