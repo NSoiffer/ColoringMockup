@@ -378,8 +378,8 @@ class ColorRule {
     /**
      * 
      * @param {string|RegExp} pattern 
-     * @param {string|Color} fgColor
-     * @param {string|Color} bgColor 
+     * @param {string|Color} fgColor        // can be null
+     * @param {string|Color} bgColor        // can be null
      * @param {string} style 
      * @param {string} spacing 
      */
@@ -407,7 +407,11 @@ class ColorRule {
     }
 
     clone() {
-        return new ColorRule(this.pattern, this.fgColor.clone(), this.bgColor.clone(), this.style, this.spacing);
+        return new ColorRule(this.pattern,
+                             this.fgColor ? this.fgColor.clone() : null,
+                             this.bgColor ? this.bgColor.clone() : null,
+                             this.style,
+                             this.spacing);
     }
 
 
@@ -438,29 +442,29 @@ class ColorRule {
 class MatchColor {
     /**
      * 
-     * @param {string|Color} fgParenColor 
-     * @param {string|Color} bgParenColor 
+     * @param {string|Color} fgParenColor           // can be null
+     * @param {string|Color} bgParenColor           // can be null
      * @param {boolean} includeParens 
      * 
-     * @param {string|Color} bgInsideColor 
+     * @param {string|Color} bgInsideColor          // can be null
      * @param {string} borderPosition               // none, top, bottom, all
      * @param {string} borderThickness              // value to use is stored, not label
      * @param {string|Color} borderColor 
      */
     constructor(fgParenColor, bgParenColor, includeParens,
                 bgInsideColor, borderPosition, borderThickness, borderColor) {
-        this.fgParenColor = typeof fgParenColor === 'string' ? new Color(fgParenColor) : fgParenColor;
-        this.bgParenColor = typeof bgParenColor === 'string' ? new Color(bgParenColor) : bgParenColor;
+        this.fgParenColor = fgParenColor ? (typeof fgParenColor === 'string' ? new Color(fgParenColor) : fgParenColor) : Color.Black;
+        this.bgParenColor = bgParenColor ? (typeof bgParenColor === 'string' ? new Color(bgParenColor) : bgParenColor) : Color.Transparent;
         this.includeParens = includeParens;
 
-        this.bgInsideColor = typeof bgInsideColor === 'string' ? new Color(bgInsideColor) : bgInsideColor;
+        this.bgInsideColor = bgInsideColor ? (typeof bgInsideColor === 'string' ? new Color(bgInsideColor) : bgInsideColor) : Color.Transparent;
         this.borderPosition = borderPosition;
         this.borderThickness = borderThickness;
         this.borderColor = typeof borderColor === 'string' ? new Color(borderColor) : borderColor;
     }
 
     clone() {
-        return new MatchColor(this.fgParenColor.clone(), this.fgParenColor.clone(), this.includeParens,
+        return new MatchColor(this.fgParenColor.clone(), this.bgParenColor.clone(), this.includeParens,
                               this.bgInsideColor.clone(), this.borderPosition, this.borderThickness, this.borderColor.clone());
     }
 
@@ -632,24 +636,24 @@ class ColoringRules {
         this.name = DEFAULT_RULE_NAME;
         this.patterns.push(new ColorRule('3', 'hsl(130, 70%, 43%)', 'hsl(4, 90%, 50%)', 'Normal', ''));
         this.patterns.push(new ColorRule('8', 'hsl(4, 90%, 50%)', 'hsl(130, 70%, 43%)', 'Normal', ''));
-        this.patterns.push(new ColorRule('[0-9]', '', '', 'Normal', ''));
-        this.patterns.push(new ColorRule('[a-zA-Z]', '', '', 'Italic', ''));
-        this.patterns.push(new ColorRule('\\+|×|÷|±', '', '', 'Normal', '0.222em'));
-        this.patterns.push(new ColorRule('-', '', '', 'Bold', '0.222em'));
-        this.patterns.push(new ColorRule('\\|', '', '', 'Bold', ''));
-        this.patterns.push(new ColorRule('<|=|>|≠|≤|≥', '', '', 'Normal', '0.278em'));
-        this.patterns.push(new ColorRule('.', '', '', 'Normal', ''));   // catch everything
+        this.patterns.push(new ColorRule('[0-9]', null, null, 'Normal', null));
+        this.patterns.push(new ColorRule('[a-zA-Z]', null, null, 'Italic', null));
+        this.patterns.push(new ColorRule('\\+|×|÷|±', null, null, 'Normal', '0.222em'));
+        this.patterns.push(new ColorRule('-', null, null, 'Bold', '0.222em'));
+        this.patterns.push(new ColorRule('\\|', null, null, 'Bold', null));
+        this.patterns.push(new ColorRule('<|=|>|≠|≤|≥', null, null, 'Normal', '0.278em'));
+        this.patterns.push(new ColorRule('.', null, null, 'Normal', null));   // catch everything
 
-        this.patterns.push(new ColorRule('\\(', '', '', 'Normal', '0.167em'));
-        this.patterns.push(new ColorRule('\\)', '', '', 'Normal', '0.167em'));
+        this.patterns.push(new ColorRule('\\(', null, null, 'Normal', '0.167em'));
+        this.patterns.push(new ColorRule('\\)', null, null, 'Normal', '0.167em'));
 
-        this.patterns.push(new ColorRule('\\[', '', '', 'Normal', '0.167em'));
-        this.patterns.push(new ColorRule('\\]', '', '', 'Normal', '0.167em'));
+        this.patterns.push(new ColorRule('\\[', null, null, 'Normal', '0.167em'));
+        this.patterns.push(new ColorRule('\\]', null, null, 'Normal', '0.167em'));
 
-        this.patterns.push(new ColorRule('\\{', '', '', 'Normal', '0.167em'));
-        this.patterns.push(new ColorRule('\\}', '', '', 'Normal', '0.167em'));
+        this.patterns.push(new ColorRule('\\{', null, null, 'Normal', '0.167em'));
+        this.patterns.push(new ColorRule('\\}', null, null, 'Normal', '0.167em'));
 
-        this.matches.push(new MatchColor('#000000', '#ffffff', false, '#ffffd0', 'None', '2px', '#000000'));
+        this.matches.push(new MatchColor('#000000', null, false, '#ffffd0', 'None', '2px', '#000000'));
 
         return this;
     }
@@ -943,7 +947,7 @@ class ColoringRules {
     }
 
     updatePalettes() {
-        // don't want match rule to kick for the char palletes -- if there were exprs, it would make sense
+        // don't want match rule to kick for the char palletes -- if they were exprs, it would make sense to do that (maybe)
         let noMatchColorRules = this.clone();
         noMatchColorRules.matches = [];
         for (const paletteId of PaletteIds) {
@@ -1014,9 +1018,8 @@ class ColoringRules {
     }
 
     updateAll() {
-        const isRuleCreationPage = document.getElementById('match-area-title');
         this.updatePalettes();
-        if (isRuleCreationPage) {
+        if (IsRuleCreationPage) {
             this.updateMatchRules();
             this.updateCharArea();
         }
@@ -1131,12 +1134,14 @@ class ColoringRules {
         }
 
         ColoringRules.Rules = ColoringRules.readJSON(this.versionCleanUp(ruleObj));
-        ColoringRules.Rules.updateHTML();
+        if (IsRuleCreationPage) {
+            ColoringRules.Rules.updateHTML();
+        }
         storage.setItem(STORAGE_NAME__STARTUP_COLORING_RULES, name);
         ColoringRules.Rules.saveStatus(true);
         ColoringRules.Rules.updateAll();
-        modifyColor.savedRules = ColoringRules.Rules;     // bad hack -- shouldn't need to know this!
-        ColoringRules.Rules.rulesList();        // update the list of rules
+        RememberNewRules(ColoringRules.Rules);
+        ColoringRules.Rules.rulesList();                          // update the list of rules
     }
 
     copyToClipboard() {
@@ -1159,7 +1164,7 @@ class ColoringRules {
                     window.localStorage.setItem(STORAGE_NAME__STARTUP_COLORING_RULES, newRules.name);
                     ColoringRules.Rules.saveStatus(true);
                     ColoringRules.Rules.updateAll();
-                    modifyColor.savedRules = ColoringRules.Rules;     // bad hack -- shouldn't need to know this!
+                    RememberNewRules(ColoringRules.Rules);
                 } else {
                     alert("Error: clipboard does not contain rules for coloring math");
                 }
@@ -1299,10 +1304,11 @@ const PaletteIds = ['lc-letters', 'uc-letters', 'digits', 'symbols', 'symbols-te
 const OnClickIds = ['saveRules', 'loadRules', 'copyToClipboard', 'pasteFromClipboard', 'removeAllRules'];
 const EditIds = ['edit-input', 'opposite-input', 'match-open-char', 'match-close-char'];
 
+let IsRuleCreationPage = false
 
 window.onload =
     function () {
-        const isRuleCreationPage = document.getElementById('match-area-title');
+        IsRuleCreationPage = document.getElementById('match-area-title');
 
         // get initial coloring rules
         const initColoringRuleName = window.localStorage.getItem(STORAGE_NAME__STARTUP_COLORING_RULES);
@@ -1314,19 +1320,21 @@ window.onload =
             catch (error) {
                 this.alert("Unable to load stored rule. Will use defaults.")
                 ColoringRules.Rules = new ColoringRules(DEFAULT_RULE_NAME).initialize();
-                if (isRuleCreationPage) {
+                if (IsRuleCreationPage) {
                     // add the initial match rule
                     ColoringRules.Rules.addNewMatchDefinition(document.getElementById("match-area-template"), null, true);
                 }
             }
         } else {
             ColoringRules.Rules = new ColoringRules(DEFAULT_RULE_NAME).initialize();
-            if (isRuleCreationPage) {
+            if (IsRuleCreationPage) {
                 // add the initial match rule
                 ColoringRules.Rules.addNewMatchDefinition(document.getElementById("match-area-template"), null, true);
             }
             ColoringRules.Rules.saveStatus(true);
         }
+        RememberNewRules(ColoringRules.Rules);
+        
         // add the palettes
         PaletteIds.forEach(palette => addCharacterPalette(document.getElementById(palette)));
 
@@ -1361,7 +1369,6 @@ window.onload =
         }
 
         ColoringRules.Rules.updateAll();
-        modifyColor.savedRules = ColoringRules.Rules.clone();
     };
 
  
@@ -1558,6 +1565,14 @@ function updateFromNewValue(e) {
 
 Color.LightGray = new Color('#D2D2D2');
 Color.Gray = new Color('#808080')
+function RememberNewRules(rules) {
+    modifyColor.savedRules = rules;
+}
+
+/**
+ * 
+ * @param {{}} buttonStatus 
+ */
 function modifyColor(buttonStatus) {
     /**
      * Moves color half to 0 (dark) or 100 (light)
@@ -1567,19 +1582,48 @@ function modifyColor(buttonStatus) {
      * @returns {Color}
      */
     function lighten(color, bolder, lighter) {
-        if (color) {
-            color = color.toHSL();
-        } else {
-            color = Color[lighter ? 'Black' : 'White'].clone();
+        color = color || Color[lighter ? 'Black' : 'White'].clone();
+        if (color.toRGB() == Color.Transparent) {
+            return color;    // leave transparent color alone
         }
+        color = color.toHSL();
 
-        if (bolder) {
+        // handling black and white don't work well with the normal code (using HSL), so special cased here
+        if (color.c3 === 0) {
+                color = lighter ? new Color('#404040') : color;
+        } else if (color.c3=== 255) {
+            color = lighter ? color : new Color('#B4B4B4');
+        } else if (bolder) {
             color.c3 = color.c3/2 + 25;       // move towards 50
         } else {
             const inc = lighter ? 100 : 0;      // move towards 100 (white) or 0 (black)
             color.c3 = (inc + color.c3)/2;
         }
         return color;
+    }
+
+    /**
+     * 
+     * @param {Color} fgColor 
+     * @param {Color} bgColor 
+     * @param {boolean} changeFG 
+     * @param {boolean} changeBG 
+     * @param {boolean} lightenColor
+     * @returns {[Color, Color]}
+     */
+    function lightenOrDarkenColor(fgColor, bgColor, changeFG, changeBG, lightenColor) {
+        const newFG = changeFG ? lighten(fgColor, false, false) : fgColor;
+        const newBG = changeBG ? lighten(bgColor, false, true) : bgColor;
+        const colorScale = lightenColor ? 0.65 : 0.45;
+        if (changeFG) {
+            const [light, dark] = newFG.scaleColor(colorScale);
+            fgColor = newBG.contrast(newFG, light);
+        }
+        if (changeBG) {
+            const [light, dark] = newBG.scaleColor(colorScale);
+            bgColor = fgColor.contrast(newBG, dark);
+        }
+        return [fgColor, bgColor];
     }
 
     ColoringRules.Rules = modifyColor.savedRules.clone();
@@ -1596,27 +1640,9 @@ function modifyColor(buttonStatus) {
                         pattern.bgColor = (buttonStatus.Text || pattern.fgColor === null) ? null : pattern.fgColor.contrast(Color.White, Color.Gray);
                     }
                 } else if (buttonStatus.Weak) {
-                    const newFG = buttonStatus.Text ? lighten(pattern.fgColor, false, false) : pattern.fgColor;
-                    const newBG = buttonStatus.Background ? lighten(pattern.bgColor, false, true) : pattern.bgColor;
-                    if (buttonStatus.Text) {
-                        const [light, dark] = newFG.scaleColor(0.65);
-                        pattern.fgColor = newBG.contrast(newFG, light);
-                    }
-                    if (buttonStatus.Background) {
-                        const [light, dark] = newBG.scaleColor(0.65);
-                        pattern.bgColor = pattern.fgColor.contrast(newBG, dark);
-                    }
+                    [pattern.fgColor, pattern.bgColor] = lightenOrDarkenColor(pattern.fgColor, pattern.bgColor, buttonStatus.Text, buttonStatus.Background, true);
                 } else if (buttonStatus.Strong) {
-                    const newFG = buttonStatus.Text ? lighten(pattern.fgColor, true, false) : pattern.fgColor;
-                    const newBG = buttonStatus.Background ? lighten(pattern.bgColor, true, true) : pattern.bgColor;
-                    if (buttonStatus.Text) {
-                        const [light, dark] = newFG.scaleColor(0.45);
-                        pattern.fgColor = newBG.contrast(newFG, light);
-                    }
-                    if (buttonStatus.Background) {
-                        const [light, dark] = newBG.scaleColor(0.45);
-                        pattern.bgColor = pattern.fgColor.contrast(newBG, dark);
-                    }
+                    [pattern.fgColor, pattern.bgColor] = lightenOrDarkenColor(pattern.fgColor, pattern.bgColor, buttonStatus.Text, buttonStatus.Background, false);
                 }
                 return pattern;
             })
@@ -1625,10 +1651,18 @@ function modifyColor(buttonStatus) {
         if (buttonStatus.MatchingArea) {
             if (buttonStatus.None) {
                 ColoringRules.Rules.matches = [];
-            } else if (buttonStatus.Weak) {
-                // FIX: implement
-            } else if (buttonStatus.Strong) {
-                // FIX: implement
+            } else {
+                ColoringRules.Rules.matches.map(function (match) {
+                    let dummy = null;
+                    if (buttonStatus.Weak) {
+                        [dummy, match.bgInsideColor] = lightenOrDarkenColor(match.fgParenColor, match.bgInsideColor, false, true, true);
+                        [match.fgParenColor, match.bgParenColor] = lightenOrDarkenColor(match.fgParenColor, match.bgParenColor, buttonStatus.Text, buttonStatus.Background, true);
+                    } else if (buttonStatus.Strong) {
+                        [dummy, match.bgInsideColor] = lightenOrDarkenColor(match.fgParenColor, match.bgInsideColor, false, true, false);
+                        [match.fgParenColor, match.bgParenColor] = lightenOrDarkenColor(match.fgParenColor, match.bgParenColor, buttonStatus.Text, buttonStatus.Background, false);
+                    }
+                    return match;
+                })
             }
         }
     }
