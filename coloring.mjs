@@ -494,7 +494,7 @@ class MatchColor {
         let style = '';
         nested='nested';
         if (nested) {
-            style += ` margin-top: 3px; margin-bottom: 3px;`
+            style += ` margin-top: 5px; margin-bottom: 5px;`
         }
         if (this.bgInsideColor) {
             style += ` background-color: ${this.bgInsideColor.toCSSColor('hex')};`;
@@ -691,16 +691,17 @@ class ColoringRules {
     }
     /** 
      * @param {string} ch       // should be a single character (will escape special chars inside this function)
+     * @param {boolean} open    // true if looking for an open char; 
      * @param {number} iMatch   // index of match rule to use if there is a match
      * @returns {ColorRule}    // matching closing char -- undefined if none
      */
-    matchClose(ch, iMatch) {
+    matchClose(ch, open, iMatch) {
         const matches = {'(':')', '[':']', '{':'}', '|':'|', '⌊':'⌋', '⌈':'⌉'};
         if (matches[ch]) {
-            const chRule = this.match(matches[ch]);
+            const chRule = this.match( open ? ch : matches[ch] );
             const matchRule = this.matches[iMatch];
             if (matchRule) {
-                return this.mergeCharAndMatchRules(matches[ch], chRule, matchRule);
+                return this.mergeCharAndMatchRules(open ? ch : matches[ch], chRule, matchRule);
             }
         }    
         return null;
@@ -902,44 +903,40 @@ class ColoringRules {
          */
         function nestConvertToSpan(str, closeCh) {
             let result = '';
+            const iMatchLevel = matchStack.length % that.matches.length;
             for (; i < str.length; i++) {
                 let ch = str[i];
                 if (ch === closeCh) {
                     return result;  // closeCh not part of match
                 }
-                const closeColorRule = that.matchClose(ch, iNextMatch);
+                const closeColorRule = that.matchClose(ch, false, iMatchLevel);
                 const colorRule = that.match(ch);
-                result += buildSpan(ch, closeColorRule ?
-                    that.mergeCharAndMatchRules(ch, colorRule, that.matches[iNextMatch]) :
-                    colorRule);
+                const openChSpan = buildSpan(ch, closeColorRule ? that.matchClose(ch, true, iMatchLevel) : colorRule);
                 if (closeColorRule) {
-                    const iFoundMatch = iNextMatch;
                     i += 1;                     // we've handled 'ch' already
                     const closeCh = closeColorRule.pattern.source.replace('\\', '');
                     matchStack.push({ open: ch, close: closeCh});
-                    iNextMatch = (iNextMatch + 1) % that.matches.length;
                     const nestedSpan = nestConvertToSpan(str, closeCh);
                     matchStack.pop();
                     ch = str[i];
-                    if (nestedSpan) {
-                        const nestSpanStyle = 
-                            that.matches[iFoundMatch].buildSpanStyle(stackDepth(ch) === 0 ? '' : 'nested');
-                        
-                        result += `<span style="display: inline-block; ${nestSpanStyle}">${nestedSpan}</span>`;
-                    }
 
                     // the call to nestConvertToSpan returned either because it found a match or because the string ended
-                    if (i < str.length) {
-                        const colorRule = that.match(ch);
-                        result += buildSpan(ch, closeColorRule ? closeColorRule : colorRule);
+                    const closeChSpan = ch ? buildSpan(ch, closeColorRule ? closeColorRule : that.match(ch)) : '';
+                    const nestSpanStyle = that.matches[iMatchLevel].buildSpanStyle(stackDepth(ch) === 0 ? '' : 'nested');
+
+                    if (that.matches[iMatchLevel].includeParens) { 
+                        result += `<span style="display: inline-block; ${nestSpanStyle}">${openChSpan}${nestedSpan}${closeChSpan}</span>`;
+                    } else {
+                        result += `${openChSpan}<span style="display: inline-block; ${nestSpanStyle}">${nestedSpan}</span>${closeChSpan}`;
                     }
+                } else {
+                    result += openChSpan;
                 }
             }
             return result;
         };
 
         let i = 0;          // index into string
-        let iNextMatch = 0; // next match to use
         /** @type {{open:string, close:string}[]} */
         let matchStack = [];
         const that = this;
@@ -1571,7 +1568,8 @@ function RememberNewRules(rules) {
 
 /**
  * 
- * @param {{}} buttonStatus 
+ * @param {{Text: boolean, Background: boolean, MatchingArea: boolean,
+ *          None: boolean, Weak: boolean, AsDesigned: boolean, Strong: boolean}} buttonStatus 
  */
 function modifyColor(buttonStatus) {
     /**
@@ -1631,7 +1629,7 @@ function modifyColor(buttonStatus) {
     // in these cases, we find a contrast color if needed (same idea holds for weaker/stronger coloring)
     if (!buttonStatus.AsDesigned) {
         if (buttonStatus.Text || buttonStatus.Background) {
-            ColoringRules.Rules.patterns = ColoringRules.Rules.patterns.map(function (pattern) {
+            ColoringRules.Rules.patterns = ColoringRules.Rules.patterns.reduce(function(result, pattern) {
                 if (buttonStatus.None) {
                     if (buttonStatus.Text) {
                         pattern.fgColor = (buttonStatus.Background || pattern.bgColor === null) ? null : pattern.bgColor.contrast(Color.Black, Color.Gray);
@@ -1644,7 +1642,7 @@ function modifyColor(buttonStatus) {
                 } else if (buttonStatus.Strong) {
                     [pattern.fgColor, pattern.bgColor] = lightenOrDarkenColor(pattern.fgColor, pattern.bgColor, buttonStatus.Text, buttonStatus.Background, false);
                 }
-                return pattern;
+                return result;
             })
         }
 
@@ -1661,7 +1659,6 @@ function modifyColor(buttonStatus) {
                         [dummy, match.bgInsideColor] = lightenOrDarkenColor(match.fgParenColor, match.bgInsideColor, false, true, false);
                         [match.fgParenColor, match.bgParenColor] = lightenOrDarkenColor(match.fgParenColor, match.bgParenColor, buttonStatus.Text, buttonStatus.Background, false);
                     }
-                    return match;
                 })
             }
         }
