@@ -1575,11 +1575,11 @@ function modifyColor(buttonStatus) {
     /**
      * Moves color half to 0 (dark) or 100 (light)
      * @param {Color} color
-     * @param {boolean} bolder
+     * @param {boolean} weaker
      * @param {boolean} lighter
      * @returns {Color}
      */
-    function lighten(color, bolder, lighter) {
+    function lighten(color, weaker, lighter) {
         color = color || Color[lighter ? 'Black' : 'White'].clone();
         if (color.toRGB() == Color.Transparent) {
             return color;    // leave transparent color alone
@@ -1588,14 +1588,14 @@ function modifyColor(buttonStatus) {
 
         // handling black and white don't work well with the normal code (using HSL), so special cased here
         if (color.c3 === 0) {
-                color = lighter ? new Color('#404040') : color;
+                color = lighter ? new Color('#404040') : color;     // dark gray
         } else if (color.c3=== 255) {
-            color = lighter ? color : new Color('#B4B4B4');
-        } else if (bolder) {
-            color.c3 = color.c3/2 + 25;       // move towards 50
-        } else {
+            color = lighter ? color : new Color('#B4B4B4');         // light gray
+        } else if (weaker) {
             const inc = lighter ? 100 : 0;      // move towards 100 (white) or 0 (black)
             color.c3 = (inc + color.c3)/2;
+        } else {
+            color.c3 = color.c3/2 + 25;       // move towards 50 (purer color)
         }
         return color;
     }
@@ -1610,8 +1610,8 @@ function modifyColor(buttonStatus) {
      * @returns {[Color, Color]}
      */
     function lightenOrDarkenColor(fgColor, bgColor, changeFG, changeBG, lightenColor) {
-        const newFG = changeFG ? lighten(fgColor, false, false) : fgColor;
-        const newBG = changeBG ? lighten(bgColor, false, true) : bgColor;
+        const newFG = changeFG ? lighten(fgColor, lightenColor, false) : fgColor;
+        const newBG = changeBG ? lighten(bgColor, lightenColor, true) : bgColor;
         const colorScale = lightenColor ? 0.65 : 0.45;
         if (changeFG) {
             const [light, dark] = newFG.scaleColor(colorScale);
@@ -1635,15 +1635,17 @@ function modifyColor(buttonStatus) {
                         pattern.fgColor = (buttonStatus.Background || pattern.bgColor === null) ? null : pattern.bgColor.contrast(Color.Black, Color.Gray);
                     }
                     if (buttonStatus.Background) {
-                        pattern.bgColor = (buttonStatus.Text || pattern.fgColor === null) ? null : pattern.fgColor.contrast(Color.White, Color.Gray);
+                        pattern.bgColor = (buttonStatus.Text || pattern.fgColor === null) ? null : Color.Transparent;
                     }
+                    result.push(pattern);       // even without color, still want to preserve style, spacing
                 } else if (buttonStatus.Weak) {
                     [pattern.fgColor, pattern.bgColor] = lightenOrDarkenColor(pattern.fgColor, pattern.bgColor, buttonStatus.Text, buttonStatus.Background, true);
+                    result.push(pattern);
                 } else if (buttonStatus.Strong) {
                     [pattern.fgColor, pattern.bgColor] = lightenOrDarkenColor(pattern.fgColor, pattern.bgColor, buttonStatus.Text, buttonStatus.Background, false);
-                }
+                    result.push(pattern);}
                 return result;
-            })
+            }, [])
         }
 
         if (buttonStatus.MatchingArea) {
