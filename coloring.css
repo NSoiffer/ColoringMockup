@@ -75,6 +75,9 @@ colored-edit-area {
     white-space: nowrap;
 }
 
+#edit-input{
+    width: 6em;
+}
 .test-input, #test-input {
     padding: .4em;
     width: 25em

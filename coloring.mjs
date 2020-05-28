@@ -945,7 +945,7 @@ class ColoringRules {
     }
 
     updatePalettes() {
-        // don't want match rule to kick for the char palletes -- if they were exprs, it would make sense to do that (maybe)
+        // don't want match rule to kick for the char pallettes -- if they were exprs, it would make sense to do that (maybe)
         let noMatchColorRules = this.clone();
         noMatchColorRules.matches = [];
         for (const paletteId of PaletteIds) {
@@ -961,9 +961,8 @@ class ColoringRules {
 
     updateCharArea() {
         const editAreaEl = getInputElementByID('edit-input');
-        const colorRule = this.match(editAreaEl.innerText.trim()) || new ColorRule('\uffff', '', '', "Normal", '');
-
-        editAreaEl.innerHTML = this.convertToSpan(editAreaEl.innerText.trim());
+        const chars = editAreaEl.innerText.trim();
+        const colorRule = chars[0] ? this.match(chars[0]) : new ColorRule('\uffff', '', '', "Normal", '');
 
         getInputElementByID('text-color').value = colorRule.fgColor.toCSSColor('hex');
         getInputElementByID('bg-color').value = colorRule.bgColor.toCSSColor('hex');
@@ -986,6 +985,16 @@ class ColoringRules {
         const complementaryRules = getComplimentaryRules(oppositeEditArea.innerText, colorRule);
         oppositeEditArea.style.color = complementaryRules.patterns[0].fgColor.toCSSColor('hsl');
         oppositeEditArea.style.backgroundColor = complementaryRules.patterns[0].bgColor.toCSSColor('hsl');
+
+        for (let i = 1; i < chars.length; i++) {        // already dealt with first char
+            const rule = ColoringRules.Rules.match(chars[0]) || new ColorRule('\uffff', '', '', "Normal", '');
+            const newRule = new ColorRule(chars[i], rule.fgColor, rule.bgColor, rule.style, rule.spacing);
+            ColoringRules.Rules.replace(chars[i], newRule);
+        }
+
+        const caretOffset = getCaretPosition(editAreaEl);
+        editAreaEl.innerHTML = this.convertToSpan(chars);
+        setCaretPosition(editAreaEl, caretOffset);
     }
 
     updateMatchRules() {
@@ -1373,6 +1382,8 @@ window.onload =
             })
         );
 
+        const editArea = getInputElementByID('edit-input');
+        editArea.addEventListener('input', updateTestArea.bind(new EditHistory(editArea.textContent)));
         const testAreas = document.getElementsByClassName('test-input');
         for (let i = 0; i < testAreas.length; i++) {
             testAreas[i].addEventListener('input', updateTestArea.bind(new EditHistory(testAreas[i].textContent)));
@@ -1420,7 +1431,7 @@ function copyCharToTestArea(ev) {
  */
 function copyCharToEditArea(ev) {
     let editInputArea = document.getElementById('edit-input');
-    editInputArea.innerHTML = this.innerText;
+    editInputArea.innerHTML += this.innerText;
     ColoringRules.Rules.updateAll();
 }
 
@@ -1528,6 +1539,25 @@ function updateFromNewValue(e) {
         ColoringRules.Rules[replaceFn](ch, rule);
     }
 
+    /**
+     * 
+     * @param {HTMLInputElement} el 
+     * @param {HTMLInputElement} charElement 
+     * @param {{id: string, charID: string, matchFn: string, ruleAccessor: string | string[]}}  mappingObj
+     * @param {string} ch 
+     */
+    function updateCharFromNewValue(el, charElement, mappingObj, ch) {
+        const rule = mappingObj.id === 'opposite-input' ?
+            new ColorRule(ch, charElement.style.color, charElement.style.backgroundColor, 'Normal', '') :
+            ColoringRules.Rules[mappingObj.matchFn](ch) || new ColorRule('\uffff', '', '', "Normal", '');
+        const newRule = (mappingObj.matchFn === 'match') ?
+            new ColorRule(ch, rule.fgColor, rule.bgColor, rule.style, rule.spacing) :
+            new MatchingColorRule(rule.nestedOpenColorRule, rule.nestedCloseColorRule,
+                rule.topMatchColor.clone(), rule.nestedMatchColor.clone());
+        const replaceFn = mappingObj.matchFn === 'match' ? 'replace' : 'replaceMatch';
+        setValue(ch, newRule, mappingObj.ruleAccessor, replaceFn, el);    
+    }
+
     // from the target (the field that changed), we get the info to figure out how to:
     // 1. get the rule for the character associated with the target
     // 2. the rule associated with that character (if any)
@@ -1538,37 +1568,14 @@ function updateFromNewValue(e) {
     /** @type {{id: string, charID: string, matchFn: string, ruleAccessor: string | string[]}} */
     const mappingObj = IdMapping.find(obj => obj.id === targetEl.id);
     const charElement = getInputElementByID(mappingObj.charID);
-    if (charElement.innerText.trim().length !== 1) {
-        return;
+    const chars = charElement.innerText.trim();
+    for (let i = 0; i < chars.length; i++) {
+        updateCharFromNewValue(targetEl, charElement, mappingObj, chars[i]);
     }
 
-    const ch = charElement.innerText.trim();
-    const rule = mappingObj.id === 'opposite-input' ?
-        new ColorRule(charElement.innerText.trim(), charElement.style.color, charElement.style.backgroundColor, 'Normal', '') :
-        ColoringRules.Rules[mappingObj.matchFn](ch) || new ColorRule('\uffff', '', '', "Normal", '');
-    const newRule = (mappingObj.matchFn === 'match') ?
-        new ColorRule(ch, rule.fgColor, rule.bgColor, rule.style, rule.spacing) :
-        new MatchingColorRule(rule.nestedOpenColorRule, rule.nestedCloseColorRule,
-            rule.topMatchColor.clone(), rule.nestedMatchColor.clone());
-    const replaceFn = mappingObj.matchFn === 'match' ? 'replace' : 'replaceMatch';
-    setValue(ch, newRule, mappingObj.ruleAccessor, replaceFn, targetEl);
-
-    if (EditIds.find(id => id === targetEl.id)) {
+    if (targetEl.id !== "edit-input" && EditIds.find(id => id === targetEl.id)) {
         charElement.innerText = e.data;     // reset the field so that there is only a single char in it
     }
-    /**** Version 0.1
-    if (targetEl.id === 'match-close-char') {
-        // need to update the close char that matches the open char
-        const openCh = getInputElementByID('match-open-char').innerText.trim();
-        if (openCh.length === 1) {
-            const rule = ColoringRules.Rules.matchClose(openCh);
-            rule.nestedCloseColorRule = new ColorRule(ch,
-                rule.nestedCloseColorRule.fgColor, rule.nestedCloseColorRule.bgColor,
-                rule.nestedCloseColorRule.style, rule.nestedCloseColorRule.spacing);
-        }
-    }
-    ***/
-
     ColoringRules.Rules.updateAll();
 }
 
@@ -1683,7 +1690,7 @@ function modifyColor(buttonStatus) {
 
 /***********
  * Code to get and set the caret/cursor position
- * When the contents get redrawn, the caret position gets losts, so we need to handle it ourself.
+ * When the contents get redrawn, the caret position gets lost, so we need to handle it ourself.
  * getCaretPosition/setCaretPosition taken from stackexchange.com and modified slightly
  ***********/
 /**
