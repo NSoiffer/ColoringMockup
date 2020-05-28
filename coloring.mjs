@@ -4,7 +4,8 @@
 
 const DEFAULT_RULE_NAME = 'default coloring rules';
 const STORAGE_NAME__STARTUP_COLORING_RULES = 'ColoringRulesStartupRuleName';
-const VERSION = '0.2';
+const STORAGE_NAME__TEST_AREA = "TestAreaData";
+const VERSION = '0.2.1';
 
 /**************
  * RegExp doesn't stringify by default. We add the method here
@@ -1084,7 +1085,12 @@ class ColoringRules {
         }
         this.name = name;
         try {
-            const asString = JSON.stringify(this.wrapWithVersionNumber());
+            let rulesAsJSON = this.wrapWithVersionNumber();
+            const testDataElement = document.querySelector('colored-edit-area.test-input');
+            if (testDataElement) {
+                rulesAsJSON[STORAGE_NAME__TEST_AREA] = testDataElement.textContent;
+            }
+            const asString = JSON.stringify(rulesAsJSON);
             storage.setItem(name, asString);
             storage.setItem(STORAGE_NAME__STARTUP_COLORING_RULES, name);
             this.saveStatus(true);
@@ -1097,10 +1103,10 @@ class ColoringRules {
 
     versionCleanUp(ruleObj) {
         if (ruleObj.version) {
-            if (ruleObj.version !== "0.2") {
+            if (!ruleObj.version.startsWith("0.2")) {
                 console.log(`Attempting to read unknown rule version '${ruleObj.version}'`);
             }
-            return ruleObj.data;     // v0.2 rules
+            return ruleObj.data;     // v0.2.x rules
         } else {
             // v0.1 -- matches don't make sense in V0.2, so drop them
             ruleObj.matches = [];
@@ -1133,6 +1139,13 @@ class ColoringRules {
         ColoringRules.Rules = ColoringRules.readJSON(this.versionCleanUp(ruleObj));
         if (IsRuleCreationPage) {
             ColoringRules.Rules.updateHTML();
+            if (ruleObj[STORAGE_NAME__TEST_AREA]) {
+                const testDataElement = document.querySelector('colored-edit-area.test-input');
+                if (testDataElement) {
+                    testDataElement.textContent = ruleObj[STORAGE_NAME__TEST_AREA];
+                }    
+            }
+
         }
         storage.setItem(STORAGE_NAME__STARTUP_COLORING_RULES, name);
         ColoringRules.Rules.saveStatus(true);
