@@ -54,7 +54,7 @@
             </ol>
             <p>
                 Below the palettes is an area where you can add rules for when parens, brackets, etc., match.
-                These rules allow you define the text/background color of the parens, the background color of the area inside the parens,
+                These rules allow you define the text/highlight color of the parens, the highlight color of the area inside the parens,
                 and an optional border/underline/overline (and its properties) around the matched area.
                 Taken together, these properties can help more quickly identify matching parens, etc.
                 You can create as many rules as you want so that each successive matching paren pair will have different color properties.
@@ -63,11 +63,11 @@
             </p>
             <ol>
                 <li>To modify the colors used for parens, etc., click on the "Paren Color" tab
-                    and use the "text color" and "background color" pickers.</li>
-                <li>To modify the background color used inside the matching area, click on the "Inside Color" tab
-                    and use the color picker to choose a background color.
-                    The checkbox after the color picker is a quick way to make the background of the paren
-                    be the same as the inside background.</li>
+                    and use the "text color" and "highlight color" pickers.</li>
+                <li>To modify the highlight color used inside the matching area, click on the "Inside Color" tab
+                    and use the color picker to choose a highlight color.
+                    The checkbox after the color picker is a quick way to make the highlight of the paren
+                    be the same as the inside highlight.</li>
                 <li>To emphasize the matched area, a border can be specified by clicking on the "Border" tab.
                     The "style" allows for the specification of boxing the contents, putting a line under the contents,
                     or putting a line above the contents.
@@ -88,9 +88,9 @@
     <div id='action-area'>
         <table id='char-table'>
             <tr>
-                <th><label for="edit-input">Char to Color:</label></th>
+                <th><label for="edit-input">Chars to Color:</label></th>
                 <th><label for="text-color">Text color:</label></th>
-                <th><label for="bg-color">Background color:</label></th>
+                <th><label for="bg-color">Highlight color:</label></th>
                 <th><label for="font-style">Choose Font Style:</label></th>
                 <th><label for="spacing">Extra Space:</label></th>
                 <th><label for="opposite-input">Opposite Color Char:</label></th>
@@ -172,18 +172,18 @@
                                 <input class="match-paren-fg" type="color" value="#000000">
                             </label>
                             <label class="match-paren-bg-label">
-                                Background Color:
+                                Highlight Color:
                                 <input class="match-paren-bg" type="color" value="#ffffff">
                             </label>    
                         </div>    
                         <div class="match-contents-group match-radio-button-target">
                             <label class="match-contents-bg-label">
-                                Inside Background Color:
+                                Inside Highlight Color:
                                 <input class="match-contents-bg" type="color" value="#eeeeee">
                             </label>
                             <label class="match-parens-include-label">
                                 <input class="match-parens-include" type="checkbox">
-                                Parens Use this BG Color
+                                Parens use this color
                             </label>
                         </div>    
                         <div class="match-border-group match-radio-button-target">
