@@ -241,13 +241,13 @@ padding-right: 1em;
     width: 0;
   }
 
-.match-parens-include {
+.match-parens-include, .include-try-it {
     background-color: #ffd;
     height: 1.5em;
     width: 1.5em;
 }
 
-.match-parens-include:hover {
+.match-parens-include:hover, .include-try-it:hover {
     box-shadow: 3px 3px #85b9f5;
     background-color: #ffa;
 }
@@ -265,7 +265,11 @@ padding-right: 1em;
 
 .match-parens-include-label {
     margin-left: 2em;
+}
 
+.include-try-it-label {
+    margin-left: 2em;
+    margin-top: 0em;
 }
 
 .match-area-hr {

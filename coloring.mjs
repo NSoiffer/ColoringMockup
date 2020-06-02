@@ -1193,7 +1193,7 @@ class ColoringRules {
         ColoringRules.Rules = ColoringRules.readJSON(this.versionCleanUp(ruleObj));
         if (IsRuleCreationPage) {
             ColoringRules.Rules.updateHTML();
-            if (ruleObj[STORAGE_NAME__TEST_AREA]) {
+            if (getInputElement(document, ".include-try-it").checked && ruleObj[STORAGE_NAME__TEST_AREA]) {
                 const testDataElement = document.querySelector('colored-edit-area.test-input');
                 if (testDataElement) {
                     testDataElement.textContent = ruleObj[STORAGE_NAME__TEST_AREA];
